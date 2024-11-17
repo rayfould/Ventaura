@@ -1,0 +1,6 @@
+@combinedapi_HostAddress = http://localhost:5152
+
+GET {{combinedapi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
