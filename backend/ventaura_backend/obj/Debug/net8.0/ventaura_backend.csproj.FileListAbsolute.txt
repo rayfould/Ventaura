@@ -114,3 +114,4 @@
 /Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/obj/Debug/net8.0/ventaura_backend.pdb
 /Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/obj/Debug/net8.0/ventaura_backend.genruntimeconfig.cache
 /Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/obj/Debug/net8.0/ref/ventaura_backend.dll
+/Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/obj/Debug/net8.0/ventaura_backend.sourcelink.json

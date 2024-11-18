@@ -106,7 +106,7 @@ namespace ventaura_backend.Controllers
                     }
 
                     double.TryParse(eventCoordinates[0], out var eventLatitude);
-                    double.TryParse(eventCoordinates[1], out var eventLongitude)
+                    double.TryParse(eventCoordinates[1], out var eventLongitude);
 
                     // Calculate distance
                     var distance = DistanceCalculator.CalculateDistance(user.Latitude, user.Longitude, eventLatitude, eventLongitude);
