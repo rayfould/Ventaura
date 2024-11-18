@@ -25,7 +25,6 @@ namespace ventaura_backend.Migrations
                     Longitude = table.Column<double>(type: "double precision", nullable: false),
                     Preferences = table.Column<string>(type: "text", nullable: false),
                     PriceRange = table.Column<string>(type: "text", nullable: false),
-                    CrowdSize = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
                     IsLoggedIn = table.Column<bool>(type: "boolean", nullable: false)

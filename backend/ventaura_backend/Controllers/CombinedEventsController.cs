@@ -110,6 +110,7 @@ namespace ventaura_backend.Controllers
 
                     // Calculate distance
                     var distance = DistanceCalculator.CalculateDistance(user.Latitude, user.Longitude, eventLatitude, eventLongitude);
+                    e.Distance = (float)distance; // Assign calculated distance to the event object
 
                     Console.WriteLine($"Distance successfully calculated with a value of {distance}.");
 

@@ -40,7 +40,6 @@ namespace ventaura_backend.Controllers
                     user.Longitude == 0 ||
                     string.IsNullOrEmpty(user.Preferences) ||
                     string.IsNullOrEmpty(user.PriceRange) ||
-                    string.IsNullOrEmpty(user.CrowdSize) ||
                     string.IsNullOrEmpty(user.PasswordHash))
                 {
                     return BadRequest(new { Message = "All fields are required to create an account." });
