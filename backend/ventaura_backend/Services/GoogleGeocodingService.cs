@@ -1,7 +1,7 @@
-/* using combinedapi.Models;
+using ventaura_backend.Models;
 
 // not necessary for the FOR YOU view
-namespace combinedapi.Services
+namespace ventaura_backend.Services
 {
     // Service to fetch coordinates using Google Geocoding API
     public class GoogleGeocodingService
@@ -33,4 +33,3 @@ namespace combinedapi.Services
         }
     }
 }
-*/

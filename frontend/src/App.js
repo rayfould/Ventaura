@@ -6,6 +6,7 @@ import CreateAccount from "./components/CreateAccount";
 import ForYou from "./components/ForYou";
 import ContactUs from "./components/ContactUs";
 import AboutUs from "./components/AboutUs";
+import GlobalPage from "./components/GlobalPage"; 
 import "./styles.css";
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/for-you" element={<ForYou />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/global-events" element={<GlobalPage />} />;
       </Routes>
     </Router>
   );

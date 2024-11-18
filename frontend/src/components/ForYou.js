@@ -98,12 +98,9 @@ const ForYou = () => {
     <div>
       {/* Header */}
       <header className="header">
-        <button
-          className="sidebar-button"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        >
-          ☰
-        </button>
+        <Link to="/global-events" className="global-link">
+          Global Events
+        </Link>
         <h1 className="page-title">For You</h1>
         <button className="logout-button" onClick={handleManualLogout}>
           Logout

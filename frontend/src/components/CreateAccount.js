@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles.css"; // Import the global CSS
+import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const CreateAccount = () => {
   });
 
   const [message, setMessage] = useState("");
+  const navigate = useNavigate(); // Initialize navigate hook
 
   // Get user's live location using Geolocation API
   useEffect(() => {
@@ -71,6 +73,9 @@ const CreateAccount = () => {
         }
       );
       setMessage(response.data.Message);
+      setTimeout(() => {
+        navigate("/login"); // Redirect to login screen after a brief delay
+      }, 2000); // Adjust the delay if needed
       setFormData({
         email: "",
         firstName: "",
