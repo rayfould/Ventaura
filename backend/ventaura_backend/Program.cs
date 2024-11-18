@@ -41,9 +41,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Register the inactivity middleware to handle session expiration or user inactivity.
-app.UseMiddleware<InactivityMiddleware>();
-
 // Use the configured CORS policy.
 app.UseCors("AllowAll");
 
