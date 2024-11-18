@@ -22,6 +22,13 @@ public class GlobalEventsController : ControllerBase
             return BadRequest(new { Message = "City name is required." });
         }
 
+        // Validate userId
+        var user = await _dbContext.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return Unauthorized(new { Message = "User is not authorized or does not exist." });
+        }
+
         try
         {
             // Get coordinates for the city using Google Geocoding API
@@ -36,7 +43,16 @@ public class GlobalEventsController : ControllerBase
             var longitude = coordinates.Value.longitude;
 
             // Fetch events using CombinedAPIService
-            var events = await _combinedApiService.FetchEventsAsync(latitude, longitude, userId: 0); // Pass a dummy userId
+            var events = await _combinedApiService.FetchEventsAsync(latitude, longitude, userId); 
+
+            // Populate the `UserId` and unique `ContentId` fields
+            for (int i = 0; i < events.Count; i++)
+            {
+                events[i].UserId = userId;
+                events[i].ContentId = i + 1; // Assign unique ContentId
+            }
+
+            Console.WriteLine($"Events for {city} successfully fetched and returned for {userId}.");
 
             return Ok(new { Message = "Events fetched successfully.", events });
         }

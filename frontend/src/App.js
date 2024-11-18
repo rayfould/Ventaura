@@ -19,7 +19,7 @@ function App() {
         <Route path="/for-you" element={<ForYou />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/about-us" element={<AboutUs />} />
-        <Route path="/global-events" element={<GlobalPage />} />;
+        <Route path="/global-page" element={<GlobalPage />} />;
       </Routes>
     </Router>
   );

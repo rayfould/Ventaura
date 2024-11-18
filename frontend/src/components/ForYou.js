@@ -98,15 +98,27 @@ const ForYou = () => {
     <div>
       {/* Header */}
       <header className="header">
-        <Link to="/global-events" className="global-link">
-          Global Events
-        </Link>
-        <h1 className="page-title">For You</h1>
+        <button
+          className="sidebar-button"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          ☰
+        </button>
         <button className="logout-button" onClick={handleManualLogout}>
           Logout
         </button>
       </header>
 
+      {/* Centered Buttons */}
+      <div className="center-buttons-container">
+        <button onClick={() => navigate('/for-you')} className="for-you-button">
+            For You
+        </button>
+        <button onClick={() => navigate('/global-page')} className="global-page-button">
+            Global Page
+        </button>
+     </div>
+     
       {/* Sidebar */}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
         <button

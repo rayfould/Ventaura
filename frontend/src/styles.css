@@ -19,21 +19,17 @@ p {
     padding: 0;
 }
 
-a {
-    text-decoration: none;
-    color: #007bff;
-}
-
 a:hover {
     text-decoration: underline;
 }
 
-button {
+button, a {
     padding: 10px 20px;
     font-size: 16px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    text-align: center;
 }
 
 button:hover {
@@ -44,13 +40,39 @@ button:hover {
 /* Header Styling */
 .header {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    z-index: 1000;
+    position: sticky;
+    top: 0;
+}
+
+/* Centered Buttons Section */
+.center-buttons-container {
+    display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
-    background-color: white; /* Adjust as needed */
-    padding: 20px 20px;
-    border-bottom: 1px solid #ddd; /* Optional separator */
-    z-index: 1000;
+    gap: 20px; /* Space between buttons */
+    margin-top: 50px; /* Adjust for spacing from the top */
+}
+
+.for-you-button,
+.global-page-button {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.for-you-button:hover,
+.global-page-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
 }
 
 .header h1 {
