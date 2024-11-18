@@ -17,7 +17,7 @@ namespace ventaura_backend.Utils
 
             var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-            Console.WriteLine($"Distance is: {EarthRadius * c}");
+            // Console.WriteLine($"Distance is: {EarthRadius * c}");
 
             return EarthRadius * c; // Distance in km
         }

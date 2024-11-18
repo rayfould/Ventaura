@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom"; // Ensure 'Link' is imported here
 import "../styles.css"; // Import the global CSS
 
 const ForYou = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { userId } = location.state || {};
-  const [events, setEvents] = useState([]);
-  const [message, setMessage] = useState("");
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { userId } = location.state || {};
+    const [events, setEvents] = useState([]);
+    const [message, setMessage] = useState("");
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Timeout duration in milliseconds (30 minutes)
   const TIMEOUT_DURATION = 30 * 60 * 1000;
@@ -95,25 +96,34 @@ const ForYou = () => {
 
   return (
     <div>
+      {/* Header */}
       <header className="header">
         <button
-          className="logout-button"
-          onClick={handleManualLogout}
-        >
-          Logout
-        </button>
-        <h1>For You</h1>
-      </header>
-
-      <div className="sidebar">
-        <button
-          className="open-sidebar"
-          onClick={() => {
-            // Logic for opening a sidebar, if any
-          }}
+          className="sidebar-button"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
           ☰
         </button>
+        <h1 className="page-title">For You</h1>
+        <button className="logout-button" onClick={handleManualLogout}>
+          Logout
+        </button>
+      </header>
+
+      {/* Sidebar */}
+      <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
+        <button
+          className="close-sidebar"
+          onClick={() => setIsSidebarOpen(false)}
+        >
+          X
+        </button>
+        <Link to="/about-us" className="sidebar-link">
+          About Us
+        </Link>
+        <Link to="/contact-us" className="sidebar-link">
+          Contact Us
+        </Link>
       </div>
 
       <div className="home-container">

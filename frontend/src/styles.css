@@ -3,11 +3,13 @@ body, html {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
+    box-sizing: border-box;
     background-color: #f8f9fa; /* Light gray background */
     color: #333; /* Standard text color */
 }
 
 h1, h2, h3 {
+    margin: 0;
     color: #007bff; /* Primary blue for headers */
 }
 
@@ -39,12 +41,120 @@ button:hover {
     color: #fff;
 }
 
+/* Header Styling */
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-color: white; /* Adjust as needed */
+    padding: 20px 20px;
+    border-bottom: 1px solid #ddd; /* Optional separator */
+    z-index: 1000;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
 /* Logo Styling */
 .logo {
     display: block;
     margin: 0 auto;
     max-width: 200px;
     height: auto;
+}
+
+/* Logout Button */
+.logout-button {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    padding: 10px 15px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.logout-button:hover {
+    background-color: #cc0000;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background-color: #007bff;
+    color: white;
+    transition: 0.3s;
+    z-index: 1000;
+    overflow-x: hidden;
+    padding-top: 60px;
+}
+
+.sidebar-button {
+    position: fixed;
+    top: 10px;
+    left: 20px; /* Position in the top-left corner of the page */
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1002; /* Ensure it's above the sidebar */
+}
+
+.sidebar.open {
+    left: 0;
+}
+
+.sidebar-link {
+    display: block;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.sidebar-link:hover {
+    background-color: #0056b3;
+}
+
+.open-sidebar {
+    position: fixed;
+    top: 10px;
+    left: 20px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.open-sidebar:hover {
+    color: #0056b3;
+}
+
+/* Close Sidebar Button */
+.close-sidebar {
+    position: absolute;
+    top: 10px;
+    right: 10px; /* Align in the top-right corner of the sidebar */
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.close-sidebar:hover {
+    color: #ff4d4d; /* Highlight the close button on hover */
 }
 
 /* Container Styling */
@@ -56,12 +166,6 @@ button:hover {
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
-}
-
-.text-center {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 20px;
 }
 
 /* Form Styling */
@@ -93,19 +197,6 @@ button:hover {
     background-color: #0056b3;
 }
 
-.form-button.logout {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background-color: #ff4d4d;
-    color: white;
-    z-index: 1001;
-}
-
-.form-button.logout:hover {
-    background-color: #cc0000;
-}
-
 /* Preference Buttons */
 .preference-button {
     padding: 10px;
@@ -119,65 +210,6 @@ button:hover {
 
 .preference-button.selected {
     background-color: green;
-}
-
-.message {
-    margin-top: 20px;
-    color: #007bff;
-    font-weight: bold;
-}
-
-/* Sidebar Styles */
-.sidebar-toggle {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 1002;
-}
-
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: -250px;
-    width: 250px;
-    height: 100%;
-    background-color: #007bff;
-    color: white;
-    transition: 0.3s;
-    z-index: 1000;
-    overflow-x: hidden;
-    padding-top: 60px;
-}
-
-.sidebar.open {
-    left: 0;
-}
-
-.sidebar-link {
-    display: block;
-    color: white;
-    padding: 10px 15px;
-    text-decoration: none;
-    font-size: 18px;
-}
-
-.sidebar-link:hover {
-    background-color: #0056b3;
-}
-
-.close-sidebar {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
 }
 
 /* Landing Page */
@@ -295,4 +327,9 @@ button:hover {
     line-height: 1.8;
     margin-bottom: 20px;
     color: #333;
+}
+
+/* Spacing for Home Container */
+.home-container {
+    padding-top: 70px;
 }
