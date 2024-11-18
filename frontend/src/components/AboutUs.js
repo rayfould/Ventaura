@@ -1,4 +1,5 @@
 import React from "react";
+import "../styles.css"; // Import the global CSS
 
 const AboutUs = () => (
   <div className="container">

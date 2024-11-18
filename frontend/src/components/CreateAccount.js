@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "../styles.css"; // Import the global CSS
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
@@ -9,12 +10,14 @@ const CreateAccount = () => {
     latitude: "",
     longitude: "",
     preferences: [],
-    priceRange: "",
+    priceRange: 50, // Default value for the slider
     crowdSize: "",
     password: "",
   });
+
   const [message, setMessage] = useState("");
 
+  // Get user's live location using Geolocation API
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -25,8 +28,14 @@ const CreateAccount = () => {
             longitude: position.coords.longitude,
           }));
         },
-        () => setMessage("Unable to retrieve your location.")
+        (error) => {
+          console.error("Error fetching location: ", error);
+          setMessage("Unable to retrieve your location. Please enter manually.");
+        }
       );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+      setMessage("Geolocation is not supported by your browser.");
     }
   }, []);
 
@@ -43,16 +52,42 @@ const CreateAccount = () => {
     });
   };
 
+  const handleSliderChange = (e) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      priceRange: e.target.value,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5152/api/users/create-account", {
-        ...formData,
-        preferences: formData.preferences.join(", "),
+      const response = await axios.post(
+        "http://localhost:5152/api/users/create-account",
+        {
+          ...formData,
+          preferences: formData.preferences.join(", "), // Join preferences as a comma-separated string
+          passwordHash: formData.password, // Send password as passwordHash
+        }
+      );
+      setMessage(response.data.Message);
+      setFormData({
+        email: "",
+        firstName: "",
+        lastName: "",
+        latitude: "",
+        longitude: "",
+        preferences: [],
+        priceRange: 50,
+        crowdSize: "",
+        password: "",
       });
-      setMessage("Account created successfully!");
-    } catch {
-      setMessage("Error creating account. Please try again.");
+    } catch (error) {
+      if (error.response) {
+        setMessage(error.response.data.Message || "Error creating account.");
+      } else {
+        setMessage("An error occurred. Please try again.");
+      }
     }
   };
 
@@ -87,21 +122,73 @@ const CreateAccount = () => {
           className="form-input"
           required
         />
+        <input
+          type="number"
+          name="latitude"
+          placeholder="Latitude"
+          value={formData.latitude}
+          className="form-input"
+          readOnly
+        />
+        <input
+          type="number"
+          name="longitude"
+          placeholder="Longitude"
+          value={formData.longitude}
+          className="form-input"
+          readOnly
+        />
+
         <div>
-          <h3>Preferences:</h3>
-          {["Music", "Sports", "Food"].map((pref) => (
+          <h3>Select Preferences:</h3>
+          {["Sport", "Music", "Pottery", "Fishing"].map((preference) => (
             <button
-              key={pref}
               type="button"
+              key={preference}
+              onClick={() => handlePreferenceToggle(preference)}
               className={`preference-button ${
-                formData.preferences.includes(pref) ? "selected" : ""
+                formData.preferences.includes(preference) ? "selected" : ""
               }`}
-              onClick={() => handlePreferenceToggle(pref)}
             >
-              {pref}
+              {preference}
             </button>
           ))}
         </div>
+
+        <div>
+          <h3>Select Price Range:</h3>
+          <label htmlFor="priceRange">
+            Average Price: ${formData.priceRange}
+          </label>
+          <input
+            type="range"
+            id="priceRange"
+            name="priceRange"
+            min="0"
+            max="100+"
+            step="1"
+            value={formData.priceRange}
+            onChange={handleSliderChange}
+            className="slider"
+          />
+        </div>
+
+        <div>
+          <h3>Select Crowd Size:</h3>
+          <select
+            name="crowdSize"
+            value={formData.crowdSize}
+            onChange={handleChange}
+            className="form-select"
+            required
+          >
+            <option value="">Select Crowd Size</option>
+            <option value="Small">Small</option>
+            <option value="Medium">Medium</option>
+            <option value="Large">Large</option>
+          </select>
+        </div>
+
         <input
           type="password"
           name="password"

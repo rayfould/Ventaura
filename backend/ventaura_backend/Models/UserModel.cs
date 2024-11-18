@@ -15,7 +15,6 @@ namespace ventaura_backend.Models
         public double Longitude { get; set; }  // Longitude of the user's location for personalized content.
         public string Preferences { get; set; } // User's preferences for event recommendations (e.g., "Music, Sports").
         public string PriceRange { get; set; } // User's selected price range for events (e.g., "$0-$50").
-        public string CrowdSize { get; set; } // User's preferred crowd size for events (e.g., "Small", "Medium").
         public DateTime CreatedAt { get; set; } = DateTime.Now;  // Timestamp of when the user account was created.
         public string PasswordHash { get; set; } // Securely hashed password for authentication.
         public bool IsLoggedIn { get; set; } = false; // Indicates if the user is currently logged in.
