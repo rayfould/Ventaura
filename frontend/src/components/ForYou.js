@@ -141,6 +141,9 @@ const ForYou = () => {
         <Link to="/contact-us" className="sidebar-link">
           Contact Us
         </Link>
+        <Link to="/post-event-page" className="sidebar-link">
+          Post An Event
+        </Link>
       </div>
 
       <div className="home-container">

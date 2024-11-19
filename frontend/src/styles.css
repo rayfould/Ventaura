@@ -44,7 +44,7 @@ button:hover {
     align-items: center;
     padding: 10px 20px;
     z-index: 1000;
-    position: sticky;
+    position: relative;
     top: 0;
 }
 
@@ -355,3 +355,127 @@ button:hover {
 .home-container {
     padding-top: 70px;
 }
+
+/* Form Page Styling */
+.add-event-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.add-event-container h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #007bff;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-input, .form-textarea, .form-select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.form-textarea {
+    height: 120px;
+    resize: vertical;
+}
+
+.form-group .error {
+    color: #ff4d4d;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+button[type="submit"] {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+button[type="submit"]:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+button[type="submit"]:not(:disabled):hover {
+    background-color: #0056b3;
+}
+
+/* Adding margin-bottom for form elements */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    margin-bottom: 10px;
+}
+
+/* Submit Button and Form Validation Error */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.form-group input[type="number"]::-webkit-outer-spin-button,
+.form-group input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.form-group .error {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* General form styling */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Hover effects for inputs (optional for aesthetic appeal) */
+.form-input:hover, 
+.form-textarea:hover,
+.form-select:hover {
+    border-color: #007bff;
+}
+
+.form-input:focus, 
+.form-textarea:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
