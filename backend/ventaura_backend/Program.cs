@@ -142,48 +142,6 @@ app.MapPost("/api/create-checkout-session", async (IOptions<StripeOptions> optio
 
 app.UseCors("AllowReactApp");
 
-app.MapPost("webhook", async (HttpRequest req, IOptions<StripeOptions> options) =>
-{
-    var json = await new StreamReader(req.Body).ReadToEndAsync();
-    Event stripeEvent;
-    try
-    {
-        stripeEvent = EventUtility.ConstructEvent(
-            json,
-            req.Headers["Stripe-Signature"],
-            options.Value.WebhookSecret
-        );
-        app.Logger.LogInformation($"Webhook notification with type: {stripeEvent.Type} found for {stripeEvent.Id}");
-        
-    }
-    catch (Exception e)
-    {
-        app.Logger.LogError(e, $"Something failed => {e.Message}");
-        return Results.BadRequest();
-    }
-
-    if (stripeEvent.Type == Events.CheckoutSessionCompleted)
-    {
-        var session = stripeEvent.Data.Object as Stripe.Checkout.Session;
-        app.Logger.LogInformation($"Session ID: {session.Id}");
-        // Take some action based on session.
-        // Note: If you need access to the line items, for instance to
-        // automate fullfillment based on the the ID of the Price, you'll
-        // need to refetch the Checkout Session here, and expand the line items:
-        //
-        //var options = new SessionGetOptions();
-        // options.AddExpand("line_items");
-        //
-        // var service = new SessionService();
-        // Session session = service.Get(session.Id, options);
-        //
-        // StripeList<LineItem> lineItems = session.LineItems;
-        //
-        // Read more about expand here: https://stripe.com/docs/expand
-    }
-
-    return Results.Ok();
-});
 //THIS IS THE END OF WHAT SAM NEWLY ADDED
 
 app.UseRouting(); // Enable endpoint routing.
