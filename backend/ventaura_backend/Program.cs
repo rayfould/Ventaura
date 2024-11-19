@@ -7,7 +7,27 @@ using Microsoft.EntityFrameworkCore;
 using ventaura_backend.Data; // For DatabaseContext
 using ventaura_backend.Services; // For TicketmasterService, AmadeusService, and CombinedAPIService
 
+//for Stripe things
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
+using Stripe;
+using Stripe.Checkout;
+using System.IO;
+
+//Loads .env for Stripe
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Load environment variables into the configuration, this is for Stripe
+builder.Services.Configure<StripeOptions>(options =>
+{
+    options.PublishableKey = Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY");
+    options.SecretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
+    options.WebhookSecret = Environment.GetEnvironmentVariable("STRIPE_WEBHOOK_SECRET");
+    options.Price = Environment.GetEnvironmentVariable("PRICE");
+    options.Domain = Environment.GetEnvironmentVariable("DOMAIN");
+});
 
 // Add services to the container.
 builder.Services.AddControllers(); // Enables the use of controllers in the application.
@@ -40,10 +60,27 @@ builder.Services.AddHttpClient<GoogleGeocodingService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//Allows access of this for our frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", builder =>
+    {
+        builder.WithOrigins("http://localhost:3000") // React development server URL
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Use the configured CORS policy.
 app.UseCors("AllowAll");
+
+// Stripe secret key to enable functionality
+StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
+
+//Get price variable from .env
+var price = Environment.GetEnvironmentVariable("PRICE");
 
 // Configure the HTTP request pipeline for development and production environments.
 if (app.Environment.IsDevelopment())
@@ -56,6 +93,98 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger(); // Enable Swagger for API documentation.
     app.UseSwaggerUI(); // Serve Swagger UI for easy API testing.
 }
+
+//ALL OF THE BELOW UNTIL ALL CAPS IS FOR STRIPE, NEWLY ADDED BY SAM
+// Serve static files (if applicable)
+app.UseStaticFiles(new StaticFileOptions()
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(),
+        Environment.GetEnvironmentVariable("STATIC_DIR"))
+    ),
+    RequestPath = new PathString("")
+});
+
+// Serve the HTML for the frontend
+app.MapGet("/", () => Results.Redirect("index.html"));
+
+// Get session details from Stripe
+app.MapGet("checkout-session", async (string sessionId) =>
+{
+    var service = new SessionService();
+    var session = await service.GetAsync(sessionId);
+    return Results.Ok(session);
+});
+
+// Handle creating a checkout session
+app.MapPost("/api/create-checkout-session", async (IOptions<StripeOptions> options, HttpContext context) =>
+{
+    var sessionOptions = new SessionCreateOptions
+    {
+        SuccessUrl = $"{options.Value.Domain}/success.html?session_id={{CHECKOUT_SESSION_ID}}",
+        CancelUrl = $"{options.Value.Domain}/canceled.html",
+        Mode = "payment",
+        LineItems = new List<SessionLineItemOptions>
+        {
+            new SessionLineItemOptions
+            {
+                Quantity = 1,
+                Price = options.Value.Price,
+            },
+        },
+    };
+
+    var service = new SessionService();
+    var session = await service.CreateAsync(sessionOptions);
+    context.Response.Headers.Add("Location", session.Url);
+    return Results.StatusCode(303);
+});
+
+app.UseCors("AllowReactApp");
+
+app.MapPost("webhook", async (HttpRequest req, IOptions<StripeOptions> options) =>
+{
+    var json = await new StreamReader(req.Body).ReadToEndAsync();
+    Event stripeEvent;
+    try
+    {
+        stripeEvent = EventUtility.ConstructEvent(
+            json,
+            req.Headers["Stripe-Signature"],
+            options.Value.WebhookSecret
+        );
+        app.Logger.LogInformation($"Webhook notification with type: {stripeEvent.Type} found for {stripeEvent.Id}");
+        
+    }
+    catch (Exception e)
+    {
+        app.Logger.LogError(e, $"Something failed => {e.Message}");
+        return Results.BadRequest();
+    }
+
+    if (stripeEvent.Type == Events.CheckoutSessionCompleted)
+    {
+        var session = stripeEvent.Data.Object as Stripe.Checkout.Session;
+        app.Logger.LogInformation($"Session ID: {session.Id}");
+        // Take some action based on session.
+        // Note: If you need access to the line items, for instance to
+        // automate fullfillment based on the the ID of the Price, you'll
+        // need to refetch the Checkout Session here, and expand the line items:
+        //
+        //var options = new SessionGetOptions();
+        // options.AddExpand("line_items");
+        //
+        // var service = new SessionService();
+        // Session session = service.Get(session.Id, options);
+        //
+        // StripeList<LineItem> lineItems = session.LineItems;
+        //
+        // Read more about expand here: https://stripe.com/docs/expand
+    }
+
+    return Results.Ok();
+});
+//THIS IS THE END OF WHAT SAM NEWLY ADDED
 
 app.UseRouting(); // Enable endpoint routing.
 app.UseAuthorization(); // Enable authorization middleware (if required).

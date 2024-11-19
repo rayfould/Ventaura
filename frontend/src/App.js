@@ -8,6 +8,9 @@ import ContactUs from "./components/ContactUs";
 import AboutUs from "./components/AboutUs";
 import GlobalPage from "./components/GlobalPage"; 
 import AddEvent from "./components/AddEvent"; 
+import Canceled from './components/Canceled.jsx';
+import Success from './components/Success.jsx';
+import Checkout from './components/Checkout.jsx';
 import "./styles.css";
 
 function App() {
@@ -22,6 +25,9 @@ function App() {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/global-page" element={<GlobalPage />} />;
         <Route path="/post-event-page" element={<AddEvent />} />;
+        <Route path="/Checkout" element={<Checkout />} />
+        <Route path="/success.html" element={<Success />} />
+        <Route path="/canceled.html" element={<Canceled />} />
       </Routes>
     </Router>
   );

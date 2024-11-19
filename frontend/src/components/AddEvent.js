@@ -20,7 +20,7 @@ const AddEvent = () => {
   const [errors, setErrors] = useState({});
 
   // Get the current date in YYYY-MM-DD format
-  const currentDate = new Date().toISOString().split('T')[0]; 
+  const currentDate = new Date().toISOString().split('T')[0];
 
   // Handle form data changes
   const handleChange = (e) => {
@@ -45,7 +45,11 @@ const AddEvent = () => {
     if (!formData.time) newErrors.time = 'Event time is required';
     if (!formData.eventType) newErrors.eventType = 'Event type is required';
     if (!formData.price || isNaN(formData.price) || formData.price <= 0) newErrors.price = 'Price must be a positive number';
-    if (!formData.contact || !/^\d{10}$/.test(formData.contact)) newErrors.contact = 'Please enter a valid phone number';
+    
+    // Validate the contact info (phone number)
+    if (!formData.contact || !/^\d{10}$/.test(formData.contact)) {
+      newErrors.contact = 'Please enter a valid phone number (10 digits)';
+    }
 
     // If there are errors, display them
     if (Object.keys(newErrors).length > 0) {
@@ -55,6 +59,18 @@ const AddEvent = () => {
       history.push('/next-page');  // Replace '/next-page' with your actual route
     }
   };
+
+  // Determine if the form is valid
+  const isFormValid = Object.keys(errors).length === 0 &&
+    formData.title && 
+    formData.description && 
+    formData.location && 
+    formData.date && 
+    formData.time && 
+    formData.eventType && 
+    formData.price && 
+    formData.contact && 
+    /^\d{10}$/.test(formData.contact); // Ensure the phone number is valid
 
   return (
     <div className="add-event-container">
@@ -172,7 +188,17 @@ const AddEvent = () => {
           {errors.contact && <p className="error-message">{errors.contact}</p>}
         </div>
 
-        <button type="submit" className="submit-button">Submit Event</button>
+        {/* Submit Button - only enabled if the form is valid */}
+        <form action="http://localhost:5152/api/create-checkout-session" method="POST">
+          <button 
+            type="submit" 
+            role="link" 
+            className="submit-button" 
+            disabled={!isFormValid}
+          >
+            Submit Event
+          </button>
+        </form>
       </form>
     </div>
   );

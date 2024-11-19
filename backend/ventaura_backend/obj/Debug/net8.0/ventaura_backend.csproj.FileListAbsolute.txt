@@ -280,3 +280,8 @@ C:\Users\samle\Documents\GitHub\Ventaura\backend\ventaura_backend\obj\Debug\net8
 C:\Users\samle\Documents\GitHub\Ventaura\backend\ventaura_backend\obj\Debug\net8.0\ventaura_backend.pdb
 C:\Users\samle\Documents\GitHub\Ventaura\backend\ventaura_backend\obj\Debug\net8.0\ventaura_backend.genruntimeconfig.cache
 C:\Users\samle\Documents\GitHub\Ventaura\backend\ventaura_backend\obj\Debug\net8.0\ref\ventaura_backend.dll
+C:\Users\samle\Documents\GitHub\Ventaura\backend\ventaura_backend\bin\Debug\net8.0\DotNetEnv.dll
+C:\Users\samle\Documents\GitHub\Ventaura\backend\ventaura_backend\bin\Debug\net8.0\Sprache.dll
+C:\Users\samle\Documents\GitHub\Ventaura\backend\ventaura_backend\bin\Debug\net8.0\Stripe.net.dll
+C:\Users\samle\Documents\GitHub\Ventaura\backend\ventaura_backend\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
+C:\Users\samle\Documents\GitHub\Ventaura\backend\ventaura_backend\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll

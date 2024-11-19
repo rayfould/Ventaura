@@ -50,6 +50,10 @@
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "DotNetEnv": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.10, )"
@@ -79,6 +83,10 @@
             "Quartz.Extensions.Hosting": {
               "target": "Package",
               "version": "[3.13.1, )"
+            },
+            "Stripe.net": {
+              "target": "Package",
+              "version": "[47.0.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
