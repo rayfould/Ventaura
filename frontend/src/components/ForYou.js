@@ -79,12 +79,20 @@ const ForYou = () => {
   }, [userId, navigate]);
 
   const handleManualLogout = async () => {
+
+    const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
+
     try {
       const response = await axios.post(
         `http://localhost:5152/api/combined-events/logout?userId=${userId}`
       );
+
+      // Remove the userId from localStorage
+      localStorage.removeItem("userId");
+
       alert(response.data.Message);
       navigate("/login");
+      
     } catch (error) {
       if (error.response) {
         alert(error.response.data.Message || "Error logging out.");

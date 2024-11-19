@@ -124,7 +124,6 @@ namespace ventaura_backend.Controllers
                 return StatusCode(500, "An error occurred while logging in.");
             }
         }
-
     }
 
     // Data Transfer Object (DTO) to handle login request details.

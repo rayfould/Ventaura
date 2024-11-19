@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ventaura_backend.Services;
+using ventaura_backend.Data;
+using ventaura_backend.Utils; // Import DistanceCalculator
 
 [ApiController]
 [Route("api/global-events")]
@@ -7,22 +9,24 @@ public class GlobalEventsController : ControllerBase
 {
     private readonly GoogleGeocodingService _googleGeocodingService;
     private readonly CombinedAPIService _combinedApiService;
+    private readonly DatabaseContext _dbContext;
 
-    public GlobalEventsController(GoogleGeocodingService googleGeocodingService, CombinedAPIService combinedApiService)
+    public GlobalEventsController(GoogleGeocodingService googleGeocodingService, CombinedAPIService combinedApiService, DatabaseContext dbContext)
     {
         _googleGeocodingService = googleGeocodingService;
         _combinedApiService = combinedApiService;
+        _dbContext = dbContext;
+        
     }
 
     [HttpGet("search")]
-    public async Task<IActionResult> SearchEvents([FromQuery] string city)
+    public async Task<IActionResult> SearchEvents([FromQuery] string city, [FromQuery] int userId)
     {
         if (string.IsNullOrWhiteSpace(city))
         {
             return BadRequest(new { Message = "City name is required." });
         }
 
-        // Validate userId
         var user = await _dbContext.Users.FindAsync(userId);
         if (user == null)
         {
@@ -38,22 +42,31 @@ public class GlobalEventsController : ControllerBase
                 return NotFound(new { Message = "Could not find coordinates for the specified city." });
             }
 
-            // Explicitly handle the nullable tuple
             var latitude = coordinates.Value.latitude;
             var longitude = coordinates.Value.longitude;
 
             // Fetch events using CombinedAPIService
-            var events = await _combinedApiService.FetchEventsAsync(latitude, longitude, userId); 
+            var events = await _combinedApiService.FetchEventsAsync(latitude, longitude, userId);
 
             // Populate the `UserId` and unique `ContentId` fields
             for (int i = 0; i < events.Count; i++)
             {
                 events[i].UserId = userId;
                 events[i].ContentId = i + 1; // Assign unique ContentId
+
+                // Parse event location into latitude and longitude
+                var eventCoordinates = events[i].Location?.Split(',');
+                if (eventCoordinates != null && eventCoordinates.Length == 2 &&
+                    double.TryParse(eventCoordinates[0], out var eventLatitude) &&
+                    double.TryParse(eventCoordinates[1], out var eventLongitude))
+                {
+                    // Calculate the distance from user's location to the event
+                    events[i].Distance = (float)DistanceCalculator.CalculateDistance(
+                        user.Latitude, user.Longitude, eventLatitude, eventLongitude);
+                }
             }
 
-            Console.WriteLine($"Events for {city} successfully fetched and returned for {userId}.");
-
+            Console.WriteLine($"Events for {city} successfully fetched and returned for user {userId}.");
             return Ok(new { Message = "Events fetched successfully.", events });
         }
         catch (Exception ex)

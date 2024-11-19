@@ -39,6 +39,10 @@ const Login = () => {
         "http://localhost:5152/api/users/login",
         formData
       );
+      
+      // Save the userId to localStorage
+      localStorage.setItem("userId", response.data.userId);
+      
       navigate("/for-you", { state: { userId: response.data.userId } });
     } catch (error) {
       setMessage("Invalid email or password.");

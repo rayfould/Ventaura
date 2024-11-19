@@ -16,6 +16,15 @@ const GlobalPage = () => {
   };
 
   const handleSearch = async (e) => {
+
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      setMessage("User is not logged in.");
+      navigate("/login");
+      return;
+    }
+
     e.preventDefault(); // Prevent page reload
     if (!city.trim()) {
       setMessage("Please enter a city name.");
@@ -27,8 +36,10 @@ const GlobalPage = () => {
         `http://localhost:5152/api/global-events/search`,
         { params: { city, userId } } // Pass the city and userId
       );
+
       setEvents(response.data.events || []);
       setMessage(response.data.Message || "Events fetched successfully.");
+      
     } catch (error) {
       if (error.response) {
         setMessage(error.response.data.Message || "Error fetching events.");
