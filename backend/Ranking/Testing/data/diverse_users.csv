@@ -1,0 +1,21 @@
+	User ID,Preferred Events,Undesirable Events,Preferred Location,Max Distance (km),Preferred Time,Price Range,Preferred Crowd Size,Age,Interests,Activity Level
+1,"Music, Festivals, Theater","Conferences, Networking, Virtual",Boston,15,Evening,$$$,Large,25,"Music, Technology",High
+2,"Theater, Exhibitions, Community","Sports, Gaming, Nightlife",New York,25,Mixed,$$,Small,32,"Arts, Culture",Medium
+3,"Gaming, Virtual, Workshops","Theater, Conferences, Exhibitions",San Francisco,40,Night,$,Medium,19,"Gaming, Tech",High
+4,"Sports, Outdoors, Wellness","Gaming, Nightlife, Virtual",Chicago,20,Morning,$$,Large,45,"Fitness, Outdoors",Very High
+5,"Festivals, Community, Workshops","Sports, Gaming, Networking",Los Angeles,30,Afternoon,$$$,Small,28,"Food, Culture",Medium
+6,"Music, Exhibitions, Theater","Networking, Conferences, Virtual",Austin,50,Evening,$$,Medium,23,"Arts, Music",High
+7,"Networking, Conferences, Workshops","Nightlife, Gaming, Festivals",Seattle,35,Morning,$$$,Large,41,"Business, Tech",Medium
+8,"Wellness, Workshops, Community","Sports, Nightlife, Gaming",Miami,25,Night,$,Small,35,"Health, Wellness",Low
+9,"Community, Festivals, Family","Nightlife, Gaming, Conferences",Denver,45,Mixed,$$,Medium,29,"Community, Food",Medium
+10,"Film, Theater, Exhibitions","Sports, Nightlife, Gaming",Portland,30,Evening,$,Large,38,"Film, Arts",Low
+11,"Science, Exhibitions, Workshops","Nightlife, Gaming, Festivals",Nashville,20,Morning,$$$,Small,52,"Science, Education",Medium
+12,"Family, Theater, Community","Nightlife, Conferences, Gaming",San Diego,40,Afternoon,$$,Medium,33,"Family, Education",High
+13,"Outdoors, Sports, Community","Conferences, Virtual, Networking",Houston,35,Evening,$,Large,26,"Adventure, Sports",Very High
+14,"Music, Theater, Exhibitions","Gaming, Sports, Nightlife",Atlanta,25,Mixed,$$$,Small,47,"Music, Arts",Low
+15,"Nightlife, Music, Festivals","Conferences, Virtual, Science",Philadelphia,50,Night,$$,Medium,21,"Dance, Social",High
+16,"Charity, Community, Wellness","Nightlife, Gaming, Virtual",Phoenix,30,Morning,$,Large,39,"Community, Health",Medium
+17,"Gaming, Virtual, Festivals","Conferences, Networking, Science",Minneapolis,40,Evening,$$$,Small,24,"Gaming, Pop Culture",High
+18,"Sports, Community, Festivals","Exhibitions, Science, Virtual",New Orleans,45,Night,$$,Medium,31,"Sports, Social",Medium
+19,"Exhibitions, Workshops, Community","Sports, Gaming, Nightlife",Salt Lake City,25,Mixed,$,Large,44,"Arts, Photography",Low
+20,"Festivals, Community, Exhibitions","Gaming, Virtual, Networking",Washington DC,35,Evening,$$$,Small,36,"Culture, Language",Medium

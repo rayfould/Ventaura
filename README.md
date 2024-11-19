@@ -1,2 +1,0 @@
-# Ventaura
-Ventaura Web Application

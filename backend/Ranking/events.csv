@@ -1,0 +1,11 @@
+Event ID,Event Type,Location,Distance (km),Date/Time,Popularity,Price ($),Duration (hrs)
+1,Concert,Boston,5,2024-10-27 19:12:06.545056,500,50,3
+2,Theater,New York,0,2024-10-29 15:12:06.545056,300,40,2
+3,Sports,Boston,7,2024-11-20 05:12:06.545056,600,30,4
+4,Festival,San Francisco,15,2024-10-27 20:12:06.545056,400,20,6
+5,Concert,Chicago,8,2024-10-26 10:12:06.545056,550,60,3
+6,Sports,New York,18,2024-10-29 14:12:06.545056,700,45,2
+7,Festival,Boston,10,2024-10-27 11:12:06.545056,300,25,8
+8,Theater,San Francisco,20,2024-10-30 19:12:06.545056,350,50,5
+9,Sports,Chicago,12,2024-10-28 12:12:06.545056,450,35,5
+10,Concert,Boston,8,2024-10-26 21:12:06.545056,650,55,3

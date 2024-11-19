@@ -1,0 +1,32 @@
+=== DQL Event Recommender Training Report ===
+Generated at: 20241114_195704
+
+Training Metrics:
+Total Episodes: 1000
+Average Reward: 250.56
+Best Reward: 332.34
+Final Epsilon: 0.0100
+Average Episode Length: 1000.0
+Total Events Analyzed: 1000000
+Unique Events Recommended: 985
+Events Per Episode: 1000.0
+
+
+Action Statistics:
+Unique Actions Taken: 985
+
+Reward Component Summary:
+event_type: avg=0.09
+distance: avg=0.06
+price: avg=0.06
+time: avg=0.06
+popularity: avg=0.03
+
+DQL Performance Metrics:
+Average Loss: 0.0572
+Q-Value Evolution:
+  - Mean: 59.1421
+  - Max: 59.9419
+  - Min: 46.8548
+  - Stability (StdDev): 0.5601
+Action Distribution Entropy: 1.4365

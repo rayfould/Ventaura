@@ -1,0 +1,33 @@
+Reward Component Analysis
+==================================================
+
+event_type Statistics:
+Count: 9900
+Mean: 0.1159
+Min: -0.4000
+Max: 0.4000
+
+distance Statistics:
+Count: 9900
+Mean: 0.0649
+Min: -0.2000
+Max: 0.1939
+
+price Statistics:
+Count: 9900
+Mean: 0.0583
+Min: -0.1500
+Max: 0.1500
+
+time Statistics:
+Count: 9900
+Mean: 0.0407
+Min: -0.1500
+Max: 0.1497
+
+popularity Statistics:
+Count: 9900
+Mean: 0.0350
+Min: -0.1000
+Max: 0.1000
+
