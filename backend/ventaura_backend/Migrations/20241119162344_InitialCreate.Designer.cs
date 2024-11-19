@@ -12,7 +12,7 @@ using ventaura_backend.Data;
 namespace ventaura_backend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20241118005831_InitialCreate")]
+    [Migration("20241119162344_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace ventaura_backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
