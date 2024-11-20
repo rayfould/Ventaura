@@ -63,6 +63,13 @@ const CreateAccount = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.log("Form data being sent:", {
+      ...formData,
+      preferences: formData.preferences.join(", "),
+      passwordHash: formData.password,
+    });
+    
     try {
       const response = await axios.post(
         "http://localhost:5152/api/users/create-account",

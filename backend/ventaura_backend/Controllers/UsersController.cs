@@ -30,6 +30,9 @@ namespace ventaura_backend.Controllers
         [HttpPost("create-account")]
         public async Task<IActionResult> CreateAccount([FromBody] User user)
         {
+            // Console.WriteLine("Request payload received:");
+            // Console.WriteLine(JsonConvert.SerializeObject(request));
+
             try
             {
                 // Validate that all required fields are provided by the user.
