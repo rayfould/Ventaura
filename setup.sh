@@ -1,23 +1,22 @@
 #!/bin/bash
 
-echo "Starting database setup for Ventaura..."
+echo "Starting automated database setup for Ventaura..."
 
-# Prompt for PostgreSQL credentials
-read -p "Enter your PostgreSQL username (default: postgres): " PGUSER
-PGUSER=${PGUSER:-postgres} # Default to 'postgres' if no input
-
-read -s -p "Enter your PostgreSQL password: " PGPASSWORD
-echo
-
-# Prompt for custom database details (optional)
+# Define variables that match appsettings.json
 DB_NAME="ventaura"
 DB_USER="postgres"
 DB_PASSWORD="password"
 DB_PORT="5432"
+PG_SUPERUSER="postgres"
+PG_SUPERPASS="default_superuser_password" # Set this to match your local superuser password
 
-# Connect to PostgreSQL and execute the setup commands
-psql -U $PGUSER -p $DB_PORT -d postgres <<EOSQL
+# Export the superuser password so psql can use it without prompting
+export PGPASSWORD=$PG_SUPERPASS
+
+# Create the database and user
+psql -U $PG_SUPERUSER -p $DB_PORT -d postgres <<EOSQL
 CREATE DATABASE $DB_NAME;
+
 DO
 \$do\$
 BEGIN
