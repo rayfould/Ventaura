@@ -6,7 +6,7 @@ namespace ventaura_backend.Utils
         {
             const double EarthRadius = 6371; // Radius of the earth in km
 
-            Console.WriteLine($"Values for coordinates are {lat1}, {lon1}, {lat2}, {lon2}");
+            // Console.WriteLine($"Values for coordinates are {lat1}, {lon1}, {lat2}, {lon2}");
 
             var dLat = DegreesToRadians(lat2 - lat1);
             var dLon = DegreesToRadians(lon2 - lon1);

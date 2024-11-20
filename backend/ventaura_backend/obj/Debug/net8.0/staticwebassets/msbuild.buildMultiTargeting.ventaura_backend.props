@@ -1,3 +1,3 @@
 ﻿<Project>
-  <Import Project="..\build\ventaura_backend.props" />
+  <Import Project="../build/ventaura_backend.props" />
 </Project>

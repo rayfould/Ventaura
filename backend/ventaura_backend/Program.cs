@@ -55,6 +55,7 @@ builder.Services.AddCors(options =>
 // Register HttpClient for making HTTP requests to external APIs.
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<GoogleGeocodingService>();
+builder.Services.AddHttpClient<YelpFusionService>();
 
 // Register Swagger for API documentation and testing.
 builder.Services.AddEndpointsApiExplorer();

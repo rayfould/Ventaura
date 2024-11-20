@@ -4,18 +4,22 @@ and combine event and activity data based on a user's location, enabling seamles
 of multiple data sources for personalized recommendations. */
 
 using ventaura_backend.Models;
+using ventaura_backend.Services;
 
 public class CombinedAPIService
 {
-    // Services for interacting with Amadeus and Ticketmaster APIs.
-    private readonly ventaura_backend.Services.AmadeusService _amadeusService;
-    private readonly ventaura_backend.Services.TicketmasterService _ticketmasterService;
+    // Services for interacting with Amadeus, Yelp and Ticketmaster APIs.
+    private readonly AmadeusService _amadeusService;
+    private readonly TicketmasterService _ticketmasterService;
+    private readonly YelpFusionService _yelpFusionService;
+
 
     // Constructor to inject the Amadeus and Ticketmaster services.
-    public CombinedAPIService(ventaura_backend.Services.AmadeusService amadeusService, ventaura_backend.Services.TicketmasterService ticketmasterService)
+    public CombinedAPIService(AmadeusService amadeusService, TicketmasterService ticketmasterService, YelpFusionService yelpFusionService)
     {
         _amadeusService = amadeusService;
         _ticketmasterService = ticketmasterService;
+        _yelpFusionService = yelpFusionService;
     }
 
     // Method to fetch and combine events from Amadeus and Ticketmaster APIs.
@@ -27,7 +31,11 @@ public class CombinedAPIService
         // Fetch events from the Ticketmaster API.
         var ticketmasterEvents = await _ticketmasterService.FetchTicketmasterEventsAsync(latitude, longitude, userId);
 
-        var events = amadeusEvents.Concat(ticketmasterEvents).ToList();
+        // Fetch events from the Yelp API.
+        var yelpEvents = await _yelpFusionService.FetchYelpEventsAsync(latitude, longitude, userId);
+
+        // Combine the results of the API calls.
+        var events = amadeusEvents.Concat(ticketmasterEvents).Concat(yelpEvents).ToList();
 
         /* // Log each event's details for debugging.
         foreach (var e in events)

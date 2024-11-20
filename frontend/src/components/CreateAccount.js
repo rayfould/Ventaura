@@ -12,7 +12,6 @@ const CreateAccount = () => {
     longitude: "",
     preferences: [],
     priceRange: 50, // Default value for the slider
-    crowdSize: "",
     password: "",
   });
 
@@ -69,7 +68,7 @@ const CreateAccount = () => {
       preferences: formData.preferences.join(", "),
       passwordHash: formData.password,
     });
-    
+
     try {
       const response = await axios.post(
         "http://localhost:5152/api/users/create-account",
@@ -91,7 +90,6 @@ const CreateAccount = () => {
         longitude: "",
         preferences: [],
         priceRange: 50,
-        crowdSize: "",
         password: "",
       });
     } catch (error) {
@@ -183,22 +181,6 @@ const CreateAccount = () => {
             onChange={handleSliderChange}
             className="slider"
           />
-        </div>
-
-        <div>
-          <h3>Select Crowd Size:</h3>
-          <select
-            name="crowdSize"
-            value={formData.crowdSize}
-            onChange={handleChange}
-            className="form-select"
-            required
-          >
-            <option value="">Select Crowd Size</option>
-            <option value="Small">Small</option>
-            <option value="Medium">Medium</option>
-            <option value="Large">Large</option>
-          </select>
         </div>
 
         <input
