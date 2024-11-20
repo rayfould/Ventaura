@@ -42,6 +42,7 @@ namespace ventaura_backend.Controllers
                     user.Latitude == 0 ||
                     user.Longitude == 0 ||
                     string.IsNullOrEmpty(user.Preferences) ||
+                    string.IsNullOrEmpty(user.Dislikes) ||
                     string.IsNullOrEmpty(user.PriceRange) ||
                     string.IsNullOrEmpty(user.PasswordHash))
                 {

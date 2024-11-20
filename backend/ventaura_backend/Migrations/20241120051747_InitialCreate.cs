@@ -24,6 +24,7 @@ namespace ventaura_backend.Migrations
                     Latitude = table.Column<double>(type: "double precision", nullable: false),
                     Longitude = table.Column<double>(type: "double precision", nullable: false),
                     Preferences = table.Column<string>(type: "text", nullable: false),
+                    Dislikes = table.Column<string>(type: "text", nullable: false),
                     PriceRange = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),

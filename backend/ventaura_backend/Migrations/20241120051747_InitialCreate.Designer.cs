@@ -12,7 +12,7 @@ using ventaura_backend.Data;
 namespace ventaura_backend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20241119162344_InitialCreate")]
+    [Migration("20241120051747_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -35,6 +35,10 @@ namespace ventaura_backend.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Dislikes")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()

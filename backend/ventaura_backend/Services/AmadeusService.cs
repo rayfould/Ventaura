@@ -64,7 +64,7 @@ namespace ventaura_backend.Services
                     Location = activity["geoCode"]?["latitude"]?.ToString() + ", " + activity["geoCode"]?["longitude"]?.ToString(), // Combine latitude and longitude.
                     Start = DateTime.UtcNow, // Placeholder for start date (not provided by Amadeus).
                     Source = "Amadeus", // Source identifier for the data.
-                    Type = "Activity", // Activity type.
+                    Type = "Other", // Activity type.
                     CurrencyCode = activity["price"]?["currencyCode"]?.ToString() ?? "N/A", // Currency code or default.
                     Amount = activity["price"]?["amount"]?.ToString() ?? "N/A", // Price amount or default.
                     URL = activity["self"]?["href"]?.ToString() ?? "Booking link not available." // Booking link or default text.

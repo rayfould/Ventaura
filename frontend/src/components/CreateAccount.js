@@ -11,6 +11,7 @@ const CreateAccount = () => {
     latitude: "",
     longitude: "",
     preferences: [],
+    dislikes: [],
     priceRange: 50, // Default value for the slider
     password: "",
   });
@@ -53,6 +54,15 @@ const CreateAccount = () => {
     });
   };
 
+  const handleDislikeToggle = (dislike) => {
+    setFormData((prevData) => {
+      const newDislikes = prevData.dislikes.includes(dislike)
+        ? prevData.dislikes.filter((item) => item !== dislike)
+        : [...prevData.dislikes, dislike];
+      return { ...prevData, dislikes: newDislikes}
+    });
+  }
+
   const handleSliderChange = (e) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -89,6 +99,7 @@ const CreateAccount = () => {
         latitude: "",
         longitude: "",
         preferences: [],
+        dislikes: [],
         priceRange: 50,
         password: "",
       });
@@ -132,7 +143,7 @@ const CreateAccount = () => {
           className="form-input"
           required
         />
-        <input
+        {/* <input
           type="number"
           name="latitude"
           placeholder="Latitude"
@@ -147,11 +158,11 @@ const CreateAccount = () => {
           value={formData.longitude}
           className="form-input"
           readOnly
-        />
+        /> */}
 
         <div>
           <h3>Select Preferences:</h3>
-          {["Sport", "Music", "Pottery", "Fishing"].map((preference) => (
+          {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((preference) => (
             <button
               type="button"
               key={preference}
@@ -161,6 +172,22 @@ const CreateAccount = () => {
               }`}
             >
               {preference}
+            </button>
+          ))}
+        </div>
+
+        <div>
+          <h3>Select Dislikes:</h3>
+          {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((dislike) => (
+            <button
+              type="button"
+              key={dislike}
+              onClick={() => handleDislikeToggle(dislike)}
+              className={`dislike-button ${
+                formData.dislikes.includes(dislike) ? "selected" : ""
+              }`}
+            >
+              {dislike}
             </button>
           ))}
         </div>

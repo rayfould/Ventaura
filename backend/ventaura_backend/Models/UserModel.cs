@@ -14,6 +14,7 @@ namespace ventaura_backend.Models
         public double Latitude { get; set; }  // Latitude of the user's location for personalized content.
         public double Longitude { get; set; }  // Longitude of the user's location for personalized content.
         public string Preferences { get; set; } // User's preferences for event recommendations (e.g., "Music, Sports").
+        public string Dislikes { get; set; } // User's dislikes of things they are not interested. 
         public string PriceRange { get; set; } // User's selected price range for events (e.g., "$0-$50").
         public DateTime CreatedAt { get; set; } = DateTime.Now;  // Timestamp of when the user account was created.
         public string PasswordHash { get; set; } // Securely hashed password for authentication.
