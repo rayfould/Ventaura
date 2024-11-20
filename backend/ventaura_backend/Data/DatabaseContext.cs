@@ -15,6 +15,13 @@ namespace ventaura_backend.Data
         // Constructor for injecting database options into the context.
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            // Add connection string with SSL and timeout
+            optionsBuilder.UseNpgsql("Host=aws-0-us-east-1.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres.tybxxsijvsytmztqhffh;Password=cs392ventaura;SSL Mode=Require;Trust Server Certificate=true;",
+                options => options.CommandTimeout(180)); // Increase timeout to 180 seconds
+        }
+
         // DbSet property representing the Users table in the database.
         public DbSet<User> Users { get; set; }
 
