@@ -12,6 +12,7 @@ _Node.js (18.x or higher) and npm (8.x or higher)_
 _PostgreSQL (14.x or higher)_
 
 ***Setting Up the Project***
+
 **1. Clone the Repository**
 Open a terminal and run:
 
