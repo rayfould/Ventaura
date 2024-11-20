@@ -1,76 +1,82 @@
-***Ventaura Application Setup***
+Ventaura Application Setup
+Welcome to the Ventaura project! Follow this guide to set up the application on your local machine and start both the backend and frontend servers.
 
-Welcome to the Ventaura project! Follow the instructions below to set up the application on your local machine and start running the backend and frontend servers so you can try out our app!
+Overview
+Ventaura is a full-stack web application with the following components:
 
-***Prerequisites***
-
-Before you begin, ensure you have the following installed on your system:
-
-_.NET SDK (6.0 or higher)_
-
-_Node.js (18.x or higher) and npm (8.x or higher)_
-
-_PostgreSQL (14.x or higher)_
-
-***Setting Up the Project***
-
-**1. Clone the Repository**
-
-Open a terminal and run:
-
-git clone https://github.com/your-repo/Ventaura.git
-
-cd Ventaura
-
-**2. Set Up PostgreSQL Database**
-
-Open the PostgreSQL Shell or GUI Tool (pgAdmin)
-
-Create the required database and user by running the following SQL commands:
-
-CREATE DATABASE ventaura;
-
-CREATE USER postgres WITH PASSWORD 'password';
-
-GRANT ALL PRIVILEGES ON DATABASE ventaura TO postgres;
-
-Verify Connection String
-
-Ensure the database connection string in backend/appsettings.json is set as follows:
+Backend: Built with C# and ASP.NET Core, using PostgreSQL as the database.
+Frontend: Built with React.
+The default database connection string is preconfigured in appsettings.json as:
 
 "ConnectionStrings": {
     "DefaultConnection": "Host=localhost;Port=5432;Database=ventaura;Username=postgres;Password=password;"
 }
 
-**3. Run Database Migrations**
+This guide ensures the database and application setup match this configuration.
 
-Navigate to the backend folder:
+Prerequisites
+Before starting, ensure the following are installed on your system:
 
-cd backend/ventaura_backend
+.NET SDK (6.0 or higher)
 
-Run the following command to apply the database schema: 
+Node.js (18.x or higher) and npm (8.x or higher)
+
+PostgreSQL (14.x or higher)
+
+A terminal or command-line tool (e.g., Bash, Git Bash, or Command Prompt).
+
+Step-by-Step Setup
+
+1. Clone the Repository
+Open a terminal.
+Run the following commands:
+
+git clone https://github.com/your-repo/Ventaura.git
+cd Ventaura
+
+2. Set Up the PostgreSQL Database
+
+To automate the database setup:
+
+Open the setup.sh script in the root directory of the repository.
+
+Run the setup script: bash setup.sh
+
+This script will:
+
+Create a database named ventaura.
+Create a user (postgres) with the password password.
+Grant all privileges on the ventaura database to the postgres user.
+
+Verify the Setup
+After running the script, verify the database was created successfully:
+
+psql -h localhost -p 5432 -U postgres -d ventaura -W
+
+When prompted, enter the password password (which is 'password'). If the connection is successful, the setup is complete.
+
+3. Apply Database Migrations
+
+Navigate to the backend/ventaura_backend directory and run:
 
 dotnet ef database update
 
-This will create the necessary tables in your ventaura database.
+This command applies the database schema to your ventaura database.
 
-**4. Start the Backend Server**
+4. Start the Backend Server
 
-From the backend folder, start the backend server:
+From the backend directory, run:
 
 dotnet run
 
-**5. Set Up and Start the Frontend**
+The backend server will start and be available at: http://localhost:5152
 
-Navigate to the frontend folder: cd ../frontend
+5. Set Up and Start the Frontend
 
+Navigate to the frontend directory: cd ../frontend
 Install the required dependencies: npm install
-
 Start the React development server: npm start
 
+The frontend will start and be available at: http://localhost:3000
 
-
-
-
-
-
+Navigate to this link to test the application which will be connected to the backend. 

@@ -8,7 +8,7 @@ DB_USER="postgres"
 DB_PASSWORD="password"
 DB_PORT="5432"
 PG_SUPERUSER="postgres"
-PG_SUPERPASS="default_superuser_password" # Set this to match your local superuser password
+PG_SUPERPASS="password" 
 
 # Export the superuser password so psql can use it without prompting
 export PGPASSWORD=$PG_SUPERPASS
