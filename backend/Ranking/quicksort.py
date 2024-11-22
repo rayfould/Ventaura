@@ -19,7 +19,7 @@ def partition(array, start, end):
         if array[j][1] == -101:
             # Move element to excluded list and skip it in sorting
             past_due_events.append(array[j])
-        if array[j][1] < pivot:
+        if array[j][1] >= pivot:
             i += 1;
             temp = array[i];
             array[i] = array[j];

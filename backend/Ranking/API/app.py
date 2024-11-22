@@ -7,6 +7,7 @@ from ..DQL import QNetwork
 from ..Event_Ranking_Environment import EventRecommendationEnv
 import pytest
 from ..DQL_Test import EventTester
+from ..RBS import EventRanking
 
 app = FastAPI()
 
@@ -63,7 +64,7 @@ class Event(BaseModel):
 
 class RankedEvent(Event):
     rank: int
-    q_value: float
+    score: float
 
 
 class EventRankingService:
@@ -120,81 +121,142 @@ def validate_dataframe_columns(df: pd.DataFrame, expected_columns: List[str], df
 # Load model
 ranking_service = EventRankingService(model_path=LOAD_MODEL_PATH)
 
-
-@app.post("/rank-events/")
-async def rank_events(user: User, events: List[Event]) -> List[RankedEvent]:
+#
+# @app.post("/rank-events/")
+# async def rank_events(user: User, events: List[Event]) -> List[RankedEvent]:
+#     try:
+#         # Debug print statements
+#         print("\nProcessing request...")
+#         print(f"User data: {user.model_dump()}")
+#         print(f"Events data: {[event.model_dump() for event in events]}")
+#
+#         # Convert to DataFrames
+#         user_dict = {
+#             'User ID': user.user_id,
+#             'Preferred Events': user.preferred_events if isinstance(user.preferred_events, str) else ", ".join(
+#                 user.preferred_events),
+#             'Undesirable Events': user.undesirable_events if isinstance(user.undesirable_events, str) else ", ".join(
+#                 user.undesirable_events),
+#             'Preferred Location': user.location.city,
+#             'Max Distance (km)': user.max_distance,
+#             'Price Range': user.price_range,
+#             'Preferred Crowd Size': user.preferred_crowd_size,
+#             'Age': user.age,
+#             'Latitude': user.location.coordinates.latitude,
+#             'Longitude': user.location.coordinates.longitude
+#         }
+#         user_df = pd.DataFrame([user_dict])
+#
+#         # Convert events with explicit error handling
+#         try:
+#             events_dict = [event.model_dump() for event in events]
+#             events_df = pd.DataFrame(events_dict)
+#             print(f"\nInitial events_df columns: {events_df.columns}")
+#
+#             # Handle datetime conversion
+#             events_df['Date/Time'] = pd.to_datetime(events_df['date_time'])
+#             print(f"Date/Time column created: {events_df['Date/Time'].head()}")
+#
+#             # Create timestamp
+#             events_df['timestamp'] = events_df['Date/Time'].apply(lambda x: x.timestamp())
+#             print(f"Timestamp column created: {events_df['timestamp'].head()}")
+#
+#             # Rename columns
+#             events_df = events_df.rename(columns={
+#                 'event_type': 'Event Type',
+#                 'event_id': 'Event ID',
+#                 'price': 'Price ($)',
+#                 'distance': 'Distance (km)',
+#                 'popularity': 'Popularity'
+#             })
+#
+#             # Drop original date_time column
+#             events_df = events_df.drop('date_time', axis=1)
+#
+#             print(f"\nFinal events_df columns: {events_df.columns}")
+#             print(f"Final events_df:\n{events_df}")
+#
+#         except KeyError as e:
+#             raise HTTPException(status_code=400, detail=f"Missing required column: {str(e)}")
+#         except ValueError as e:
+#             raise HTTPException(status_code=400, detail=f"Invalid data format: {str(e)}")
+#
+#         # Initialize tester and get recommendations
+#         tester = EventTester(
+#             model_path=LOAD_MODEL_PATH,
+#             events_df=events_df,
+#             user=user_df.iloc[0]
+#         )
+#
+#         recommendations = tester.get_top_recommendations()
+#         return recommendations
+#
+#
+#     except Exception as e:
+#
+#         print(f"Error occurred: {str(e)}")
+#
+#         print(f"Traceback: {traceback.format_exc()}")
+#
+#         raise HTTPException(status_code=400, detail=f"Error ranking events: {str(e)}")
+@app.post("/rank-events/{user_id}")
+async def rank_events(user_id: int) -> dict:
     try:
-        # Debug print statements
-        print("\nProcessing request...")
-        print(f"User data: {user.model_dump()}")
-        print(f"Events data: {[event.model_dump() for event in events]}")
+        # Initialize the ranking system
+        ranker = EventRanking(debug_mode=True)
 
-        # Convert to DataFrames
-        user_dict = {
-            'User ID': user.user_id,
-            'Preferred Events': user.preferred_events if isinstance(user.preferred_events, str) else ", ".join(
-                user.preferred_events),
-            'Undesirable Events': user.undesirable_events if isinstance(user.undesirable_events, str) else ", ".join(
-                user.undesirable_events),
-            'Preferred Location': user.location.city,
-            'Max Distance (km)': user.max_distance,
-            'Price Range': user.price_range,
-            'Preferred Crowd Size': user.preferred_crowd_size,
-            'Age': user.age,
-            'Latitude': user.location.coordinates.latitude,
-            'Longitude': user.location.coordinates.longitude
-        }
-        user_df = pd.DataFrame([user_dict])
+        # Construct file path
+        input_path = f"API/content/{user_id}.csv"
 
-        # Convert events with explicit error handling
+        # Check if file exists
+        if not os.path.exists(input_path):
+            raise HTTPException(
+                status_code=404,
+                detail=f"No events file found for user {user_id}"
+            )
+
         try:
-            events_dict = [event.model_dump() for event in events]
-            events_df = pd.DataFrame(events_dict)
-            print(f"\nInitial events_df columns: {events_df.columns}")
+            events_df = pd.read_csv(input_path)
+        except pd.errors.EmptyDataError:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Event file for user {user_id} is empty"
+            )
+        except pd.errors.ParserError:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid CSV format in event file for user {user_id}"
+            )
 
-            # Handle datetime conversion
-            events_df['Date/Time'] = pd.to_datetime(events_df['date_time'])
-            print(f"Date/Time column created: {events_df['Date/Time'].head()}")
+        # Load and process events
+        ranker.load_events(events_df)
+        events_removed = ranker.filter_events()
 
-            # Create timestamp
-            events_df['timestamp'] = events_df['Date/Time'].apply(lambda x: x.timestamp())
-            print(f"Timestamp column created: {events_df['timestamp'].head()}")
+        # TODO: Load actual user preferences from database
+        test_user = {
+            'Preferences': frozenset(['concert', 'festival']),
+            'Disliked': frozenset(['opera']),
+            'Price Range': '$$',
+            'Max Distance': 'Local'
+        }
 
-            # Rename columns
-            events_df = events_df.rename(columns={
-                'event_type': 'Event Type',
-                'event_id': 'Event ID',
-                'price': 'Price ($)',
-                'distance': 'Distance (km)',
-                'popularity': 'Popularity'
-            })
+        # Rank and save
+        ranked_df, _ = ranker.rank_events(test_user)
+        ranker.save_ranked_events(user_id, ranked_df)
 
-            # Drop original date_time column
-            events_df = events_df.drop('date_time', axis=1)
+        return {
+            "success": True,
+            "message": f"Successfully ranked events for user {user_id}",
+            "events_processed": len(ranked_df),
+            "events_removed": events_removed
+        }
 
-            print(f"\nFinal events_df columns: {events_df.columns}")
-            print(f"Final events_df:\n{events_df}")
-
-        except KeyError as e:
-            raise HTTPException(status_code=400, detail=f"Missing required column: {str(e)}")
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=f"Invalid data format: {str(e)}")
-
-        # Initialize tester and get recommendations
-        tester = EventTester(
-            model_path=LOAD_MODEL_PATH,
-            events_df=events_df,
-            user=user_df.iloc[0]
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal server error: {str(e)}"
         )
 
-        recommendations = tester.get_top_recommendations()
-        return recommendations
 
-
-    except Exception as e:
-
-        print(f"Error occurred: {str(e)}")
-
-        print(f"Traceback: {traceback.format_exc()}")
-
-        raise HTTPException(status_code=400, detail=f"Error ranking events: {str(e)}")
