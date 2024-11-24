@@ -34,7 +34,11 @@ builder.Services.AddControllers(); // Enables the use of controllers in the appl
 
 // Register the DatabaseContext with the connection string from appsettings.json
 builder.Services.AddDbContext<DatabaseContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), options =>
+        options.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorCodesToAdd: null)));
 
 // Register application services for dependency injection.
 builder.Services.AddScoped<TicketmasterService>(); // Service for Ticketmaster API interactions.

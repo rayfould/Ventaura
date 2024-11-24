@@ -39,14 +39,15 @@ namespace ventaura_backend.Controllers
                 if (string.IsNullOrEmpty(user.Email) ||
                     string.IsNullOrEmpty(user.FirstName) ||
                     string.IsNullOrEmpty(user.LastName) ||
-                    user.Latitude == 0 ||
-                    user.Longitude == 0 ||
+                    user.Latitude == null ||
+                    user.Longitude == null ||
                     string.IsNullOrEmpty(user.Preferences) ||
                     string.IsNullOrEmpty(user.Dislikes) ||
                     string.IsNullOrEmpty(user.PriceRange) ||
+                    user.MaxDistance == null ||
                     string.IsNullOrEmpty(user.PasswordHash))
                 {
-                    return BadRequest(new { Message = "All fields are required to create an account." });
+                    return BadRequest(new { Message = "All fields are required to create an account. Please fill in all the information." });
                 }
 
                 // Check if the email is already registered in the database.
@@ -59,6 +60,7 @@ namespace ventaura_backend.Controllers
                 // Securely hash the user's password before storing it.
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
                 user.CreatedAt = DateTime.UtcNow;
+                user.IsLoggedIn = false; // Ensure IsLoggedIn is explicitly set to false.
 
                 // Add the new user to the database.
                 _dbContext.Users.Add(user);

@@ -172,13 +172,6 @@ namespace ventaura_backend.Controllers
 
                 Console.WriteLine($"Table usercontent_{userId} created and populated.");
 
-                // ranking logic 
-                // output from ranking api call is list of event ids (tuples)
-                // content id's start from 1 but list indexes start at 0 so to get event with id 1, you need to index at 0
-                // i use the values from the list as indices for the list of Insertedevents 
-                // add each extracted event from Insertedevents into a new queue/list (rankedEvents) in the order they're extracted from
-                // return this to the front end to be looped through and add each to a box containter
-
                 return Ok(new {
                     Message = $"Table usercontent_{userId} created and populated.", 
                     EventCount = events.Count,
@@ -219,25 +212,39 @@ namespace ventaura_backend.Controllers
                 using var connection = _dbContext.Database.GetDbConnection();
                 await connection.OpenAsync();
 
-                // Drop the user's temporary table if it exists.
-                Console.WriteLine($"Attempting to drop UserContent_{userId} table...");
-                using (var dropTableCommand = connection.CreateCommand())
+                // Check if the user's temporary table exists before attempting to drop it.
+                Console.WriteLine($"Checking if UserContent_{userId} table exists...");
+                using (var checkTableCommand = connection.CreateCommand())
                 {
-                    dropTableCommand.CommandText = $@"
-                        DO $$
-                        BEGIN
-                            IF EXISTS (SELECT FROM pg_tables WHERE tablename = 'usercontent_{userId}') THEN
-                                EXECUTE 'DROP TABLE usercontent_{userId}';
-                            END IF;
-                        END $$;";
-                    await dropTableCommand.ExecuteNonQueryAsync();
+                    checkTableCommand.CommandText = $@"
+                        SELECT EXISTS (
+                            SELECT FROM pg_tables 
+                            WHERE schemaname = 'public' 
+                            AND tablename = 'usercontent_{userId}'
+                        );";
+                    
+                    var tableExists = (bool)(await checkTableCommand.ExecuteScalarAsync() ?? false);
+                    
+                    if (tableExists)
+                    {
+                        Console.WriteLine($"UserContent_{userId} table exists. Attempting to drop it...");
+                        using (var dropTableCommand = connection.CreateCommand())
+                        {
+                            dropTableCommand.CommandText = $@"DROP TABLE usercontent_{userId};";
+                            await dropTableCommand.ExecuteNonQueryAsync();
+                            Console.WriteLine($"UserContent_{userId} table successfully dropped.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"UserContent_{userId} table does not exist. Skipping drop operation.");
+                    }
                 }
 
                 // Update the user's login status in the database.
                 user.IsLoggedIn = false;
                 await _dbContext.SaveChangesAsync();
 
-                Console.WriteLine($"Successfully dropped UserContent_{userId} table.");
                 Console.WriteLine($"User {user.Email} logged out successfully.");
                 return Ok(new { Message = "User logged out successfully." });
             }
@@ -245,13 +252,13 @@ namespace ventaura_backend.Controllers
             {
                 // Log and return database-specific errors.
                 Console.WriteLine($"Postgres error while logging out user {userId}: {ex.Message}");
-                return StatusCode(500, $"Database error: {ex.Message}");
+                return StatusCode(500, new { Message = "Database error.", Details = ex.Message });
             }
             catch (Exception ex)
             {
                 // Log and return general errors.
                 Console.WriteLine($"Error while logging out user {userId}: {ex.Message}");
-                return StatusCode(500, "An error occurred while logging out.");
+                return StatusCode(500, new { Message = "An error occurred while logging out.", Details = ex.Message });
             }
         }
     }
