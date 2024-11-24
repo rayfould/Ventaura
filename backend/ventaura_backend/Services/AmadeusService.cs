@@ -61,12 +61,12 @@ namespace ventaura_backend.Services
                     UserId = userId,
                     Title = activity["name"]?.ToString() ?? "Unnamed Tour", // Activity name or default text.
                     Description = activity["description"]?.ToString() ?? "No description available.", // Description or default text.
-                    Location = activity["geoCode"]?["latitude"]?.ToString() + ", " + activity["geoCode"]?["longitude"]?.ToString(), // Combine latitude and longitude.
+                    Location = $"{activity["geoCode"]?["latitude"]}, {activity["geoCode"]?["longitude"]}",
                     Start = DateTime.UtcNow, // Placeholder for start date (not provided by Amadeus).
                     Source = "Amadeus", // Source identifier for the data.
                     Type = "Other", // Activity type.
                     CurrencyCode = activity["price"]?["currencyCode"]?.ToString() ?? "N/A", // Currency code or default.
-                    Amount = activity["price"]?["amount"]?.ToString() ?? "N/A", // Price amount or default.
+                    Amount = double.TryParse(activity["price"]?["amount"]?.ToString(), out var amount) ? amount : (double?)null,
                     URL = activity["self"]?["href"]?.ToString() ?? "Booking link not available." // Booking link or default text.
                 }).ToList() ?? new List<UserContent>();
 

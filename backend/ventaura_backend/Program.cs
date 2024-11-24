@@ -32,7 +32,7 @@ builder.Services.Configure<StripeOptions>(options =>
 // Add services to the container.
 builder.Services.AddControllers(); // Enables the use of controllers in the application.
 
-// Register DatabaseContext to use PostgreSQL with the specified connection string.
+// Register the DatabaseContext with the connection string from appsettings.json
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 

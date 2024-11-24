@@ -4,21 +4,20 @@ preferences, and authentication data, to facilitate personalized recommendations
 
 namespace ventaura_backend.Models
 {
-    // Represents a user in the Ventaura application.
     public class User
     {
-        public int UserId { get; set; }  // Primary key for identifying each user.
-        public string Email { get; set; }  // User's email address for account identification and login.
-        public string FirstName { get; set; }  // User's first name.
-        public string LastName { get; set; }  // User's last name.
-        public double Latitude { get; set; }  // Latitude of the user's location for personalized content.
-        public double Longitude { get; set; }  // Longitude of the user's location for personalized content.
-        public string Preferences { get; set; } // User's preferences for event recommendations (e.g., "Music, Sports").
-        public string Dislikes { get; set; } // User's dislikes of things they are not interested. 
-        public string PriceRange { get; set; } // User's selected price range for events (e.g., "$0-$50").
-        public string MaxDistance { get; set; } // User's preferred maximum distance. 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;  // Timestamp of when the user account was created.
-        public string PasswordHash { get; set; } // Securely hashed password for authentication.
-        public bool IsLoggedIn { get; set; } = false; // Indicates if the user is currently logged in.
+        public int UserId { get; set; } // Maps to "userid" column
+        public string Email { get; set; } // Maps to "email" column
+        public string FirstName { get; set; } // Maps to "firstname" column
+        public string LastName { get; set; } // Maps to "lastname" column
+        public string PasswordHash { get; set; } // Maps to "passwordhash" column
+        public double? Latitude { get; set; } // Maps to "latitude" column (nullable)
+        public double? Longitude { get; set; } // Maps to "longitude" column (nullable)
+        public string Preferences { get; set; } // Maps to "preferences" column (nullable)
+        public string Dislikes { get; set; } // Maps to "dislikes" column (nullable)
+        public string PriceRange { get; set; } // Maps to "pricerange" column (nullable)
+        public double? MaxDistance { get; set; } // Maps to "maxdistance" column (nullable)
+        public bool IsLoggedIn { get; set; } = false; // Maps to "isloggedin" column with default value
+        public DateTime CreatedAt { get; set; } = DateTime.Now; // Maps to "createdat" column with default value
     }
 }

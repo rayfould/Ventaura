@@ -42,7 +42,7 @@ public class GlobalEventsController : ControllerBase
                 return NotFound(new { Message = "Could not find coordinates for the specified city." });
             }
 
-            var latitude = coordinates.Value.latitude;
+            var latitude = coordinates.Value.latitude; 
             var longitude = coordinates.Value.longitude;
 
             // Fetch events using CombinedAPIService
@@ -52,7 +52,7 @@ public class GlobalEventsController : ControllerBase
             for (int i = 0; i < events.Count; i++)
             {
                 events[i].UserId = userId;
-                events[i].ContentId = i + 1; // Assign unique ContentId
+                events[i].Id = i + 1; // Assign unique ContentId
 
                 // Parse event location into latitude and longitude
                 var eventCoordinates = events[i].Location?.Split(',');
@@ -62,7 +62,12 @@ public class GlobalEventsController : ControllerBase
                 {
                     // Calculate the distance from user's location to the event
                     events[i].Distance = (float)DistanceCalculator.CalculateDistance(
-                        user.Latitude, user.Longitude, eventLatitude, eventLongitude);
+                        user.Latitude ?? 0, user.Longitude ?? 0, eventLatitude, eventLongitude);
+
+                }
+                else 
+                {
+                    events[i].Distance = -1; // Assign a default or error value for distance if parsing fails
                 }
             }
 

@@ -92,6 +92,10 @@
             "System.Net.Http.Json": {
               "target": "Package",
               "version": "[8.0.1, )"
+            },
+            "supabase": {
+              "target": "Package",
+              "version": "[1.1.1, )"
             }
           },
           "imports": [

@@ -90,7 +90,7 @@ namespace ventaura_backend.Controllers
 
                 // Fetch events from the combined API service based on user's location.
                 Console.WriteLine($"Fetching events for userId {userId}...");
-                var events = await _combinedApiService.FetchEventsAsync(user.Latitude, user.Longitude, userId);
+                var events = await _combinedApiService.FetchEventsAsync(user.Latitude ?? 0, user.Longitude ?? 0, userId);
 
                 // Insert fetched events into the user's temporary table.
                 Console.WriteLine($"Inserting events into UserContent_{userId} table...");
@@ -109,7 +109,12 @@ namespace ventaura_backend.Controllers
                     double.TryParse(eventCoordinates[1], out var eventLongitude);
 
                     // Calculate distance
-                    var distance = DistanceCalculator.CalculateDistance(user.Latitude, user.Longitude, eventLatitude, eventLongitude);
+                    var distance = DistanceCalculator.CalculateDistance(
+                        user.Latitude ?? 0, 
+                        user.Longitude ?? 0, 
+                        eventLatitude, 
+                        eventLongitude
+                    );
                     e.Distance = (float)distance; // Assign calculated distance to the event object
 
                     Console.WriteLine($"Distance successfully calculated with a value of {distance}.");
@@ -125,11 +130,11 @@ namespace ventaura_backend.Controllers
                     insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Title", e.Title ?? (object)DBNull.Value));
                     insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Description", e.Description ?? (object)DBNull.Value));
                     insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Location", e.Location ?? (object)DBNull.Value));
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Start", e.Start ?? (object)DBNull.Value));
+                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Start", e.Start.HasValue ? e.Start.Value : (object)DBNull.Value));
                     insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Source", e.Source ?? (object)DBNull.Value));
                     insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Type", e.Type ?? (object)DBNull.Value));
                     insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("CurrencyCode", e.CurrencyCode ?? (object)DBNull.Value));
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Amount", e.Amount ?? (object)DBNull.Value));
+                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Amount", e.Amount.HasValue ? e.Amount.Value : (object)DBNull.Value));
                     insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("URL", e.URL ?? (object)DBNull.Value));
                     insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Distance", e.Distance));
 
