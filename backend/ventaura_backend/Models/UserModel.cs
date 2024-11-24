@@ -16,6 +16,7 @@ namespace ventaura_backend.Models
         public string Preferences { get; set; } // User's preferences for event recommendations (e.g., "Music, Sports").
         public string Dislikes { get; set; } // User's dislikes of things they are not interested. 
         public string PriceRange { get; set; } // User's selected price range for events (e.g., "$0-$50").
+        public string MaxDistance { get; set; } // User's preferred maximum distance. 
         public DateTime CreatedAt { get; set; } = DateTime.Now;  // Timestamp of when the user account was created.
         public string PasswordHash { get; set; } // Securely hashed password for authentication.
         public bool IsLoggedIn { get; set; } = false; // Indicates if the user is currently logged in.
