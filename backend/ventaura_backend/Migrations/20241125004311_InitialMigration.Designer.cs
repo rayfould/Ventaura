@@ -12,7 +12,7 @@ using ventaura_backend.Data;
 namespace ventaura_backend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20241124214711_InitialMigration")]
+    [Migration("20241125004311_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />

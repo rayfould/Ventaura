@@ -37,4 +37,3 @@ namespace ventaura_backend.Data
         }
     }
 }
-
