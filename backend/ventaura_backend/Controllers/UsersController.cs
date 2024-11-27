@@ -9,6 +9,7 @@ using ventaura_backend.Data;
 using ventaura_backend.Models;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
+using Npgsql;
 
 namespace ventaura_backend.Controllers
 {
@@ -30,50 +31,47 @@ namespace ventaura_backend.Controllers
         [HttpPost("create-account")]
         public async Task<IActionResult> CreateAccount([FromBody] User user)
         {
-            // Console.WriteLine("Request payload received:");
-            // Console.WriteLine(JsonConvert.SerializeObject(request));
-
+            Console.WriteLine("Create account request received.");
+            
             try
             {
-                // Validate that all required fields are provided by the user.
-                if (string.IsNullOrEmpty(user.Email) ||
-                    string.IsNullOrEmpty(user.FirstName) ||
-                    string.IsNullOrEmpty(user.LastName) ||
-                    user.Latitude == null ||
-                    user.Longitude == null ||
-                    string.IsNullOrEmpty(user.Preferences) ||
-                    string.IsNullOrEmpty(user.Dislikes) ||
-                    string.IsNullOrEmpty(user.PriceRange) ||
-                    user.MaxDistance == null ||
-                    string.IsNullOrEmpty(user.PasswordHash))
+                if (string.IsNullOrEmpty(user.Email))
                 {
-                    return BadRequest(new { Message = "All fields are required to create an account. Please fill in all the information." });
+                    Console.WriteLine("Validation failed: Missing email.");
+                    return BadRequest(new { Message = "Email is required." });
                 }
 
-                // Check if the email is already registered in the database.
-                var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
-                if (existingUser != null)
+                Console.WriteLine($"Checking if email {user.Email} exists in the database...");
+                if (await _dbContext.Users.AnyAsync(u => u.Email == user.Email))
                 {
-                    return Conflict(new { Message = "An account with this email already exists. Please log in or use a different email." });
+                    Console.WriteLine($"Conflict: Email {user.Email} already exists.");
+                    return Conflict(new { Message = "An account with this email already exists." });
                 }
 
-                // Securely hash the user's password before storing it.
+                Console.WriteLine($"Email {user.Email} is unique. Proceeding with user creation...");
+
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
                 user.CreatedAt = DateTime.UtcNow;
-                user.IsLoggedIn = false; // Ensure IsLoggedIn is explicitly set to false.
+                user.IsLoggedIn = false;
 
-                // Add the new user to the database.
                 _dbContext.Users.Add(user);
                 await _dbContext.SaveChangesAsync();
 
-                // Log success and return a success response.
-                Console.WriteLine($"Account created successfully for Email: {user.Email}");
+                Console.WriteLine($"User {user.Email} created successfully with ID {user.UserId}.");
                 return Ok(new { Message = "Account created successfully!", userId = user.UserId });
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine($"Database update exception: {ex.Message}");
+                if (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
+                {
+                    return Conflict(new { Message = "An account with this email already exists in the Database. Please log in or use a different email." });
+                }
+                return StatusCode(500, new { Message = "A database error occurred. Please try again later." });
             }
             catch (Exception ex)
             {
-                // Log and return server error for unexpected issues.
-                Console.WriteLine($"Error in CreateAccount: {ex.Message}");
+                Console.WriteLine($"Unhandled exception: {ex.Message}");
                 return StatusCode(500, new { Message = "An error occurred while creating the account. Please try again later." });
             }
         }
