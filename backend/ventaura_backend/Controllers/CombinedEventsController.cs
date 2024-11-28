@@ -36,7 +36,7 @@ namespace ventaura_backend.Controllers
         {
             try
             {
-                // Retrieve the user and validate their location data.
+                // Retrieve the user and validate their location data
                 var user = await _dbContext.Users.FindAsync(userId);
                 if (user == null || user.Latitude == null || user.Longitude == null)
                 {
@@ -44,151 +44,151 @@ namespace ventaura_backend.Controllers
                     return BadRequest("User not found or location is missing.");
                 }
 
-                Console.WriteLine($"Location successfully extracted for {userId}...");
+                Console.WriteLine($"Location successfully extracted for userId: {userId}.");
 
-                // Use a single DbConnection for direct SQL execution.
-                // Open a database connection for SQL execution.
-                using var connection = _dbContext.Database.GetDbConnection();
-                await connection.OpenAsync();
-
-                // Check if the table exists for the user and drop it if it does.
-                Console.WriteLine($"Checking if UserContent_{userId} table exists...");
-
-                using (var checkTableCommand = connection.CreateCommand())
+                // Use a single database connection for the operation
+                using (var connection = _dbContext.Database.GetDbConnection())
                 {
-                    checkTableCommand.CommandText = $@"
-                        DO $$
-                        BEGIN
-                            IF EXISTS (SELECT FROM pg_tables WHERE tablename = 'usercontent_{userId}') THEN
-                                EXECUTE 'DROP TABLE usercontent_{userId}';
-                            END IF;
-                        END $$;";
-                    await checkTableCommand.ExecuteNonQueryAsync();
-                }
+                    await connection.OpenAsync();
+                    Console.WriteLine($"Database connection opened successfully for userId: {userId}");
+                    Console.WriteLine($"Connection state before table existence check: {connection.State}");
 
-                // Create the user-specific UserContent table.
-                Console.WriteLine($"Creating UserContent_{userId} table...");
-
-                using (var createTableCommand = connection.CreateCommand())
-                {
-                    createTableCommand.CommandText = $@"
-                        CREATE TABLE usercontent_{userId} (
-                            ContentId SERIAL PRIMARY KEY,
-                            Title VARCHAR(255),
-                            Description TEXT,
-                            Location VARCHAR(255),
-                            Start TIMESTAMPTZ,
-                            Source VARCHAR(50),
-                            Type VARCHAR(50),
-                            CurrencyCode VARCHAR(10),
-                            Amount VARCHAR(20),
-                            URL TEXT,
-                            Distance FLOAT
+                    string tableExistsQuery = $@"
+                        SELECT EXISTS (
+                            SELECT 1
+                            FROM pg_catalog.pg_tables
+                            WHERE schemaname = 'public'
+                            AND tablename = 'usercontent_{userId}'
                         );";
-                    await createTableCommand.ExecuteNonQueryAsync();
-                }
 
-                // Fetch events from the combined API service based on user's location.
-                Console.WriteLine($"Fetching events for userId {userId}...");
-                var events = await _combinedApiService.FetchEventsAsync(user.Latitude ?? 0, user.Longitude ?? 0, userId);
+                    bool tableExists = false;
 
-                // Insert fetched events into the user's temporary table.
-                Console.WriteLine($"Inserting events into UserContent_{userId} table...");
-                foreach (var e in events)
-                {
-
-                    // Parse event location into latitude and longitude
-                    var eventCoordinates = e.Location?.Split(',');
-                    if (eventCoordinates == null || eventCoordinates.Length != 2)
+                    // Retry logic to handle connection or query issues
+                    for (int attempt = 0; attempt < 3; attempt++)
                     {
-                        Console.WriteLine($"Invalid location format for event: {e.Title}");
-                        continue;
-                    }
-
-                    double.TryParse(eventCoordinates[0], out var eventLatitude);
-                    double.TryParse(eventCoordinates[1], out var eventLongitude);
-
-                    // Calculate distance
-                    var distance = DistanceCalculator.CalculateDistance(
-                        user.Latitude ?? 0, 
-                        user.Longitude ?? 0, 
-                        eventLatitude, 
-                        eventLongitude
-                    );
-                    e.Distance = (float)distance; // Assign calculated distance to the event object
-
-                    Console.WriteLine($"Distance successfully calculated with a value of {distance}.");
-
-                    using var insertCommand = connection.CreateCommand();
-
-                    insertCommand.CommandText = $@"
-                        INSERT INTO usercontent_{userId} 
-                        (Title, Description, Location, Start, Source, Type, CurrencyCode, Amount, URL, Distance) 
-                        VALUES (@Title, @Description, @Location, @Start, @Source, @Type, @CurrencyCode, @Amount, @URL, @Distance);";
-
-                    // Add parameters for safe insertion of event data.
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Title", e.Title ?? (object)DBNull.Value));
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Description", e.Description ?? (object)DBNull.Value));
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Location", e.Location ?? (object)DBNull.Value));
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Start", e.Start.HasValue ? e.Start.Value : (object)DBNull.Value));
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Source", e.Source ?? (object)DBNull.Value));
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Type", e.Type ?? (object)DBNull.Value));
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("CurrencyCode", e.CurrencyCode ?? (object)DBNull.Value));
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Amount", e.Amount.HasValue ? e.Amount.Value : (object)DBNull.Value));
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("URL", e.URL ?? (object)DBNull.Value));
-                    insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Distance", e.Distance));
-
-                    await insertCommand.ExecuteNonQueryAsync();
-                }
-
-                // Retrieve the inserted events with their ContentId values.
-                var insertedEvents = new List<object>();
-                using (var fetchCommand = connection.CreateCommand())
-                {
-                    fetchCommand.CommandText = $@"
-                        SELECT ContentId, Title, Description, Location, Start, Source, Type, CurrencyCode, Amount, URL, Distance
-                        FROM usercontent_{userId};";
-
-                    using var reader = await fetchCommand.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        insertedEvents.Add(new
+                        try
                         {
-                            ContentId = reader.GetInt32(0),
-                            Title = reader.IsDBNull(1) ? null : reader.GetString(1),
-                            Description = reader.IsDBNull(2) ? null : reader.GetString(2),
-                            Location = reader.IsDBNull(3) ? null : reader.GetString(3),
-                            Start = reader.IsDBNull(4) ? (DateTime?)null : reader.GetDateTime(4), // Explicitly handle nullable DateTime
-                            Source = reader.IsDBNull(5) ? null : reader.GetString(5),
-                            Type = reader.IsDBNull(6) ? null : reader.GetString(6),
-                            CurrencyCode = reader.IsDBNull(7) ? null : reader.GetString(7),
-                            Amount = reader.IsDBNull(8) ? null : reader.GetString(8),
-                            URL = reader.IsDBNull(9) ? null : reader.GetString(9),
-                            Distance = reader.IsDBNull(10) ? (float?)null : (float)reader.GetFloat(10)
+                            // Check if the user-specific table exists
+                            Console.WriteLine($"Checking for existing UserContent_{userId} table...");
+                            using (var checkTableCommand = connection.CreateCommand())
+                            {
+                                checkTableCommand.CommandText = tableExistsQuery;
+                                Console.WriteLine($"SQL Command: {checkTableCommand.CommandText}");
 
-                        });
+                                var result = await checkTableCommand.ExecuteScalarAsync();
+                                Console.WriteLine($"Query executed successfully. Result: {result}");
+
+                                tableExists = result != null && (bool)result;
+                                Console.WriteLine($"Table existence check result: {tableExists}");
+                                break; // Exit the loop if successful
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Attempt {attempt + 1} failed: {ex.Message}");
+
+                            // Close and reopen the connection if it's invalid
+                            if (connection.State != System.Data.ConnectionState.Open)
+                            {
+                                Console.WriteLine("Reopening database connection...");
+                                await connection.OpenAsync();
+                                Console.WriteLine($"Connection reopened successfully. State: {connection.State}");
+                            }
+
+                            if (attempt == 2) throw; // Re-throw after the 3rd attempt
+                        }
                     }
+
+                    // Drop the table if it exists
+                    if (tableExists)
+                    {
+                        Console.WriteLine($"UserContent_{userId} table exists. Dropping...");
+                        using var dropTableCommand = connection.CreateCommand();
+                        dropTableCommand.CommandText = $@"DROP TABLE usercontent_{userId};";
+                        await dropTableCommand.ExecuteNonQueryAsync();
+                        Console.WriteLine($"UserContent_{userId} table dropped.");
+                    }
+
+                    // Create the user-specific table
+                    Console.WriteLine($"Creating UserContent_{userId} table...");
+                    using (var createTableCommand = connection.CreateCommand())
+                    {
+                        createTableCommand.CommandText = $@"
+                            CREATE TABLE usercontent_{userId} (
+                                ContentId SERIAL PRIMARY KEY,
+                                Title VARCHAR(255),
+                                Description TEXT,
+                                Location VARCHAR(255),
+                                Start TIMESTAMPTZ,
+                                Source VARCHAR(50),
+                                Type VARCHAR(50),
+                                CurrencyCode VARCHAR(10),
+                                Amount VARCHAR(20),
+                                URL TEXT,
+                                Distance FLOAT
+                            );";
+                        Console.WriteLine($"SQL Command: {createTableCommand.CommandText}");
+                        await createTableCommand.ExecuteNonQueryAsync();
+                        Console.WriteLine($"UserContent_{userId} table created.");
+                    }
+
+                    // Fetch events from the combined API service
+                    Console.WriteLine($"Fetching events for userId {userId}...");
+                    var events = await _combinedApiService.FetchEventsAsync(user.Latitude.Value, user.Longitude.Value, userId);
+
+                    // Insert events into the user-specific table
+                    Console.WriteLine($"Inserting events into UserContent_{userId} table...");
+                    foreach (var e in events)
+                    {
+                        var eventCoordinates = e.Location?.Split(',');
+                        if (eventCoordinates == null || eventCoordinates.Length != 2)
+                        {
+                            // Console.WriteLine($"Invalid location format for event: {e.Title}");
+                            continue;
+                        }
+
+                        double.TryParse(eventCoordinates[0], out var eventLatitude);
+                        double.TryParse(eventCoordinates[1], out var eventLongitude);
+
+                        var distance = DistanceCalculator.CalculateDistance(
+                            user.Latitude.Value,
+                            user.Longitude.Value,
+                            eventLatitude,
+                            eventLongitude
+                        );
+                        e.Distance = (float)distance;
+
+                        // Console.WriteLine($"Distance successfully calculated with a value of {distance}.");
+
+                        using var insertCommand = connection.CreateCommand();
+                        insertCommand.CommandText = $@"
+                            INSERT INTO usercontent_{userId} 
+                            (Title, Description, Location, Start, Source, Type, CurrencyCode, Amount, URL, Distance) 
+                            VALUES (@Title, @Description, @Location, @Start, @Source, @Type, @CurrencyCode, @Amount, @URL, @Distance);";
+
+                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Title", e.Title ?? (object)DBNull.Value));
+                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Description", e.Description ?? (object)DBNull.Value));
+                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Location", e.Location ?? (object)DBNull.Value));
+                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Start", e.Start.HasValue ? e.Start.Value : (object)DBNull.Value));
+                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Source", e.Source ?? (object)DBNull.Value));
+                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Type", e.Type ?? (object)DBNull.Value));
+                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("CurrencyCode", e.CurrencyCode ?? (object)DBNull.Value));
+                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Amount", e.Amount.HasValue ? e.Amount.Value : (object)DBNull.Value));
+                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("URL", e.URL ?? (object)DBNull.Value));
+                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Distance", e.Distance));
+
+                        await insertCommand.ExecuteNonQueryAsync();
+                    }
+
+                    return Ok(new
+                    {
+                        Message = $"Table usercontent_{userId} created and populated.",
+                        EventCount = events.Count
+                    });
                 }
-
-                Console.WriteLine($"Table usercontent_{userId} created and populated.");
-
-                return Ok(new {
-                    Message = $"Table usercontent_{userId} created and populated.", 
-                    EventCount = events.Count,
-                    // events
-                    insertedEvents
-                    //rankedEvents 
-                });
-            }
-            catch (Npgsql.PostgresException ex)
-            {
-                // Log and return database-specific errors.
-                Console.WriteLine($"Postgres error: {ex.Message}");
-                return StatusCode(500, $"Database error: {ex.Message}");
             }
             catch (Exception ex)
             {
-                // Log and return general errors.
                 Console.WriteLine($"Error in FetchCombinedEvents: {ex.Message}");
                 return StatusCode(500, "An error occurred while fetching events.");
             }
