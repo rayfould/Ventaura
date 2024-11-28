@@ -26,7 +26,7 @@ public class CombinedAPIService
     public async Task<List<UserContent>> FetchEventsAsync(double latitude, double longitude, int userId)
     {
         // Fetch events from the Amadeus API.
-        var amadeusEvents = await _amadeusService.FetchAmadeusEventsAsync(latitude, longitude, userId);
+        // var amadeusEvents = await _amadeusService.FetchAmadeusEventsAsync(latitude, longitude, userId);
 
         // Fetch events from the Ticketmaster API.
         var ticketmasterEvents = await _ticketmasterService.FetchTicketmasterEventsAsync(latitude, longitude, userId);
@@ -35,7 +35,7 @@ public class CombinedAPIService
         var yelpEvents = await _yelpFusionService.FetchYelpEventsAsync(latitude, longitude, userId);
 
         // Combine the results of the API calls.
-        var events = amadeusEvents.Concat(ticketmasterEvents).Concat(yelpEvents).ToList();
+        var events = ticketmasterEvents.Concat(yelpEvents).ToList();
 
         /* // Log each event's details for debugging.
         foreach (var e in events)

@@ -140,15 +140,18 @@ namespace ventaura_backend.Controllers
                     Console.WriteLine($"Inserting events into UserContent_{userId} table...");
                     foreach (var e in events)
                     {
-                        var eventCoordinates = e.Location?.Split(',');
-                        if (eventCoordinates == null || eventCoordinates.Length != 2)
-                        {
-                            // Console.WriteLine($"Invalid location format for event: {e.Title}");
-                            continue;
-                        }
+                        double eventLatitude, eventLongitude;
 
-                        double.TryParse(eventCoordinates[0], out var eventLatitude);
-                        double.TryParse(eventCoordinates[1], out var eventLongitude);
+                        if (string.IsNullOrEmpty(e.Location) ||
+                            !e.Location.Contains(",") ||
+                            !double.TryParse(e.Location.Split(',')[0], out eventLatitude) ||
+                            !double.TryParse(e.Location.Split(',')[1], out eventLongitude))
+                        {
+                            // Assign user's location as default for invalid or missing event location
+                            Console.WriteLine($"Invalid or missing location for event: {e.Title}. Using user's location as default.");
+                            eventLatitude = user.Latitude.Value;
+                            eventLongitude = user.Longitude.Value;
+                        }
 
                         var distance = DistanceCalculator.CalculateDistance(
                             user.Latitude.Value,
@@ -156,8 +159,10 @@ namespace ventaura_backend.Controllers
                             eventLatitude,
                             eventLongitude
                         );
+
                         e.Distance = (float)distance;
 
+                        Console.WriteLine($"Processed event: {e.Title}, Distance: {distance} km.");
                         // Console.WriteLine($"Distance successfully calculated with a value of {distance}.");
 
                         using var insertCommand = connection.CreateCommand();
@@ -209,43 +214,52 @@ namespace ventaura_backend.Controllers
                 }
 
                 // Use a single DbConnection for direct SQL execution.
-                using var connection = _dbContext.Database.GetDbConnection();
-                await connection.OpenAsync();
-
-                // Check if the user's temporary table exists before attempting to drop it.
-                Console.WriteLine($"Checking if UserContent_{userId} table exists...");
-                using (var checkTableCommand = connection.CreateCommand())
+                using (var connection = _dbContext.Database.GetDbConnection())
                 {
-                    checkTableCommand.CommandText = $@"
-                        SELECT EXISTS (
-                            SELECT FROM pg_tables 
-                            WHERE schemaname = 'public' 
-                            AND tablename = 'usercontent_{userId}'
-                        );";
-                    
-                    var tableExists = (bool)(await checkTableCommand.ExecuteScalarAsync() ?? false);
-                    
-                    if (tableExists)
+                    for (int attempt = 0; attempt < 3; attempt++)
                     {
-                        Console.WriteLine($"UserContent_{userId} table exists. Attempting to drop it...");
-                        using (var dropTableCommand = connection.CreateCommand())
+                        try
                         {
-                            dropTableCommand.CommandText = $@"DROP TABLE usercontent_{userId};";
-                            await dropTableCommand.ExecuteNonQueryAsync();
-                            Console.WriteLine($"UserContent_{userId} table successfully dropped.");
+                            if (connection.State != System.Data.ConnectionState.Open)
+                            {
+                                Console.WriteLine("Opening database connection...");
+                                await connection.OpenAsync();
+                                Console.WriteLine($"Connection opened successfully. State: {connection.State}");
+                            }
+
+                            // Drop the user-specific table if it exists.
+                            using (var dropTableCommand = connection.CreateCommand())
+                            {
+                                dropTableCommand.CommandText = $@"DROP TABLE IF EXISTS usercontent_{userId};";
+                                Console.WriteLine($"Executing: {dropTableCommand.CommandText}");
+                                await dropTableCommand.ExecuteNonQueryAsync();
+                                Console.WriteLine($"UserContent_{userId} table dropped if it existed.");
+                            }
+
+                            break; // Exit the retry loop if successful
                         }
-                    }
-                    else
-                    {
-                        Console.WriteLine($"UserContent_{userId} table does not exist. Skipping drop operation.");
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Attempt {attempt + 1} failed: {ex.Message}");
+
+                            if (connection.State != System.Data.ConnectionState.Open)
+                            {
+                                Console.WriteLine("Reopening database connection...");
+                                await connection.CloseAsync();
+                                await connection.OpenAsync();
+                                Console.WriteLine($"Connection reopened successfully. State: {connection.State}");
+                            }
+
+                            if (attempt == 2) throw; // Re-throw after 3rd attempt
+                        }
                     }
                 }
 
                 // Update the user's login status in the database.
                 user.IsLoggedIn = false;
                 await _dbContext.SaveChangesAsync();
-
                 Console.WriteLine($"User {user.Email} logged out successfully.");
+
                 return Ok(new { Message = "User logged out successfully." });
             }
             catch (Npgsql.PostgresException ex)
