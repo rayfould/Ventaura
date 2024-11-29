@@ -308,13 +308,7 @@ class EventRanking:
         # Sort by Final Score
         ranked_df = ranked_df.sort_values('Final Score', ascending=False)
 
-        # Select and order columns
-        ranked_df = ranked_df[['Rank', 'Event ID', 'Raw Score', 'Final Score', 'Event Type', 'Price ($)',
-                               'Distance (km)', 'Date/Time'] +
-                              [col for col in ranked_df.columns if col not in
-                               ['Rank', 'Event ID', 'Raw Score', 'Final Score', 'Event Type', 'Price ($)',
-                                'Distance (km)', 'Date/Time']]]
-
+        ranked_df = ranked_df.drop(['Rank', 'Raw Score', 'Final Score'], axis=1)
         return ranked_df, event_scores_detailed
 
     def save_ranked_events(self, user_id, ranked_df):
@@ -327,12 +321,16 @@ if __name__ == "__main__":
     ranker = EventRanking(debug_mode=True)
 
     # Load events from a CSV file
-    events_df = pd.read_csv("API/content/199.csv")  # Replace with your test file path
+    events_df = pd.read_csv("API/content/100.csv")  # Replace with your test file path
     ranker.load_events(events_df)
 
     # Filter out invalid events
     events_removed = ranker.filter_events()
     print(f"Removed {events_removed} invalid events")
+
+    pd.set_option('display.max_columns', None)  # Show all columns
+    pd.set_option('display.width', None)  # Width of the display in characters
+    pd.set_option('display.max_colwidth', None)  # Show full content of each column
 
     # Create a test user
     test_user = {
@@ -347,7 +345,7 @@ if __name__ == "__main__":
 
     # Print results
     print("\nTop 10 Ranked Events:")
-    print(ranked_df.head(10))
+    print(ranked_df.head(10).to_string(index=False))
 
     # Save results
     ranker.save_ranked_events(199, ranked_df)
