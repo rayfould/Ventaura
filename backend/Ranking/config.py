@@ -21,7 +21,7 @@ from sklearn.manifold import TSNE
 from torch.fx.traceback import get_current_meta
 from tqdm import tqdm
 import seaborn as sns
-from torchviz import make_dot
+#from torchviz import make_dot
 import time
 from pathlib import Path
 from decimal import Decimal, getcontext

@@ -247,7 +247,7 @@ class EventRanking:
         final_score = round(float(np.dot(scores, [self.normalized_weights['Event Type'],
                                                   self.normalized_weights['Distance'],
                                                   self.normalized_weights['Time'],
-                                                  self.normalized_weights['Price']])), 2)
+                                                  self.normalized_weights['Price']])) / 100, 2)
 
         # Apply penalty
         penalized_score = apply_penalty(final_score, event, user)
@@ -298,7 +298,7 @@ class EventRanking:
                 final_score = self.calculate_score(user, event)
             event_scores_detailed.append((event_id, score, final_score))
 
-        # Create DataFrame with rankings
+            # Create DataFrame with rankings
         ranked_df = self.events_df.copy()
         ranked_df['Raw Score'] = ranked_df['Event ID'].map({id: raw for id, raw, _ in event_scores_detailed})
         ranked_df['Final Score'] = ranked_df['Event ID'].map({id: final for id, _, final in event_scores_detailed})
@@ -308,8 +308,15 @@ class EventRanking:
         # Sort by Final Score
         ranked_df = ranked_df.sort_values('Final Score', ascending=False)
 
-        ranked_df = ranked_df.drop(['Rank', 'Raw Score', 'Final Score'], axis=1)
-        return ranked_df, event_scores_detailed
+        # Create display DataFrame
+        display_df = ranked_df.copy()
+        display_df['Hours Until Event'] = (display_df['Date/Time'] - self.CURRENT_TIME).dt.total_seconds() / 3600
+        display_df['Hours Until Event'] = display_df['Hours Until Event'].round(1)
+
+        # Remove scoring columns from the original DataFrame
+        ranked_df = ranked_df.drop(['Rank', 'Raw Score', 'Final Score', 'Date/Time'], axis=1)
+
+        return ranked_df, display_df, event_scores_detailed
 
     def save_ranked_events(self, user_id, ranked_df):
         csv_path = f"API/content/{user_id}.csv"
@@ -334,18 +341,27 @@ if __name__ == "__main__":
 
     # Create a test user
     test_user = {
-        'Preferences': frozenset(['concert', 'festival']),
+        'Preferences': frozenset(['music', 'festival']),
         'Disliked': frozenset(['opera']),
         'Price Range': '$$',
         'Max Distance': 'Local'
     }
 
+    # Print user preferences
+    print("\nUser Preferences:")
+    print(f"Preferred Events: {', '.join(sorted(test_user['Preferences']))}")
+    print(f"Disliked Events: {', '.join(sorted(test_user['Disliked']))}")
+    print(f"Price Range: {test_user['Price Range']}")
+    print(f"Max Distance: {test_user['Max Distance']}")
+    print("\n" + "=" * 80)  # Separator line
+
     # Rank events for the user
-    ranked_df, detailed_scores = ranker.rank_events(test_user)
+    ranked_df, display_df, detailed_scores = ranker.rank_events(test_user)
 
-    # Print results
+    # Print results with scores included
     print("\nTop 10 Ranked Events:")
-    print(ranked_df.head(10).to_string(index=False))
+    print(display_df[['Event ID', 'Raw Score', 'Final Score', 'Event Type', 'Price ($)',
+                      'Distance (km)', 'Hours Until Event']].head(10).to_string(index=False))
 
-    # Save results
+    # Save results (without scores)
     ranker.save_ranked_events(199, ranked_df)

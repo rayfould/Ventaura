@@ -1,21 +1,43 @@
-# Ignore virtual environments
+# Virtual Environment
+venv/
+**/venv/
+venv/**/*
 .venv/
+ENV/
+env/
 
-# Ignore Python cache files
+# Python
 __pycache__/
 *.py[cod]
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+*.dll
+*.lib
 
-# Ignore IDE configuration files
+# IDE
 .idea/
-*.sln
+.vscode/
+*.swp
+*.swo
 
-# Ignore system-specific files
+# Build files
+**/bin/
+**/obj/
+
+# OS
 .DS_Store
-Thumbs.db
-
-# Ignore logs and temporary files
-*.log
-*.tmp
-
-# Ignore compiled Python files
-*.py[cod]
