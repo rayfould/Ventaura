@@ -316,10 +316,28 @@ class EventRanking:
         # Remove scoring columns from the original DataFrame
         ranked_df = ranked_df.drop(['Rank', 'Raw Score', 'Final Score', 'Date/Time'], axis=1)
 
-        return ranked_df, display_df, event_scores_detailed
+        return ranked_df, event_scores_detailed
 
     def save_ranked_events(self, user_id, ranked_df):
-        csv_path = f"API/content/{user_id}.csv"
+
+        # Get the directory where RBS.py is located
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        output_dir = os.path.join(current_dir, "API", "content")
+
+        print(f"Attempting to save ranked events to directory: {output_dir}")
+
+        # Ensure the output directory exists
+        if not os.path.exists(output_dir):
+            print(f"Directory {output_dir} does not exist, creating it.")
+            os.makedirs(output_dir)
+        else:
+            print(f"Directory {output_dir} exists.")
+
+        # Construct the full path to the output CSV file
+        csv_path = os.path.join(output_dir, f"{user_id}.csv")
+        print(f"Saving ranked events to file: {csv_path}")
+
+        # Save the DataFrame to CSV
         ranked_df.to_csv(csv_path, index=False)
 
 

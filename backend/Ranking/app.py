@@ -1,20 +1,22 @@
-from fastapi import FastAPI, HTTPException
+import sys
+import os
+from fastapi import FastAPI, HTTPException, Request
 from numpy.ma.core import append
-from pydantic import *
+from pydantic import BaseModel, Field
 from typing import *
-from  ..config import *
-from ..DQL import QNetwork
-from ..Event_Ranking_Environment import EventRecommendationEnv
-import pytest
-from ..DQL_Test import EventTester
-from ..RBS import EventRanking
+# Local imports
+from config import *
+from DQL import QNetwork
+from Event_Ranking_Environment import EventRecommendationEnv
+from DQL_Test import EventTester
+from RBS import EventRanking
 
-app = FastAPI()
+app = FastAPI(debug=True) 
 
 # Define required columns
 required_columns = {
-    'events_df': ['Event ID', 'Event Type', 'Date/Time',
-                  'Price ($)', 'Distance (km)', 'Popularity'],
+    'events_df': ['contentId', 'title', 'description', 'location', 'start',
+                  'source', 'type', 'currencyCode', 'amount', 'url', 'distance'],
     'user_df': ['user_id', 'preferred_events', 'undesirable_events',
                 'city', 'latitude', 'longitude', 'max_distance',
                 'price_range', 'preferred_crowd_size', 'age']
@@ -38,19 +40,6 @@ class User(BaseModel):
     preferred_crowd_size: str
     age: int = Field(..., gt=0, lt=120)
 
-    @field_validator('preferred_events', 'undesirable_events')
-    @classmethod
-    def split_events(cls, v: str) -> List[str]:
-        if isinstance(v, str):
-            return [event.strip() for event in v.split(',')]
-        return v
-
-    @field_validator('preferred_crowd_size')
-    def validate_preferred_crowd_size(cls, v):
-        if v not in POPULARITY_RANGES:
-            raise ValueError('Invalid crowd size')
-        return v
-
 
 
 class Event(BaseModel):
@@ -65,6 +54,7 @@ class Event(BaseModel):
 class RankedEvent(Event):
     rank: int
     score: float
+
 
 
 class EventRankingService:
@@ -117,9 +107,38 @@ def validate_dataframe_columns(df: pd.DataFrame, expected_columns: List[str], df
         raise ValueError(f"Missing columns in {df_name}: {missing_columns}")
     return True
 
+def validate_input(user_id: int, events_df: pd.DataFrame) -> Tuple[pd.DataFrame, bool]:
+    # Validate user_id
+    if not isinstance(user_id, int) or user_id <= 0:
+        raise ValueError("Invalid user_id")
+
+    # Validate events_df structure
+    required_event_columns = set(required_columns['events_df'])
+    if not set(events_df.columns).issuperset(required_event_columns):
+        missing_cols = required_event_columns - set(events_df.columns)
+        raise ValueError(f"Missing columns: {missing_cols}")
+
+    # Validate data types
+    for col in required_event_columns:
+        if col == 'Date/Time':
+            events_df[col] = pd.to_datetime(events_df[col])
+        elif col == 'Price ($)':
+            events_df[col] = pd.to_numeric(events_df[col], errors='coerce')
+
+    return events_df, True  # Assuming all validations pass
+
+@app.middleware("http")
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        print("\n=== Error Traceback ===")
+        print(traceback.format_exc())
+        print("=====================\n")
+        raise e
 
 # Load model
-ranking_service = EventRankingService(model_path=LOAD_MODEL_PATH)
+#ranking_service = EventRankingService(model_path=LOAD_MODEL_PATH)
 
 #
 # @app.post("/rank-events/")
@@ -199,50 +218,62 @@ ranking_service = EventRankingService(model_path=LOAD_MODEL_PATH)
 #         print(f"Traceback: {traceback.format_exc()}")
 #
 #         raise HTTPException(status_code=400, detail=f"Error ranking events: {str(e)}")
-@app.post("/rank-events/{user_id}")
+@app.post("/rank-events/{user_id}")  
 async def rank_events(user_id: int) -> dict:
+    print(f"Rank events called with user_id: {user_id}")
     try:
-        # Initialize the ranking system
+
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"Content directory exists: {os.path.exists('API/content')}")
+        print(f"Absolute path to content: {os.path.abspath('API/content')}")
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"__file__ is: {__file__}")
+        print(f"Absolute path of __file__: {os.path.abspath(__file__)}")
+        print(f"Current_dir: {current_dir}")
+        print(f"Looking for CSV at: {input_path}")
+
+        print(f"\n=== Starting ranking process for user {user_id} ===")
+        
         ranker = EventRanking(debug_mode=True)
+        print("Ranking system initialized")
 
-        # Construct file path
-        input_path = f"API/content/{user_id}.csv"
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        input_path = os.path.join(current_dir, "API", "content", f"{user_id}.csv")
+        print(f"Looking for CSV at: {input_path}")
 
-        # Check if file exists
         if not os.path.exists(input_path):
+            print(f"ERROR: File not found at {input_path}")
             raise HTTPException(
                 status_code=404,
-                detail=f"No events file found for user {user_id}"
+                detail=f"No events file found for user {user_id} at {input_path}"
             )
 
-        try:
-            events_df = pd.read_csv(input_path)
-        except pd.errors.EmptyDataError:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Event file for user {user_id} is empty"
-            )
-        except pd.errors.ParserError:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid CSV format in event file for user {user_id}"
-            )
+        print("File found, reading CSV...")
+        events_df = pd.read_csv(input_path)
+        print(f"CSV loaded with {len(events_df)} events")
 
-        # Load and process events
+        print("Loading events into ranker...")
         ranker.load_events(events_df)
         events_removed = ranker.filter_events()
+        print(f"Events filtered. Removed {events_removed} events")
 
-        # TODO: Load actual user preferences from database
         test_user = {
             'Preferences': frozenset(['concert', 'festival']),
             'Disliked': frozenset(['opera']),
             'Price Range': '$$',
             'Max Distance': 'Local'
         }
+        print(f"Using test user preferences: {test_user}")
 
-        # Rank and save
-        ranked_df, _ = ranker.rank_events(test_user)
+        print("Starting ranking process...")
+        result = ranker.rank_events(test_user)
+        print(f"Ranking complete. Got {len(result)} values from rank_events")
+        ranked_df = result[0]
+        print(f"Using first dataframe with {len(ranked_df)} events")
+
+        print("Saving ranked events...")
         ranker.save_ranked_events(user_id, ranked_df)
+        print("Events saved successfully")
 
         return {
             "success": True,
@@ -252,11 +283,46 @@ async def rank_events(user_id: int) -> dict:
         }
 
     except HTTPException as he:
+        print(f"HTTP Exception: {he.detail}")
         raise he
     except Exception as e:
+        print(f"ERROR: {str(e)}")
+        print(f"Exception type: {type(e)}")
+        import traceback
+        print(f"Traceback:\n{traceback.format_exc()}")
         raise HTTPException(
             status_code=500,
             detail=f"Internal server error: {str(e)}"
         )
 
 
+
+# Add middleware for error logging
+@app.middleware("http")
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        print("\n=== Error Traceback ===")
+        print(traceback.format_exc())
+        print("=====================\n")
+        raise e
+
+# Your existing endpoint code here...
+
+@app.get("/test")
+async def test():
+    return {"message": "API is working"}
+
+@app.get("/")
+async def root():
+    print("Root endpoint called")
+    return {"message": "API is running"}
+
+if __name__ == "__main__":
+    uvicorn.run(
+        app, 
+        host="127.0.0.1", 
+        port=8000, 
+        log_level="debug",
+    )
