@@ -375,7 +375,7 @@ def apply_penalty(final_score, event, user):
     """
     penalty_multiplier = 1.0  # No penalty by default
     # Price penalty
-    event_price = event['Price ($)']
+    event_price = event['amount']
     if event_price > 0:  # Ensure event price is valid
         user_price_pref = get_price_range(user['Price Range'])
         max_price = user_price_pref['max']
@@ -385,7 +385,7 @@ def apply_penalty(final_score, event, user):
             penalty_multiplier *= PENALTY_CONFIG["price"]["severe_penalty"]
 
     # Distance penalty
-    event_distance = event['Distance (km)']
+    event_distance = event['distance']
     max_distance = DISTANCE_RANGES[user['Max Distance']]
     tolerance_limit = max_distance * PENALTY_CONFIG["distance"]["tolerance_multiplier"]
 
@@ -393,12 +393,12 @@ def apply_penalty(final_score, event, user):
         penalty_multiplier *= PENALTY_CONFIG["distance"]["severe_penalty"]
 
     # Event type penalty (Disliked category)
-    event_type = normalize_event_type(event['Event Type'])
+    event_type = normalize_event_type(event['title'])
     if event_type in user['Disliked']:
         penalty_multiplier *= PENALTY_CONFIG["event_type"]["disliked_penalty"]
 
     # Far future event penalty
-    time_difference = (event['Date/Time'] - CURRENT_TIME).total_seconds() / 3600
+    time_difference = (event['start'] - CURRENT_TIME).total_seconds() / 3600
     if time_difference > PENALTY_CONFIG["time"]["far_future_threshold"]:
         # Calculate how many additional days beyond threshold
         days_beyond = (time_difference - PENALTY_CONFIG["time"]["far_future_threshold"]) / 24

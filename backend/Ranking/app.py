@@ -120,9 +120,9 @@ def validate_input(user_id: int, events_df: pd.DataFrame) -> Tuple[pd.DataFrame,
 
     # Validate data types
     for col in required_event_columns:
-        if col == 'Date/Time':
+        if col == 'start':
             events_df[col] = pd.to_datetime(events_df[col])
-        elif col == 'Price ($)':
+        elif col == 'amount':
             events_df[col] = pd.to_numeric(events_df[col], errors='coerce')
 
     return events_df, True  # Assuming all validations pass

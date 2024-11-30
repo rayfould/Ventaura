@@ -34,57 +34,41 @@ namespace EventRanking
     }
 
     public class Event
-    {
+{
+    [JsonPropertyName("contentId")]
+    public int ContentId { get; set; }
 
-        // Original fields needed for the algorithm (derived from new structure)
-        [JsonPropertyName("event_id")]
-        public int EventId => ContentId;  // Map from ContentId
+    [JsonPropertyName("title")]
+    public string Title { get; set; }
 
-        [JsonPropertyName("event_type")]
-        public string EventType => Type;   // Map from Type
+    [JsonPropertyName("description")]
+    public string Description { get; set; }
 
+    [JsonPropertyName("location")]
+    public string Location { get; set; }
 
-        [JsonPropertyName("date_time")]
-        public string DateTime => Start;    // Map from Start
+    [JsonPropertyName("start")]
+    public string Start { get; set; }
 
-        [JsonPropertyName("price")]
-        public double Price => double.TryParse(Amount, out double result) ? result : 0.0;  // Map from Amount
+    [JsonPropertyName("source")]
+    public string Source { get; set; }
 
-        // New structure fields
-        [JsonPropertyName("contentId")]
-        public int ContentId { get; set; }
+    [JsonPropertyName("type")]
+    public string Type { get; set; }
 
-        [JsonPropertyName("title")]
-        public string Title { get; set; }
+    [JsonPropertyName("currencyCode")]
+    public string CurrencyCode { get; set; }
 
-        [JsonPropertyName("description")]
-        public string Description { get; set; }
+    [JsonPropertyName("amount")]
+    public string Amount { get; set; }
 
-        [JsonPropertyName("location")]
-        public string Location { get; set; }
+    [JsonPropertyName("url")]
+    public string Url { get; set; }
 
-        [JsonPropertyName("start")]
-        public string Start { get; set; }
+    [JsonPropertyName("distance")]
+    public double Distance { get; set; }
+}
 
-        [JsonPropertyName("source")]
-        public string Source { get; set; }
-
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
-
-        [JsonPropertyName("currencyCode")]
-        public string CurrencyCode { get; set; }
-
-        [JsonPropertyName("amount")]
-        public string Amount { get; set; }
-
-        [JsonPropertyName("url")]
-        public string Url { get; set; }
-
-        [JsonPropertyName("distance")]
-        public double Distance { get; set; }
-
-    }
 
     public class RankedEvent : Event
     {

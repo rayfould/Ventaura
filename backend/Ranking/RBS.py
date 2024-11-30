@@ -11,7 +11,7 @@ class EventRanking:
         self.event_scores = []
         self.nan_score_count = 0
         self.normalized_weights = {
-            'Event Type': 45,
+            'title': 45,
             'Distance': 25,
             'Time': 15,
             'Price': 15
@@ -49,20 +49,14 @@ class EventRanking:
         })
 
     def load_events(self, events_df):
-        self.events_df = events_df.rename(columns={
-            'contentId': 'Event ID',
-            'title': 'Event Type',
-            'amount': 'Price ($)',
-            'start': 'Date/Time',
-            'distance': 'Distance (km)'
-        })
-        self.events_df['Date/Time'] = pd.to_datetime(self.events_df['Date/Time'], errors='coerce').dt.tz_localize(None)
+        self.events_df = events_df.copy()
+        self.events_df['start'] = pd.to_datetime(self.events_df['start'], errors='coerce').dt.tz_localize(None)
 
     def filter_events(self):
         mask = (
-            self.events_df['Date/Time'].notna() &
-            (pd.to_datetime(self.events_df['Date/Time']) >= self.CURRENT_TIME) &
-            (self.events_df[['Event Type', 'Distance (km)', 'Date/Time']].isna().sum(axis=1) <= 2) &
+            self.events_df['start'].notna() &
+            (pd.to_datetime(self.events_df['start']) >= self.CURRENT_TIME) &
+            (self.events_df[['title', 'distance', 'start']].isna().sum(axis=1) <= 2) &
             (self.events_df.isna().sum(axis=1) <= 4)
         )
         original_input = len(self.events_df)
@@ -203,8 +197,8 @@ class EventRanking:
         scores = np.zeros(4)
         breakdown = {} if self.DEBUG_MODE else None
 
-        # Event Type Score
-        event_type = self.normalize_event_type(event['Event Type'])
+        # title Score
+        event_type = self.normalize_event_type(event['title'])
         if pd.isna(event_type):
             scores[0] = 0
         else:
@@ -215,10 +209,10 @@ class EventRanking:
             ) * 100
         if self.DEBUG_MODE:
             breakdown[
-                'Event Type'] = f"{round(scores[0] * self.normalized_weights['Event Type'], 2)}/{self.normalized_weights['Event Type']}"
+                'title'] = f"{round(scores[0] * self.normalized_weights['title'], 2)}/{self.normalized_weights['title']}"
 
         # Distance Score
-        event_distance = event['Distance (km)']
+        event_distance = event['distance']
         max_distance = DISTANCE_RANGES.get(user.get('Max Distance', 'Any Distance'), DISTANCE_RANGES['Any Distance'])
         if pd.isna(event_distance):
             scores[1] = 0
@@ -229,7 +223,7 @@ class EventRanking:
                 'Distance'] = f"{round(scores[1] * self.normalized_weights['Distance'], 2)}/{self.normalized_weights['Distance']}"
 
         # Time Score
-        time_difference = (event['Date/Time'] - self.CURRENT_TIME)
+        time_difference = (event['start'] - self.CURRENT_TIME)
         time_in_hours = time_difference.total_seconds() / 3600
         scores[2] = self.time_score_multi_peak(time_in_hours)
         if self.DEBUG_MODE:
@@ -238,13 +232,13 @@ class EventRanking:
             breakdown['Hours Until Event'] = f"{time_in_hours:.1f} hours"
 
         # Price Score
-        scores[3] = self.score_price_relative(event['Price ($)'], user['Price Range'])
+        scores[3] = self.score_price_relative(event['amount'], user['Price Range'])
         if self.DEBUG_MODE:
             breakdown[
                 'Price'] = f"{round(scores[3] * self.normalized_weights['Price'], 2)}/{self.normalized_weights['Price']}"
 
         # Calculate final score
-        final_score = round(float(np.dot(scores, [self.normalized_weights['Event Type'],
+        final_score = round(float(np.dot(scores, [self.normalized_weights['title'],
                                                   self.normalized_weights['Distance'],
                                                   self.normalized_weights['Time'],
                                                   self.normalized_weights['Price']])) / 100, 2)
@@ -276,22 +270,22 @@ class EventRanking:
                 score, _ = self.calculate_score(user, event)
             else:
                 score = self.calculate_score(user, event)
-            event_scores.append([event['Event ID'], score])
+            event_scores.append([event['contentId'], score])
 
         # Sort the events based on their scores
         quick_sort(event_scores, 0, len(event_scores) - 1)
 
-        # Extract sorted Event IDs and scores
+        # Extract sorted contentIds and scores
         event_ids = [event_id for event_id, score in event_scores]
         scores = [score for event_id, score in event_scores]
 
         # Reorder events_df based on sorted event_ids
-        sorted_events_df = self.events_df.set_index('Event ID').loc[event_ids].reset_index()
+        sorted_events_df = self.events_df.set_index('contentId').loc[event_ids].reset_index()
 
         # Create detailed scores
         event_scores_detailed = []
         for event_id, score in event_scores:
-            event = self.events_df[self.events_df['Event ID'] == event_id].iloc[0]
+            event = self.events_df[self.events_df['contentId'] == event_id].iloc[0]
             if self.DEBUG_MODE:
                 final_score, breakdown = self.calculate_score(user, event)
             else:
@@ -300,25 +294,21 @@ class EventRanking:
 
             # Create DataFrame with rankings
         ranked_df = self.events_df.copy()
-        ranked_df['Raw Score'] = ranked_df['Event ID'].map({id: raw for id, raw, _ in event_scores_detailed})
-        ranked_df['Final Score'] = ranked_df['Event ID'].map({id: final for id, _, final in event_scores_detailed})
-        ranked_df['Rank'] = ranked_df['Event ID'].map(
+        ranked_df['Raw Score'] = ranked_df['contentId'].map({id: raw for id, raw, _ in event_scores_detailed})
+        ranked_df['Final Score'] = ranked_df['contentId'].map({id: final for id, _, final in event_scores_detailed})
+        ranked_df['Rank'] = ranked_df['contentId'].map(
             {id: idx for idx, (id, _, _) in enumerate(event_scores_detailed, 1)})
 
         # Sort by Final Score
         ranked_df = ranked_df.sort_values('Final Score', ascending=False)
 
-        # Create display DataFrame
-        display_df = ranked_df.copy()
-        display_df['Hours Until Event'] = (display_df['Date/Time'] - self.CURRENT_TIME).dt.total_seconds() / 3600
-        display_df['Hours Until Event'] = display_df['Hours Until Event'].round(1)
-
         # Remove scoring columns from the original DataFrame
-        ranked_df = ranked_df.drop(['Rank', 'Raw Score', 'Final Score', 'Date/Time'], axis=1)
+        ranked_df = ranked_df.drop(['Rank', 'Raw Score', 'Final Score', 'start'], axis=1)
 
         return ranked_df, event_scores_detailed
 
     def save_ranked_events(self, user_id, ranked_df):
+
 
         # Get the directory where RBS.py is located
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -346,7 +336,7 @@ if __name__ == "__main__":
     ranker = EventRanking(debug_mode=True)
 
     # Load events from a CSV file
-    events_df = pd.read_csv("API/content/100.csv")  # Replace with your test file path
+    events_df = pd.read_csv("API/content/65.csv")  # Replace with your test file path
     ranker.load_events(events_df)
 
     # Filter out invalid events
@@ -374,12 +364,12 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)  # Separator line
 
     # Rank events for the user
-    ranked_df, display_df, detailed_scores = ranker.rank_events(test_user)
+    ranked_df, detailed_scores = ranker.rank_events(test_user)
 
     # Print results with scores included
     print("\nTop 10 Ranked Events:")
-    print(display_df[['Event ID', 'Raw Score', 'Final Score', 'Event Type', 'Price ($)',
-                      'Distance (km)', 'Hours Until Event']].head(10).to_string(index=False))
+    print(ranked_df[['contentId', 'title', 'amount',
+                      'distance']].head(10).to_string(index=False))
 
     # Save results (without scores)
-    ranker.save_ranked_events(199, ranked_df)
+    ranker.save_ranked_events(65, ranked_df)
