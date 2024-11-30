@@ -89,6 +89,7 @@ TEST_DATA_DIR.mkdir(parents=True, exist_ok=True)
 TRAIN_DIR.mkdir(parents=True, exist_ok=True)
 ANALYTICS_DIR.mkdir(parents=True, exist_ok=True)
 MODELS_DIR.mkdir(parents=True, exist_ok=True)
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def create_model_directories(model_num):

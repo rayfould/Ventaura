@@ -223,6 +223,8 @@ async def rank_events(user_id: int) -> dict:
     print(f"Rank events called with user_id: {user_id}")
     try:
 
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        input_path = os.path.join(current_dir, "API", "content", f"{user_id}.csv")
         print(f"Current working directory: {os.getcwd()}")
         print(f"Content directory exists: {os.path.exists('API/content')}")
         print(f"Absolute path to content: {os.path.abspath('API/content')}")
@@ -236,10 +238,6 @@ async def rank_events(user_id: int) -> dict:
         
         ranker = EventRanking(debug_mode=True)
         print("Ranking system initialized")
-
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        input_path = os.path.join(current_dir, "API", "content", f"{user_id}.csv")
-        print(f"Looking for CSV at: {input_path}")
 
         if not os.path.exists(input_path):
             print(f"ERROR: File not found at {input_path}")
