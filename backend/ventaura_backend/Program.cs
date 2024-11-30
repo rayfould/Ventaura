@@ -39,10 +39,14 @@ builder.Services.AddHttpClient<GoogleGeocodingService>();
 // Register Swagger for API documentation and testing.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddHttpClient("RankingAPI", client =>
 {
     client.BaseAddress = new Uri("http://localhost:8000");
 });
+
+// Register Ranking service
+builder.Services.AddScoped<RankingService>();
 
 
 var app = builder.Build();
