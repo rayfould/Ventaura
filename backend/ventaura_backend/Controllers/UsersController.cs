@@ -27,52 +27,78 @@ namespace ventaura_backend.Controllers
         }
 
         // Endpoint to create a new user account.
-
         [HttpPost("create-account")]
-        public async Task<IActionResult> CreateAccount([FromBody] User user)
+        public async Task<IActionResult> CreateAccount([FromBody] User newUser)
         {
-            Console.WriteLine("Create account request received.");
-            
             try
             {
-                if (string.IsNullOrEmpty(user.Email))
+                Console.WriteLine("Start CreateAccount process...");
+
+                // Validate required fields
+                if (string.IsNullOrWhiteSpace(newUser.Email) ||
+                    string.IsNullOrWhiteSpace(newUser.FirstName) ||
+                    string.IsNullOrWhiteSpace(newUser.LastName) ||
+                    string.IsNullOrWhiteSpace(newUser.PasswordHash))
                 {
-                    Console.WriteLine("Validation failed: Missing email.");
-                    return BadRequest(new { Message = "Email is required." });
+                    Console.WriteLine("Validation failed: Missing required fields.");
+                    return BadRequest("Email, First Name, Last Name, and Password are required.");
                 }
 
-                Console.WriteLine($"Checking if email {user.Email} exists in the database...");
-                if (await _dbContext.Users.AnyAsync(u => u.Email == user.Email))
+                // Check if email already exists
+                Console.WriteLine($"Checking if email {newUser.Email} already exists...");
+                var existingUser = await _dbContext.Users.AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.Email == newUser.Email);
+
+                if (existingUser != null)
                 {
-                    Console.WriteLine($"Conflict: Email {user.Email} already exists.");
-                    return Conflict(new { Message = "An account with this email already exists." });
+                    Console.WriteLine($"Email {newUser.Email} already exists.");
+                    return Conflict("An account with this email already exists.");
                 }
 
-                Console.WriteLine($"Email {user.Email} is unique. Proceeding with user creation...");
+                // Prepare new user object
+                var user = new User
+                {
+                    Email = newUser.Email,
+                    FirstName = newUser.FirstName,
+                    LastName = newUser.LastName,
+                    PasswordHash = newUser.PasswordHash, // Ensure secure hashing
+                    Latitude = newUser.Latitude,
+                    Longitude = newUser.Longitude,
+                    Preferences = newUser.Preferences,
+                    Dislikes = newUser.Dislikes,
+                    PriceRange = newUser.PriceRange,
+                    MaxDistance = newUser.MaxDistance,
+                    IsLoggedIn = false
+                };
 
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
-                user.CreatedAt = DateTime.UtcNow;
-                user.IsLoggedIn = false;
+                Console.WriteLine("Adding user to database...");
 
-                _dbContext.Users.Add(user);
-                await _dbContext.SaveChangesAsync();
+                // Retry mechanism for transient failures
+                var executionStrategy = _dbContext.Database.CreateExecutionStrategy();
+                await executionStrategy.ExecuteAsync(async () =>
+                {
+                    await _dbContext.Users.AddAsync(user);
+                    await _dbContext.SaveChangesAsync();
+                });
 
-                Console.WriteLine($"User {user.Email} created successfully with ID {user.UserId}.");
-                return Ok(new { Message = "Account created successfully!", userId = user.UserId });
+                Console.WriteLine("User successfully created in database.");
+
+                return Ok(new { Message = "Account created successfully.", UserId = user.UserId });
             }
-            catch (DbUpdateException ex)
+            catch (TimeoutException tex)
             {
-                Console.WriteLine($"Database update exception: {ex.Message}");
-                if (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
-                {
-                    return Conflict(new { Message = "An account with this email already exists in the Database. Please log in or use a different email." });
-                }
-                return StatusCode(500, new { Message = "A database error occurred. Please try again later." });
+                Console.WriteLine($"Timeout occurred: {tex.Message}");
+                return StatusCode(408, "Request timed out. Please try again.");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                Console.WriteLine($"Database error: {dbEx.InnerException?.Message}");
+                return StatusCode(500, "A database error occurred.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unhandled exception: {ex.Message}");
-                return StatusCode(500, new { Message = "An error occurred while creating the account. Please try again later." });
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+                return StatusCode(500, "An unexpected error occurred.");
             }
         }
 
