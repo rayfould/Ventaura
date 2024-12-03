@@ -11,6 +11,7 @@ import AddEvent from "./components/AddEvent";
 import Canceled from './components/Canceled.jsx';
 import Success from './components/Success.jsx';
 import Checkout from './components/Checkout.jsx';
+import Settings from "./components/Settings.js"; 
 import "./styles.css";
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/Checkout" element={<Checkout />} />
         <Route path="/success.html" element={<Success />} />
         <Route path="/canceled.html" element={<Canceled />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>
   );
