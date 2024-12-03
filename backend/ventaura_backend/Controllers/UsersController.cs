@@ -121,8 +121,12 @@ namespace ventaura_backend.Controllers
         {
             try
             {
+                Console.WriteLine($"Login attempt for email: {loginRequest.Email}");
+
                 // Check if a user with the provided email exists in the database.
-                var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
+                var user = await _dbContext.Users
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
 
                 // Validate the user's password using bcrypt.
                 if (user == null || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.PasswordHash))
@@ -131,12 +135,26 @@ namespace ventaura_backend.Controllers
                     return BadRequest(new { Message = "Invalid email or password." });
                 }
 
-                // Update the user's live location coordinates upon successful login.
-                user.Latitude = loginRequest.Latitude;
-                user.Longitude = loginRequest.Longitude;
+                // Re-fetch the user as tracking is needed for updates.
+                user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
+
+                if (user == null)
+                {
+                    Console.WriteLine($"User unexpectedly null during re-fetch: {loginRequest.Email}");
+                    return StatusCode(500, "An error occurred during login.");
+                }
+
+                 // Validate and update the user's location if provided.
+                if (loginRequest.Latitude.HasValue && loginRequest.Longitude.HasValue)
+                {
+                    Console.WriteLine($"Updating location for user {user.Email}: ({loginRequest.Latitude}, {loginRequest.Longitude})");
+                    user.Latitude = loginRequest.Latitude.Value;
+                    user.Longitude = loginRequest.Longitude.Value;
+                }
 
                 // Mark the user as logged in.
                 user.IsLoggedIn = true;
+
                 await _dbContext.SaveChangesAsync();
 
                 Console.WriteLine($"User {user.Email} logged in successfully and location updated.");
@@ -160,8 +178,8 @@ namespace ventaura_backend.Controllers
     {
         public string Email { get; set; }
         public string Password { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
     }
 
 }
