@@ -9186,19 +9186,19 @@
     ]
   },
   "packageFolders": {
-    "/Users/isabellateixeira/.nuget/packages/": {}
+    "C:\\Users\\rrisl\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/ventaura_backend.csproj",
+      "projectUniqueName": "S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
       "projectName": "ventaura_backend",
-      "projectPath": "/Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/ventaura_backend.csproj",
-      "packagesPath": "/Users/isabellateixeira/.nuget/packages/",
-      "outputPath": "/Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/obj/",
+      "projectPath": "S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
+      "packagesPath": "C:\\Users\\rrisl\\.nuget\\packages\\",
+      "outputPath": "S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/isabellateixeira/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\rrisl\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -9305,16 +9305,8 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.403/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.404/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "Undefined",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Problem reading the cache file /Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/obj/project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
-    }
-  ]
+  }
 }

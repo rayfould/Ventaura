@@ -222,12 +222,16 @@ async def catch_exceptions_middleware(request: Request, call_next):
 async def rank_events(user_id: int) -> dict:
     print(f"Rank events called with user_id: {user_id}")
     try:
-
+        
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        input_path = os.path.join(current_dir, "API", "content", f"{user_id}.csv")
+        backend_dir = os.path.dirname(current_dir)  # Go up one level to 'backend'
+        input_path = os.path.join(backend_dir, "ventaura_backend", "CsvFiles", f"{user_id}.csv")
+        output_path = os.path.join(backend_dir, "ventaura_backend", "CsvFiles")
+
+        # Debug prints
         print(f"Current working directory: {os.getcwd()}")
-        print(f"Content directory exists: {os.path.exists('API/content')}")
-        print(f"Absolute path to content: {os.path.abspath('API/content')}")
+        print(f"CsvFiles directory exists: {os.path.exists(os.path.join(backend_dir, 'ventaura_backend', 'CsvFiles'))}")
+        print(f"Absolute path to CsvFiles: {os.path.abspath(os.path.join(backend_dir, 'ventaura_backend', 'CsvFiles'))}")
         print(f"Current working directory: {os.getcwd()}")
         print(f"__file__ is: {__file__}")
         print(f"Absolute path of __file__: {os.path.abspath(__file__)}")
@@ -235,8 +239,9 @@ async def rank_events(user_id: int) -> dict:
         print(f"Looking for CSV at: {input_path}")
 
         print(f"\n=== Starting ranking process for user {user_id} ===")
-        
+
         ranker = EventRanking(debug_mode=True)
+
         print("Ranking system initialized")
 
         if not os.path.exists(input_path):
@@ -256,7 +261,7 @@ async def rank_events(user_id: int) -> dict:
         print(f"Events filtered. Removed {events_removed} events")
 
         test_user = {
-            'Preferences': frozenset(['concert', 'festival']),
+            'Preferences': frozenset(['music', 'festival']),
             'Disliked': frozenset(['opera']),
             'Price Range': '$$',
             'Max Distance': 'Local'
@@ -270,7 +275,7 @@ async def rank_events(user_id: int) -> dict:
         print(f"Using first dataframe with {len(ranked_df)} events")
 
         print("Saving ranked events...")
-        ranker.save_ranked_events(user_id, ranked_df)
+        ranker.save_ranked_events(user_id, ranked_df, output_path)
         print("Events saved successfully")
 
         return {
