@@ -83,6 +83,9 @@ const GlobalPage = () => {
         <button className="close-sidebar" onClick={() => setIsSidebarOpen(false)}>
           X
         </button>
+        <Link to="/for-you" className="sidebar-link">
+          For You
+        </Link>
         <Link to="/about-us" className="sidebar-link">
           About Us
         </Link>
