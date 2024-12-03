@@ -34,14 +34,11 @@ namespace ventaura_backend.Controllers
             {
                 Console.WriteLine("Start CreateAccount process...");
 
-                // Validate required fields
-                if (string.IsNullOrWhiteSpace(newUser.Email) ||
-                    string.IsNullOrWhiteSpace(newUser.FirstName) ||
-                    string.IsNullOrWhiteSpace(newUser.LastName) ||
-                    string.IsNullOrWhiteSpace(newUser.PasswordHash))
+                // Validate input model
+                if (!ModelState.IsValid)
                 {
                     Console.WriteLine("Validation failed: Missing required fields.");
-                    return BadRequest("Email, First Name, Last Name, and Password are required.");
+                    return BadRequest(ModelState);
                 }
 
                 // Check if email already exists
@@ -61,7 +58,7 @@ namespace ventaura_backend.Controllers
                     Email = newUser.Email,
                     FirstName = newUser.FirstName,
                     LastName = newUser.LastName,
-                    PasswordHash = newUser.PasswordHash, // Ensure secure hashing
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(newUser.PasswordHash), // Ensure secure hashing
                     Latitude = newUser.Latitude,
                     Longitude = newUser.Longitude,
                     Preferences = newUser.Preferences,
@@ -85,19 +82,9 @@ namespace ventaura_backend.Controllers
 
                 return Ok(new { Message = "Account created successfully.", UserId = user.UserId });
             }
-            catch (TimeoutException tex)
-            {
-                Console.WriteLine($"Timeout occurred: {tex.Message}");
-                return StatusCode(408, "Request timed out. Please try again.");
-            }
-            catch (DbUpdateException dbEx)
-            {
-                Console.WriteLine($"Database error: {dbEx.InnerException?.Message}");
-                return StatusCode(500, "A database error occurred.");
-            }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error: {ex.Message}");
+                Console.WriteLine($"Error: {ex.Message}");
                 return StatusCode(500, "An unexpected error occurred.");
             }
         }
