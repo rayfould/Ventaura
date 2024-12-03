@@ -131,6 +131,7 @@ namespace ventaura_backend.Controllers
             }
         }
 
+        // Endpoint for the frontend to access th csv file - TO BE MODIFIEF
         [HttpGet("get-csv")]
         public IActionResult GetCsv([FromQuery] int userId)
         {
