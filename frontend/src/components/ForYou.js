@@ -112,8 +112,12 @@ const ForYou = () => {
         >
           ☰
         </button>
-        <button className="logout-button" onClick={handleManualLogout}>
-          Logout
+        {/* Settings Icon Button */}
+        <button
+          className="settings-button"
+          onClick={() => navigate("/settings")}
+        >
+          ⚙️
         </button>
       </header>
 
@@ -143,6 +147,9 @@ const ForYou = () => {
         </Link>
         <Link to="/post-event-page" className="sidebar-link">
           Post An Event
+        </Link>
+        <Link className="sidebar-link" onClick={handleManualLogout}>
+          Logout
         </Link>
       </div>
 
