@@ -136,8 +136,60 @@ namespace ventaura_backend.Controllers
                     Console.WriteLine($"Fetching events for userId {userId}...");
                     var events = await _combinedApiService.FetchEventsAsync(user.Latitude.Value, user.Longitude.Value, userId);
 
+                    // Batch insert events into the user-specific table
+                    if (events.Any())
+                    {
+                        Console.WriteLine($"Preparing batch insert for {events.Count} events.");
+
+                        var insertValues = events.Select(e =>
+                        {
+                            // Handle invalid or missing event locations
+                            double eventLatitude, eventLongitude;
+                            if (string.IsNullOrEmpty(e.Location) ||
+                                !e.Location.Contains(",") ||
+                                !double.TryParse(e.Location.Split(',')[0], out eventLatitude) ||
+                                !double.TryParse(e.Location.Split(',')[1], out eventLongitude))
+                            {
+                                eventLatitude = user.Latitude.Value;
+                                eventLongitude = user.Longitude.Value;
+                            }
+
+                            var distance = DistanceCalculator.CalculateDistance(
+                                user.Latitude.Value,
+                                user.Longitude.Value,
+                                eventLatitude,
+                                eventLongitude
+                            );
+                            e.Distance = (float)distance;
+
+                            return $@"
+                                ('{e.Title?.Replace("'", "''")}', 
+                                '{e.Description?.Replace("'", "''")}', 
+                                '{e.Location?.Replace("'", "''")}', 
+                                '{e.Start?.ToString("yyyy-MM-dd HH:mm:ss") ?? "NULL"}', 
+                                '{e.Source?.Replace("'", "''")}', 
+                                '{e.Type?.Replace("'", "''")}', 
+                                '{e.CurrencyCode?.Replace("'", "''")}', 
+                                '{e.Amount?.ToString() ?? "NULL"}', 
+                                '{e.URL?.Replace("'", "''")}', 
+                                {e.Distance ?? 0})";
+                        }).ToList();
+
+                        using var batchInsertCommand = connection.CreateCommand();
+                        batchInsertCommand.CommandText = $@"
+                            INSERT INTO usercontent_{userId} 
+                            (Title, Description, Location, Start, Source, Type, CurrencyCode, Amount, URL, Distance) 
+                            VALUES {string.Join(",", insertValues)};";
+                        await batchInsertCommand.ExecuteNonQueryAsync();
+                        Console.WriteLine("Batch insert completed successfully.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("No events to insert.");
+                    }
+                    
                     // Insert events into the user-specific table
-                    Console.WriteLine($"Inserting events into UserContent_{userId} table...");
+                    /* Console.WriteLine($"Inserting events into UserContent_{userId} table...");
                     foreach (var e in events)
                     {
                         double eventLatitude, eventLongitude;
@@ -183,12 +235,15 @@ namespace ventaura_backend.Controllers
                         insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Distance", e.Distance));
 
                         await insertCommand.ExecuteNonQueryAsync();
-                    }
+                    } */
 
                     return Ok(new
                     {
-                        Message = $"Table usercontent_{userId} created and populated.",
-                        EventCount = events.Count
+                        Message = "Events processed successfully.",
+                        Table = $"usercontent_{userId}",
+                        TotalEvents = events.Count,
+                        ValidEvents = events.Count(e => !string.IsNullOrEmpty(e.Location)),
+                        InvalidEvents = events.Count(e => string.IsNullOrEmpty(e.Location))
                     });
                 }
             }
