@@ -112,11 +112,31 @@ class MockEventDataGenerator:
         return csv_file_path
 
 
-def main():
+def main(num_files=5):  # Default to 5 files, but can be changed
+    # Create the content directory if it doesn't exist
+
     generator = MockEventDataGenerator()
-    mock_events_df = generator.generate_mock_events(1000)
-    generator.save_mock_events(mock_events_df, "1000_generated_events.csv")
+    used_ids = set()
+
+    for i in range(num_files):
+        # Generate unique user ID
+        while True:
+            user_id = random.randint(0, 100)
+            if user_id not in used_ids:
+                used_ids.add(user_id)
+                break
+
+        # Generate mock events
+        mock_events_df = generator.generate_mock_events(1000)
+
+        # Save with the new naming convention
+        filename = f"{user_id}.csv"
+        generator.save_mock_events(mock_events_df, filename)
+
+        print(f"[{i + 1}/{num_files}] Generated mock events for user {user_id}")
+
+    print(f"\nGenerated {num_files} files with user IDs: {sorted(list(used_ids))}")
 
 
 if __name__ == "__main__":
-    main()
+    main(10)  # This will generate 10 files

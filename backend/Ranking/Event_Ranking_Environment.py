@@ -508,10 +508,9 @@ class EventRecommendationEnv:
         # Extract feature scores with weights
         weights = {
             'event_type': 0.40,  # Most important
-            'distance': 0.20,  # Second most important
+            'distance': 0.25,  # Second most important
             'price': 0.15,  # Third most important
-            'time': 0.15,  # Equal to price
-            'popularity': 0.10,  # Less important
+            'time': 0.20,  # Equal to price
         }
 
         scores = {

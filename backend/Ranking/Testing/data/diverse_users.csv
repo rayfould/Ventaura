@@ -1,21 +1,101 @@
-	User ID,Preferred Events,Undesirable Events,Preferred Location,Max Distance (km),Preferred Time,Price Range,Preferred Crowd Size,Age,Interests,Activity Level
-1,"Music, Festivals, Theater","Conferences, Networking, Virtual",Boston,15,Evening,$$$,Large,25,"Music, Technology",High
-2,"Theater, Exhibitions, Community","Sports, Gaming, Nightlife",New York,25,Mixed,$$,Small,32,"Arts, Culture",Medium
-3,"Gaming, Virtual, Workshops","Theater, Conferences, Exhibitions",San Francisco,40,Night,$,Medium,19,"Gaming, Tech",High
-4,"Sports, Outdoors, Wellness","Gaming, Nightlife, Virtual",Chicago,20,Morning,$$,Large,45,"Fitness, Outdoors",Very High
-5,"Festivals, Community, Workshops","Sports, Gaming, Networking",Los Angeles,30,Afternoon,$$$,Small,28,"Food, Culture",Medium
-6,"Music, Exhibitions, Theater","Networking, Conferences, Virtual",Austin,50,Evening,$$,Medium,23,"Arts, Music",High
-7,"Networking, Conferences, Workshops","Nightlife, Gaming, Festivals",Seattle,35,Morning,$$$,Large,41,"Business, Tech",Medium
-8,"Wellness, Workshops, Community","Sports, Nightlife, Gaming",Miami,25,Night,$,Small,35,"Health, Wellness",Low
-9,"Community, Festivals, Family","Nightlife, Gaming, Conferences",Denver,45,Mixed,$$,Medium,29,"Community, Food",Medium
-10,"Film, Theater, Exhibitions","Sports, Nightlife, Gaming",Portland,30,Evening,$,Large,38,"Film, Arts",Low
-11,"Science, Exhibitions, Workshops","Nightlife, Gaming, Festivals",Nashville,20,Morning,$$$,Small,52,"Science, Education",Medium
-12,"Family, Theater, Community","Nightlife, Conferences, Gaming",San Diego,40,Afternoon,$$,Medium,33,"Family, Education",High
-13,"Outdoors, Sports, Community","Conferences, Virtual, Networking",Houston,35,Evening,$,Large,26,"Adventure, Sports",Very High
-14,"Music, Theater, Exhibitions","Gaming, Sports, Nightlife",Atlanta,25,Mixed,$$$,Small,47,"Music, Arts",Low
-15,"Nightlife, Music, Festivals","Conferences, Virtual, Science",Philadelphia,50,Night,$$,Medium,21,"Dance, Social",High
-16,"Charity, Community, Wellness","Nightlife, Gaming, Virtual",Phoenix,30,Morning,$,Large,39,"Community, Health",Medium
-17,"Gaming, Virtual, Festivals","Conferences, Networking, Science",Minneapolis,40,Evening,$$$,Small,24,"Gaming, Pop Culture",High
-18,"Sports, Community, Festivals","Exhibitions, Science, Virtual",New Orleans,45,Night,$$,Medium,31,"Sports, Social",Medium
-19,"Exhibitions, Workshops, Community","Sports, Gaming, Nightlife",Salt Lake City,25,Mixed,$,Large,44,"Arts, Photography",Low
-20,"Festivals, Community, Exhibitions","Gaming, Virtual, Networking",Washington DC,35,Evening,$$$,Small,36,"Culture, Language",Medium
+userId,email,firstName,lastName,latitude,longitude,preferences,disliked,priceRange,distance,createdAt
+1,alice.brown@test.com,Alice,Brown,-36.301128,80.544808,Festivals,Community,$,City-wide,2024-01-08T00:55:17.015363Z
+2,charlie.taylor@test.com,Charlie,Taylor,-69.259415,144.69683,"Virtual, Community",Gaming,$$,Regional,2024-01-04T00:55:17.015363Z
+3,jane.taylor@example.com,Jane,Taylor,16.916378,59.836811,"Film, Workshops, Music, Pets","Charity, Holiday, Virtual",$$$,Local,2024-06-20T00:55:17.015363Z
+4,charlie.taylor@example.com,Charlie,Taylor,12.997781,-115.338275,"Gaming, Sports, Community, Science","Networking, Exhibitions, Nightlife",$$$,Very Local,2024-04-12T00:55:17.015363Z
+5,grace.wilson@mock.com,Grace,Wilson,83.099911,-103.083448,"Outdoors, Wellness","Charity, Gaming",$,Regional,2024-04-16T00:55:17.015363Z
+6,jane.smith@test.com,Jane,Smith,41.801947,-171.632439,"Gaming, Wellness, Music, Holiday, Virtual","Theater, Community, Conferences",$$,Local,2024-02-11T00:55:17.015363Z
+7,charlie.moore@mock.com,Charlie,Moore,71.5127,-21.974408,"Networking, Festivals, Virtual, Science, Music","Outdoors, Wellness, Holiday",$,Local,2024-08-17T00:55:17.015363Z
+8,grace.taylor@mock.com,Grace,Taylor,45.075958,-18.810937,Sports,"Networking, Holiday, Exhibitions",$$,Regional,2024-10-14T00:55:17.015363Z
+9,bob.moore@test.com,Bob,Moore,80.566086,-83.765634,Gaming,"Music, Festivals",$$,Very Local,2024-09-05T00:55:17.015363Z
+10,charlie.smith@test.com,Charlie,Smith,-1.561595,63.287006,"Gaming, Holiday",Conferences,$,Very Local,2024-11-17T00:55:17.015363Z
+11,mallory.smith@example.com,Mallory,Smith,40.088103,-134.699251,Charity,"Outdoors, Science",$$$,Nearby,2023-12-20T00:55:17.015363Z
+12,grace.moore@mock.com,Grace,Moore,9.529424,160.80113,Theater,Charity,$$,Local,2024-09-11T00:55:17.015363Z
+13,bob.smith@example.com,Bob,Smith,-16.578364,-113.655859,Theater,"Pets, Gaming, Holiday",$$,City-wide,2023-12-17T00:55:17.015363Z
+14,eve.moore@example.com,Eve,Moore,-35.344391,55.523913,"Nightlife, Film, Holiday",Workshops,$$,Nearby,2024-08-28T00:55:17.015363Z
+15,mallory.smith@test.com,Mallory,Smith,-66.111909,-25.777021,"Theater, Music, Family, Charity, Community","Networking, Pets",$$,City-wide,2024-08-18T00:55:17.015363Z
+16,grace.taylor@test.com,Grace,Taylor,65.289452,-3.84363,"Gaming, Conferences, Pets",Nightlife,$,City-wide,2024-05-22T00:55:17.015363Z
+17,jane.smith@test.com,Jane,Smith,82.852149,177.733891,"Networking, Festivals, Workshops","Music, Nightlife, Exhibitions",$$$,Nearby,2024-02-15T00:55:17.015363Z
+18,grace.johnson@mock.com,Grace,Johnson,-43.192608,-8.385054,"Charity, Wellness, Festivals","Exhibitions, Music, Science",$,Any Distance,2024-03-08T00:55:17.015363Z
+19,alice.davis@mock.com,Alice,Davis,40.979766,-84.809985,"Charity, Pets","Family, Nightlife, Science",$$,Regional,2024-07-27T00:55:17.015363Z
+20,mallory.brown@test.com,Mallory,Brown,74.498378,118.113396,"Film, Holiday","Festivals, Sports",$$$,City-wide,2023-11-27T00:55:17.015363Z
+21,jane.davis@example.com,Jane,Davis,72.422006,63.954644,"Networking, Gaming, Music, Outdoors, Holiday",Sports,$$$,Any Distance,2024-02-12T00:55:17.015363Z
+22,charlie.doe@test.com,Charlie,Doe,-75.944683,-12.871639,"Theater, Community",Workshops,$,Local,2023-11-27T00:55:17.015363Z
+23,jane.johnson@test.com,Jane,Johnson,-45.32317,74.001398,"Gaming, Virtual, Science, Film, Sports",Community,$$,Regional,2024-10-25T00:55:17.015363Z
+24,john.doe@test.com,John,Doe,9.146869,-78.96169,"Networking, Outdoors, Holiday, Nightlife",Science,$$$,Nearby,2023-11-24T00:55:17.015363Z
+25,alice.smith@test.com,Alice,Smith,-43.360413,-75.633564,"Exhibitions, Film, Virtual, Conferences",Networking,$$$,Regional,2024-04-29T00:55:17.015363Z
+26,john.doe@example.com,John,Doe,66.655774,-142.885364,"Festivals, Theater, Workshops, Sports","Wellness, Conferences, Networking",$$,Local,2024-11-11T00:55:17.015363Z
+27,john.wilson@example.com,John,Wilson,-55.451691,-152.48744,"Film, Networking, Community, Charity, Virtual","Sports, Outdoors, Family",$,City-wide,2023-12-06T00:55:17.015363Z
+28,bob.moore@example.com,Bob,Moore,-20.578061,-89.978152,Networking,"Gaming, Outdoors, Virtual",$,Nearby,2024-01-24T00:55:17.015363Z
+29,eve.moore@test.com,Eve,Moore,-50.738371,-128.98514,Community,Conferences,$,Regional,2024-05-08T00:55:17.015363Z
+30,bob.brown@mock.com,Bob,Brown,87.480603,-72.846781,"Science, Gaming, Networking","Pets, Festivals",$,Nearby,2024-04-04T00:55:17.015363Z
+31,charlie.davis@example.com,Charlie,Davis,31.708908,-164.242022,Sports,"Theater, Holiday, Virtual",$$,Nearby,2024-07-18T00:55:17.015363Z
+32,grace.brown@example.com,Grace,Brown,42.587554,-111.715695,"Nightlife, Community, Film","Gaming, Science",$,Nearby,2023-12-14T00:55:17.015363Z
+33,john.smith@mock.com,John,Smith,-71.787693,26.704822,Science,"Networking, Pets",$,Nearby,2024-01-18T00:55:17.015363Z
+34,bob.doe@mock.com,Bob,Doe,-79.177532,-38.95651,"Theater, Conferences, Nightlife, Wellness, Family",Workshops,$,Regional,2024-07-31T00:55:17.015363Z
+35,john.moore@mock.com,John,Moore,-19.343704,-32.534661,"Theater, Networking, Virtual, Workshops, Nightlife","Holiday, Sports, Gaming",$$,Any Distance,2024-05-18T00:55:17.015363Z
+36,eve.doe@example.com,Eve,Doe,-14.308053,72.255858,"Outdoors, Conferences","Wellness, Science",$,City-wide,2024-09-04T00:55:17.015363Z
+37,mallory.davis@example.com,Mallory,Davis,5.425188,78.7785,Festivals,"Outdoors, Theater",$,Nearby,2024-10-01T00:55:17.015363Z
+38,eve.doe@test.com,Eve,Doe,38.76956,37.395487,"Charity, Family, Outdoors, Exhibitions",Holiday,$$$,Very Local,2024-05-06T00:55:17.015363Z
+39,eve.doe@mock.com,Eve,Doe,51.061126,120.760012,"Holiday, Nightlife, Film, Music",Gaming,$$$,Regional,2024-02-07T00:55:17.015363Z
+40,alice.taylor@mock.com,Alice,Taylor,16.417845,-176.329415,Charity,Exhibitions,$$,Any Distance,2024-03-17T00:55:17.015363Z
+41,jane.taylor@mock.com,Jane,Taylor,55.978669,-59.611205,"Networking, Virtual, Pets","Film, Nightlife",$,Any Distance,2024-10-11T00:55:17.015363Z
+42,alice.davis@test.com,Alice,Davis,-73.12649,166.4083,"Charity, Theater","Family, Sports",$$$,Any Distance,2024-08-24T00:55:17.015363Z
+43,bob.smith@test.com,Bob,Smith,-85.207607,42.499159,"Charity, Film, Music",Family,$$$,Any Distance,2024-10-14T00:55:17.015363Z
+44,bob.moore@test.com,Bob,Moore,-49.231301,109.046969,Workshops,"Festivals, Science, Sports",$$$,Very Local,2024-05-21T00:55:17.015363Z
+45,john.johnson@test.com,John,Johnson,32.628233,55.381746,"Sports, Charity, Family, Festivals, Conferences","Science, Film",$$$,Any Distance,2024-07-07T00:55:17.015363Z
+46,bob.brown@test.com,Bob,Brown,34.707847,-44.755218,Outdoors,"Festivals, Gaming, Holiday",$$$,Local,2024-07-23T00:55:17.015363Z
+47,grace.johnson@mock.com,Grace,Johnson,-19.361296,56.240698,"Networking, Holiday, Festivals","Community, Wellness",$$$,Local,2024-02-07T00:55:17.015363Z
+48,charlie.johnson@example.com,Charlie,Johnson,31.626906,-151.782963,Charity,"Theater, Networking",$,Any Distance,2024-10-21T00:55:17.015363Z
+49,john.taylor@example.com,John,Taylor,27.810186,164.114522,"Pets, Workshops, Wellness","Nightlife, Conferences",$$$,Very Local,2023-12-14T00:55:17.015363Z
+50,charlie.doe@example.com,Charlie,Doe,-31.611366,94.772978,Community,Sports,$$,Any Distance,2024-10-20T00:55:17.015363Z
+51,mallory.doe@test.com,Mallory,Doe,12.253611,-68.193369,"Festivals, Charity, Film, Conferences, Wellness","Nightlife, Outdoors, Community",$$,Nearby,2024-05-31T00:55:17.015363Z
+52,eve.doe@test.com,Eve,Doe,-74.796016,-41.433096,Festivals,"Theater, Science, Charity",$,Nearby,2024-02-06T00:55:17.015363Z
+53,charlie.moore@example.com,Charlie,Moore,65.648498,32.782953,"Conferences, Wellness, Holiday, Festivals, Workshops","Charity, Community",$$$,Any Distance,2024-11-02T00:55:17.015363Z
+54,eve.taylor@test.com,Eve,Taylor,3.716388,178.537116,"Family, Science","Outdoors, Nightlife",$,Nearby,2024-03-10T00:55:17.015363Z
+55,bob.doe@test.com,Bob,Doe,-59.871151,116.247307,"Pets, Film",Festivals,$,Nearby,2024-03-10T00:55:17.015363Z
+56,grace.davis@mock.com,Grace,Davis,86.256373,174.420579,"Family, Wellness","Community, Nightlife",$$$,Regional,2024-06-19T00:55:17.015363Z
+57,bob.moore@test.com,Bob,Moore,-89.415553,86.684684,"Gaming, Charity","Nightlife, Holiday, Sports",$$$,Very Local,2024-07-29T00:55:17.015363Z
+58,alice.smith@test.com,Alice,Smith,42.957702,-24.656823,Charity,Family,$$$,Nearby,2024-10-10T00:55:17.015363Z
+59,jane.brown@example.com,Jane,Brown,87.54047,57.133357,"Virtual, Wellness, Sports, Networking, Nightlife","Outdoors, Conferences",$,Very Local,2024-08-12T00:55:17.015363Z
+60,charlie.johnson@test.com,Charlie,Johnson,59.414225,-140.797042,"Music, Wellness, Gaming",Workshops,$,Regional,2023-12-04T00:55:17.015363Z
+61,jane.brown@mock.com,Jane,Brown,-3.030775,82.034586,"Workshops, Virtual, Gaming, Exhibitions, Pets","Holiday, Charity, Theater",$$,Local,2024-11-07T00:55:17.015363Z
+62,jane.brown@test.com,Jane,Brown,-78.624249,-117.487714,"Pets, Nightlife, Networking, Theater","Conferences, Festivals, Virtual",$,Local,2024-03-21T00:55:17.015363Z
+63,eve.taylor@example.com,Eve,Taylor,-49.571865,146.024752,"Workshops, Music",Festivals,$$,Very Local,2023-12-14T00:55:17.015363Z
+64,alice.smith@test.com,Alice,Smith,-47.829708,116.40627,"Charity, Science, Conferences","Holiday, Workshops, Family",$,Local,2023-11-23T00:55:17.015363Z
+65,mallory.smith@test.com,Mallory,Smith,-21.844928,-126.933037,"Film, Theater",Gaming,$$,Local,2024-10-27T00:55:17.015363Z
+66,charlie.taylor@test.com,Charlie,Taylor,9.132854,-10.018022,"Music, Pets, Networking, Sports, Wellness","Nightlife, Family",$$$,Very Local,2024-04-26T00:55:17.015363Z
+67,eve.brown@test.com,Eve,Brown,-62.623491,-34.619815,"Family, Film, Nightlife, Charity","Community, Music, Pets",$,Any Distance,2024-03-07T00:55:17.015363Z
+68,jane.taylor@mock.com,Jane,Taylor,27.131051,-56.360782,"Music, Community, Workshops, Charity",Conferences,$$,City-wide,2024-03-24T00:55:17.015363Z
+69,grace.wilson@example.com,Grace,Wilson,-65.925174,-16.36985,"Film, Gaming, Wellness","Outdoors, Community, Virtual",$$$,Any Distance,2024-10-01T00:55:17.015363Z
+70,bob.johnson@test.com,Bob,Johnson,16.321054,-123.861932,Film,"Virtual, Theater, Outdoors",$$$,City-wide,2024-06-26T00:55:17.015363Z
+71,eve.doe@example.com,Eve,Doe,-71.336044,133.001385,Gaming,"Sports, Charity, Music",$,Any Distance,2024-04-14T00:55:17.015363Z
+72,grace.doe@example.com,Grace,Doe,-21.584756,-7.0755,"Festivals, Family, Community, Exhibitions, Pets","Wellness, Science, Charity",$$,Nearby,2024-06-20T00:55:17.015363Z
+73,bob.wilson@example.com,Bob,Wilson,89.213362,41.540719,"Virtual, Sports, Festivals, Music, Film","Theater, Exhibitions, Networking",$,Local,2024-10-15T00:55:17.015363Z
+74,mallory.johnson@mock.com,Mallory,Johnson,24.297211,-27.517364,"Festivals, Conferences, Nightlife, Exhibitions, Pets","Family, Outdoors, Film",$$,Nearby,2024-11-13T00:55:17.015363Z
+75,jane.doe@test.com,Jane,Doe,25.443987,3.173958,"Networking, Festivals, Theater",Science,$$,City-wide,2024-03-04T00:55:17.015363Z
+76,mallory.smith@mock.com,Mallory,Smith,40.780699,-108.826706,"Festivals, Family, Music","Nightlife, Holiday",$$,Very Local,2023-12-30T00:55:17.015363Z
+77,mallory.johnson@test.com,Mallory,Johnson,32.394603,30.867323,Nightlife,"Conferences, Sports, Workshops",$,Nearby,2024-05-16T00:55:17.015363Z
+78,charlie.johnson@test.com,Charlie,Johnson,82.819835,-69.947166,"Wellness, Charity, Pets, Exhibitions, Networking",Holiday,$$$,Local,2024-06-04T00:55:17.015363Z
+79,grace.doe@test.com,Grace,Doe,15.686988,-121.581083,"Pets, Music, Nightlife, Theater, Festivals",Gaming,$,Regional,2023-12-20T00:55:17.015363Z
+80,bob.davis@test.com,Bob,Davis,-76.495977,132.49622,"Film, Holiday, Conferences","Pets, Networking, Outdoors",$$,Very Local,2024-10-13T00:55:17.015363Z
+81,mallory.taylor@example.com,Mallory,Taylor,-3.274699,43.85793,"Music, Film",Theater,$$,Very Local,2024-05-07T00:55:17.015363Z
+82,bob.doe@test.com,Bob,Doe,-30.712275,7.511374,Festivals,"Networking, Outdoors",$$,Regional,2024-01-22T00:55:17.015363Z
+83,alice.davis@mock.com,Alice,Davis,16.992036,18.478158,"Outdoors, Sports",Workshops,$,Regional,2024-03-23T00:55:17.015363Z
+84,john.brown@mock.com,John,Brown,-29.055715,75.37527,"Music, Conferences, Pets",Sports,$,Local,2024-04-05T00:55:17.015363Z
+85,eve.brown@test.com,Eve,Brown,-51.434311,-79.632549,"Community, Pets","Holiday, Family",$$,Regional,2024-02-23T00:55:17.015363Z
+86,john.smith@test.com,John,Smith,2.080147,144.894702,"Holiday, Wellness, Festivals, Sports, Outdoors","Pets, Nightlife, Theater",$$$,Very Local,2024-11-09T00:55:17.015363Z
+87,john.moore@mock.com,John,Moore,63.090048,167.227311,"Conferences, Film, Charity","Networking, Family, Community",$$$,City-wide,2023-12-24T00:55:17.015363Z
+88,jane.brown@example.com,Jane,Brown,-50.177861,-67.22276,"Charity, Family, Film, Workshops","Science, Gaming, Festivals",$$$,Regional,2023-12-19T00:55:17.015363Z
+89,grace.wilson@example.com,Grace,Wilson,24.777257,-177.847985,Festivals,"Conferences, Networking, Community",$$$,Regional,2024-06-23T00:55:17.015363Z
+90,jane.wilson@mock.com,Jane,Wilson,1.240636,51.586394,Music,"Science, Holiday, Conferences",$$,City-wide,2024-07-25T00:55:17.015363Z
+91,grace.brown@example.com,Grace,Brown,25.853362,-159.255854,"Community, Workshops",Festivals,$$$,Regional,2024-08-01T00:55:17.015363Z
+92,jane.smith@example.com,Jane,Smith,30.980538,-79.408254,"Charity, Gaming",Holiday,$$,Regional,2024-10-07T00:55:17.015363Z
+93,grace.smith@mock.com,Grace,Smith,5.311389,121.614434,"Conferences, Film, Virtual","Festivals, Workshops, Outdoors",$,Any Distance,2024-05-22T00:55:17.015363Z
+94,jane.moore@example.com,Jane,Moore,46.106081,-75.550775,Gaming,Pets,$$,Nearby,2024-02-13T00:55:17.015363Z
+95,eve.brown@example.com,Eve,Brown,-28.364104,66.214514,Workshops,Gaming,$$,Regional,2024-04-20T00:55:17.015363Z
+96,alice.wilson@example.com,Alice,Wilson,43.205538,9.72046,Film,"Wellness, Exhibitions, Community",$$,City-wide,2024-01-04T00:55:17.015363Z
+97,mallory.moore@example.com,Mallory,Moore,6.874514,-60.907279,"Workshops, Exhibitions",Community,$$,Local,2023-12-26T00:55:17.015363Z
+98,charlie.brown@example.com,Charlie,Brown,-89.891136,66.435085,"Outdoors, Sports, Conferences","Music, Theater",$,Very Local,2024-07-27T00:55:17.015363Z
+99,john.brown@mock.com,John,Brown,38.252995,-22.558555,Exhibitions,"Sports, Nightlife, Conferences",$$$,Nearby,2024-11-02T00:55:17.015363Z
+100,jane.taylor@test.com,Jane,Taylor,-88.980159,-36.24113,"Gaming, Theater, Workshops, Festivals, Pets","Holiday, Networking",$,Regional,2024-10-26T00:55:17.015363Z

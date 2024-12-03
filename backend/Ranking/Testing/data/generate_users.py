@@ -1,120 +1,95 @@
 import pandas as pd
+import random
+from datetime import datetime, timedelta
+import os
 
-# Define our actual event categories from the dataset
-EVENT_CATEGORIES = [
-    'Film', 'Science', 'Exhibitions', 'Theater', 'Networking', 'Gaming',
-    'Pets', 'Music', 'Sports', 'Nightlife', 'Virtual', 'Charity',
-    'Festivals', 'Workshops', 'Family', 'Holiday', 'Wellness',
-    'Community', 'Outdoors', 'Conferences'
-]
 
-# First define all the basic user data
-base_data = {
-    "Preferred Location": [
-        "Boston", "New York", "San Francisco", "Chicago", "Los Angeles",
-        "Austin", "Seattle", "Miami", "Denver", "Portland",
-        "Nashville", "San Diego", "Houston", "Atlanta", "Philadelphia",
-        "Phoenix", "Minneapolis", "New Orleans", "Salt Lake City", "Washington DC"
-    ],
-    "Max Distance (km)": [
-        15, 25, 40, 20, 30,
-        50, 35, 25, 45, 30,
-        20, 40, 35, 25, 50,
-        30, 40, 45, 25, 35
-    ],
-    "Preferred Time": [
-        "Evening", "Mixed", "Night", "Morning", "Afternoon",
-        "Evening", "Morning", "Night", "Mixed", "Evening",
-        "Morning", "Afternoon", "Evening", "Mixed", "Night",
-        "Morning", "Evening", "Night", "Mixed", "Evening"
-    ],
-    "Price Range": [
-        "$$$", "$$", "$", "$$", "$$$",
-        "$$", "$$$", "$", "$$", "$",
-        "$$$", "$$", "$", "$$$", "$$",
-        "$", "$$$", "$$", "$", "$$$"
-    ],
-    "Preferred Crowd Size": [
-        "Large", "Small", "Medium", "Large", "Small",
-        "Medium", "Large", "Small", "Medium", "Large",
-        "Small", "Medium", "Large", "Small", "Medium",
-        "Large", "Small", "Medium", "Large", "Small"
-    ],
-    "Age": [
-        25, 32, 19, 45, 28,
-        23, 41, 35, 29, 38,
-        52, 33, 26, 47, 21,
-        39, 24, 31, 44, 36
-    ],
-    "Interests": [
-        "Music, Technology", "Arts, Culture", "Gaming, Tech", "Fitness, Outdoors",
-        "Food, Culture", "Arts, Music", "Business, Tech", "Health, Wellness",
-        "Community, Food", "Film, Arts", "Science, Education", "Family, Education",
-        "Adventure, Sports", "Music, Arts", "Dance, Social", "Community, Health",
-        "Gaming, Pop Culture", "Sports, Social", "Arts, Photography", "Culture, Language"
-    ],
-    "Activity Level": [
-        "High", "Medium", "High", "Very High", "Medium",
-        "High", "Medium", "Low", "Medium", "Low",
-        "Medium", "High", "Very High", "Low", "High",
-        "Medium", "High", "Medium", "Low", "Medium"
-    ]
-}
+class MockUserDataGenerator:
+    def __init__(self):
+        # Define all event types
+        self.event_types = [
+            "Music", "Festivals", "Sports", "Outdoors", "Workshops",
+            "Conferences", "Exhibitions", "Community", "Theater",
+            "Family", "Nightlife", "Wellness", "Holiday", "Networking",
+            "Gaming", "Film", "Pets", "Virtual", "Charity", "Science"
+        ]
+        # Define price ranges
+        self.price_ranges = ["$", "$$", "$$$"]
+        # Add distance preferences
+        self.distance_ranges = {
+            "Very Local": (0, 5),  # Walking distance
+            "Local": (2, 10),  # Short drive
+            "Nearby": (5, 20),  # Medium drive
+            "City-wide": (10, 30),  # Longer drive
+            "Regional": (20, 100),  # Day trip
+            "Any Distance": (0, 200)  # More realistic max distance
+        }
 
-# Now create the complete users_data dictionary
-users_data = {
-    "User ID": range(1, 21),
-    "Preferred Events": [
-        "Music, Festivals, Theater",  # Music & Entertainment focus
-        "Theater, Exhibitions, Community",  # Cultural focus
-        "Gaming, Virtual, Workshops",  # Gaming/Tech focus
-        "Sports, Outdoors, Wellness",  # Sports/Fitness focus
-        "Festivals, Community, Workshops",  # Food/Drink focus
-        "Music, Exhibitions, Theater",  # Alternative/Arts focus
-        "Networking, Conferences, Workshops",  # Professional focus
-        "Wellness, Workshops, Community",  # Wellness focus
-        "Community, Festivals, Family",  # Community focus
-        "Film, Theater, Exhibitions",  # Film/Arts focus
-        "Science, Exhibitions, Workshops",  # Educational focus
-        "Family, Theater, Community",  # Family focus
-        "Outdoors, Sports, Community",  # Adventure focus
-        "Music, Theater, Exhibitions",  # Refined Music focus
-        "Nightlife, Music, Festivals",  # Nightlife focus
-        "Charity, Community, Wellness",  # Social Impact focus
-        "Gaming, Virtual, Festivals",  # Gaming/Pop Culture focus
-        "Sports, Community, Festivals",  # Sports Entertainment focus
-        "Exhibitions, Workshops, Community",  # Creative focus
-        "Festivals, Community, Exhibitions"  # Cultural/International focus
-    ],
-    "Undesirable Events": [
-        "Conferences, Networking, Virtual",  # Opposite of entertainment
-        "Sports, Gaming, Nightlife",  # Opposite of cultural
-        "Theater, Conferences, Exhibitions",  # Opposite of gaming/tech
-        "Gaming, Nightlife, Virtual",  # Opposite of sports/fitness
-        "Sports, Gaming, Networking",  # Opposite of food/drink
-        "Networking, Conferences, Virtual",  # Opposite of alternative/arts
-        "Nightlife, Gaming, Festivals",  # Opposite of professional
-        "Sports, Nightlife, Gaming",  # Opposite of wellness
-        "Nightlife, Gaming, Conferences",  # Opposite of community
-        "Sports, Nightlife, Gaming",  # Opposite of film/arts
-        "Nightlife, Gaming, Festivals",  # Opposite of educational
-        "Nightlife, Conferences, Gaming",  # Opposite of family
-        "Conferences, Virtual, Networking",  # Opposite of adventure
-        "Gaming, Sports, Nightlife",  # Opposite of refined music
-        "Conferences, Virtual, Science",  # Opposite of nightlife
-        "Nightlife, Gaming, Virtual",  # Opposite of social impact
-        "Conferences, Networking, Science",  # Opposite of gaming/pop culture
-        "Exhibitions, Science, Virtual",  # Opposite of sports entertainment
-        "Sports, Gaming, Nightlife",  # Opposite of creative
-        "Gaming, Virtual, Networking"  # Opposite of cultural/international
-    ]
-}
+    def _generate_random_email(self, first_name, last_name):
+        """Generate a random email based on first and last name."""
+        domains = ["example.com", "mock.com", "test.com"]
+        return f"{first_name.lower()}.{last_name.lower()}@{random.choice(domains)}"
 
-# Add all the base data to users_data
-users_data.update(base_data)
+    def _generate_random_coordinates(self):
+        """Generate random latitude and longitude within realistic bounds."""
+        latitude = round(random.uniform(-90, 90), 6)
+        longitude = round(random.uniform(-180, 180), 6)
+        return latitude, longitude
 
-# Convert to DataFrame and save
-users_df = pd.DataFrame(users_data)
-users_df.to_csv("diverse_users.csv", index=False)
+    def _generate_created_at(self):
+        """Generate a random account creation date within the past year."""
+        days_ago = random.randint(0, 365)
+        created_at = datetime.now() - timedelta(days=days_ago)
+        return created_at.isoformat() + "Z"
 
-print("Users data generated successfully!")
+    def _generate_user(self, user_id):
+        """Generate a single user with required fields."""
+        first_name = random.choice(["Jane", "John", "Alice", "Bob", "Eve", "Charlie", "Grace", "Mallory"])
+        last_name = random.choice(["Doe", "Smith", "Brown", "Taylor", "Wilson", "Johnson", "Davis", "Moore"])
+        email = self._generate_random_email(first_name, last_name)
+        latitude, longitude = self._generate_random_coordinates()
+
+        # Generate preferences and disliked event types
+        preferences = random.sample(self.event_types, random.randint(1, 5))
+        disliked = random.sample([et for et in self.event_types if et not in preferences], random.randint(1, 3))
+
+        price_range = random.choice(self.price_ranges)
+        distance = random.choice(list(self.distance_ranges.keys()))
+        created_at = self._generate_created_at()
+
+        return {
+            "userId": user_id,
+            "email": email,
+            "firstName": first_name,
+            "lastName": last_name,
+            "latitude": latitude,
+            "longitude": longitude,
+            "preferences": ", ".join(preferences),
+            "disliked": ", ".join(disliked),
+            "priceRange": price_range,
+            "distance": distance,
+            "createdAt": created_at
+        }
+
+    def generate_mock_users(self, num_users=100):
+        """Generate specified number of mock users."""
+        users = [self._generate_user(user_id) for user_id in range(1, num_users + 1)]
+        return pd.DataFrame(users)
+
+    def save_mock_users(self, df, filename="mock_users.csv"):
+        """Save generated mock users to a CSV file."""
+        current_directory = os.getcwd()
+        csv_file_path = os.path.join(current_directory, filename)
+        df.to_csv(csv_file_path, index=False)
+        print(f"Mock user data saved to: {csv_file_path}")
+        return csv_file_path
+
+
+def main():
+    generator = MockUserDataGenerator()
+    mock_users_df = generator.generate_mock_users(100)
+    generator.save_mock_users(mock_users_df, "diverse_users.csv")
+
+
+if __name__ == "__main__":
+    main()

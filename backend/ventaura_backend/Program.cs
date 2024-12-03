@@ -65,6 +65,15 @@ builder.Services.AddHttpClient<YelpFusionService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpClient("RankingAPI", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8000");
+});
+
+// Register Ranking service
+builder.Services.AddScoped<RankingService>();
+
+
 //Allows access of this for our frontend
 builder.Services.AddCors(options =>
 {

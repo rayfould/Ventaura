@@ -1,25 +1,31 @@
 {
   "format": 1,
   "restore": {
-    "/Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/ventaura_backend.csproj": {}
+    "E:\\Documents\\GitHub\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj": {}
   },
   "projects": {
-    "/Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/ventaura_backend.csproj": {
+    "E:\\Documents\\GitHub\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/ventaura_backend.csproj",
+        "projectUniqueName": "E:\\Documents\\GitHub\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
         "projectName": "ventaura_backend",
-        "projectPath": "/Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/ventaura_backend.csproj",
-        "packagesPath": "/Users/isabellateixeira/.nuget/packages/",
-        "outputPath": "/Users/isabellateixeira/Downloads/cs392/Ventaura/backend/ventaura_backend/obj/",
+        "projectPath": "E:\\Documents\\GitHub\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
+        "packagesPath": "C:\\Users\\Rayfould.DESKTOP-JFR2EQE\\.nuget\\packages\\",
+        "outputPath": "E:\\Documents\\GitHub\\Ventaura\\backend\\ventaura_backend\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/Users/isabellateixeira/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Rayfould.DESKTOP-JFR2EQE\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -121,7 +127,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.403/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.404/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
