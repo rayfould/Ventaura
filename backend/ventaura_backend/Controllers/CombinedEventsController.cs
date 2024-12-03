@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using ventaura_backend.Data;
 using Microsoft.EntityFrameworkCore;
 using ventaura_backend.Utils;
+using System.IO;
+using System.Text;
 
 namespace ventaura_backend.Controllers
 {
@@ -32,6 +34,183 @@ namespace ventaura_backend.Controllers
 
         // Endpoint to fetch and store user-specific event data in a temporary table.
         [HttpGet("fetch")]
+        public async Task<IActionResult> FetchCombinedEvents([FromQuery] int userId)
+        {
+            try
+            {
+                // Retrieve the user and validate their location data
+                var user = await _dbContext.Users.FindAsync(userId);
+                if (user == null || user.Latitude == null || user.Longitude == null)
+                {
+                    Console.WriteLine($"User with ID {userId} not found or location data is missing.");
+                    return BadRequest("User not found or location is missing.");
+                }
+
+                Console.WriteLine($"Location successfully extracted for userId: {userId}.");
+
+                // Fetch events from the combined API service
+                Console.WriteLine($"Fetching events for userId {userId}...");
+                var events = await _combinedApiService.FetchEventsAsync(user.Latitude.Value, user.Longitude.Value, userId);
+
+                // Process events for CSV creation
+                if (events.Any())
+                {
+                    Console.WriteLine($"Preparing data for {events.Count} events to generate CSV.");
+
+                    var csvFilePath = Path.Combine("CsvFiles", $"{userId}.csv");
+
+                    // Ensure the directory exists
+                    var directory = Path.GetDirectoryName(csvFilePath);
+                    if (!Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+
+                    // Write CSV file
+                    using (var writer = new StreamWriter(csvFilePath, false, Encoding.UTF8))
+                    {
+                        // Write header
+                        await writer.WriteLineAsync("Title,Description,Location,Start,Source,Type,CurrencyCode,Amount,URL,Distance");
+
+                        foreach (var e in events)
+                        {
+                            // Handle invalid or missing event locations
+                            double eventLatitude, eventLongitude;
+                            if (string.IsNullOrEmpty(e.Location) ||
+                                !e.Location.Contains(",") ||
+                                !double.TryParse(e.Location.Split(',')[0], out eventLatitude) ||
+                                !double.TryParse(e.Location.Split(',')[1], out eventLongitude))
+                            {
+                                eventLatitude = user.Latitude.Value;
+                                eventLongitude = user.Longitude.Value;
+                            }
+
+                            var distance = DistanceCalculator.CalculateDistance(
+                                user.Latitude.Value,
+                                user.Longitude.Value,
+                                eventLatitude,
+                                eventLongitude
+                            );
+                            e.Distance = (float)distance;
+
+                            // Write event data to CSV
+                            await writer.WriteLineAsync($@"""{e.Title?.Replace("\"", "\"\"")}""," +
+                                                        $@"""{e.Description?.Replace("\"", "\"\"")}""," +
+                                                        $@"""{e.Location?.Replace("\"", "\"\"")}""," +
+                                                        $"{e.Start?.ToString("yyyy-MM-dd HH:mm:ss") ?? ""}," +
+                                                        $@"""{e.Source?.Replace("\"", "\"\"")}""," +
+                                                        $@"""{e.Type?.Replace("\"", "\"\"")}""," +
+                                                        $@"""{e.CurrencyCode?.Replace("\"", "\"\"")}""," +
+                                                        $"{e.Amount?.ToString() ?? ""}," +
+                                                        $@"""{e.URL?.Replace("\"", "\"\"")}""," +
+                                                        $"{e.Distance}");
+                        }
+                    }
+
+                    Console.WriteLine($"CSV file created at {csvFilePath}.");
+
+                    return Ok(new
+                    {
+                        Message = "Events processed successfully and CSV created.",
+                        CsvPath = csvFilePath,
+                        TotalEvents = events.Count,
+                        ValidEvents = events.Count(e => !string.IsNullOrEmpty(e.Location)),
+                        InvalidEvents = events.Count(e => string.IsNullOrEmpty(e.Location))
+                    });
+                }
+                else
+                {
+                    Console.WriteLine("No events to process.");
+                    return Ok(new { Message = "No events available to process.", TotalEvents = 0 });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in FetchCombinedEvents: {ex.Message}");
+                return StatusCode(500, "An error occurred while fetching events.");
+            }
+        }
+
+        [HttpGet("get-csv")]
+        public IActionResult GetCsv([FromQuery] int userId)
+        {
+            try
+            {
+                var csvFilePath = Path.Combine("CsvFiles", $"{userId}.csv");
+
+                if (!System.IO.File.Exists(csvFilePath))
+                {
+                    Console.WriteLine($"CSV file {csvFilePath} does not exist.");
+                    return NotFound(new { Message = "CSV file not found." });
+                }
+
+                // Return the CSV file as a response
+                var fileStream = new FileStream(csvFilePath, FileMode.Open, FileAccess.Read);
+                var fileName = $"{userId}.csv";
+
+                Console.WriteLine($"Serving CSV file {csvFilePath}.");
+                return File(fileStream, "text/csv", fileName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error while fetching CSV for user {userId}: {ex.Message}");
+                return StatusCode(500, "An error occurred while fetching the CSV file.");
+            }
+        }
+
+        // Endpoint to log out a user and delete their associated CSV file.
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromQuery] int userId)
+        {
+            try
+            {
+                // Check if the user exists in the database.
+                var user = await _dbContext.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    Console.WriteLine($"User with ID {userId} does not exist.");
+                    return BadRequest(new { Message = "User not found or not logged in." });
+                }
+
+                // File path for the user's CSV file.
+                var csvFilePath = Path.Combine("CsvFiles", $"{userId}.csv");
+
+                // Attempt to delete the CSV file.
+                if (System.IO.File.Exists(csvFilePath))
+                {
+                    try
+                    {
+                        System.IO.File.Delete(csvFilePath);
+                        Console.WriteLine($"Deleted CSV file: {csvFilePath}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error deleting CSV file {csvFilePath}: {ex.Message}");
+                        return StatusCode(500, new { Message = "Error deleting CSV file.", Details = ex.Message });
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"CSV file {csvFilePath} does not exist.");
+                }
+
+                // Update the user's login status in the database.
+                user.IsLoggedIn = false;
+                await _dbContext.SaveChangesAsync();
+                Console.WriteLine($"User {user.Email} logged out successfully.");
+
+                return Ok(new { Message = "User logged out successfully and CSV file deleted." });
+            }
+            catch (Exception ex)
+            {
+                // Log and return general errors.
+                Console.WriteLine($"Error while logging out user {userId}: {ex.Message}");
+                return StatusCode(500, new { Message = "An error occurred while logging out.", Details = ex.Message });
+            }
+        }
+
+        // OLD Endpoint to fetch and store user-specific event data in a temporary table.
+        /* [HttpGet("fetch")]
         public async Task<IActionResult> FetchCombinedEvents([FromQuery] int userId)
         {
             try
@@ -187,55 +366,6 @@ namespace ventaura_backend.Controllers
                     {
                         Console.WriteLine("No events to insert.");
                     }
-                    
-                    // Insert events into the user-specific table
-                    /* Console.WriteLine($"Inserting events into UserContent_{userId} table...");
-                    foreach (var e in events)
-                    {
-                        double eventLatitude, eventLongitude;
-
-                        if (string.IsNullOrEmpty(e.Location) ||
-                            !e.Location.Contains(",") ||
-                            !double.TryParse(e.Location.Split(',')[0], out eventLatitude) ||
-                            !double.TryParse(e.Location.Split(',')[1], out eventLongitude))
-                        {
-                            // Assign user's location as default for invalid or missing event location
-                            Console.WriteLine($"Invalid or missing location for event: {e.Title}. Using user's location as default.");
-                            eventLatitude = user.Latitude.Value;
-                            eventLongitude = user.Longitude.Value;
-                        }
-
-                        var distance = DistanceCalculator.CalculateDistance(
-                            user.Latitude.Value,
-                            user.Longitude.Value,
-                            eventLatitude,
-                            eventLongitude
-                        );
-
-                        e.Distance = (float)distance;
-
-                        Console.WriteLine($"Processed event: {e.Title}, Distance: {distance} km.");
-                        // Console.WriteLine($"Distance successfully calculated with a value of {distance}.");
-
-                        using var insertCommand = connection.CreateCommand();
-                        insertCommand.CommandText = $@"
-                            INSERT INTO usercontent_{userId} 
-                            (Title, Description, Location, Start, Source, Type, CurrencyCode, Amount, URL, Distance) 
-                            VALUES (@Title, @Description, @Location, @Start, @Source, @Type, @CurrencyCode, @Amount, @URL, @Distance);";
-
-                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Title", e.Title ?? (object)DBNull.Value));
-                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Description", e.Description ?? (object)DBNull.Value));
-                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Location", e.Location ?? (object)DBNull.Value));
-                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Start", e.Start.HasValue ? e.Start.Value : (object)DBNull.Value));
-                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Source", e.Source ?? (object)DBNull.Value));
-                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Type", e.Type ?? (object)DBNull.Value));
-                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("CurrencyCode", e.CurrencyCode ?? (object)DBNull.Value));
-                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Amount", e.Amount.HasValue ? e.Amount.Value : (object)DBNull.Value));
-                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("URL", e.URL ?? (object)DBNull.Value));
-                        insertCommand.Parameters.Add(new Npgsql.NpgsqlParameter("Distance", e.Distance));
-
-                        await insertCommand.ExecuteNonQueryAsync();
-                    } */
 
                     return Ok(new
                     {
@@ -252,10 +382,10 @@ namespace ventaura_backend.Controllers
                 Console.WriteLine($"Error in FetchCombinedEvents: {ex.Message}");
                 return StatusCode(500, "An error occurred while fetching events.");
             }
-        }
+        }*/
 
-        // Endpoint to log out a user and clear their session-specific content.
-        [HttpPost("logout")]
+        // OLD Endpoint to log out a user and clear their session-specific content.
+        /* [HttpPost("logout")]
         public async Task<IActionResult> Logout([FromQuery] int userId)
         {
             try
@@ -329,6 +459,8 @@ namespace ventaura_backend.Controllers
                 Console.WriteLine($"Error while logging out user {userId}: {ex.Message}");
                 return StatusCode(500, new { Message = "An error occurred while logging out.", Details = ex.Message });
             }
-        }
+        }*/
+
+
     }
 }
