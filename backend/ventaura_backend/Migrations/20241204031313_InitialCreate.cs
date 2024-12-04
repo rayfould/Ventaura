@@ -7,11 +7,34 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ventaura_backend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "HostEvents",
+                columns: table => new
+                {
+                    EventId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    Location = table.Column<string>(type: "text", nullable: false),
+                    Start = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Source = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false),
+                    CurrencyCode = table.Column<string>(type: "text", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: true),
+                    URL = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
+                    HostUserId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HostEvents", x => x.EventId);
+                });
+
             migrationBuilder.CreateTable(
                 name: "UserContent",
                 columns: table => new
@@ -52,8 +75,7 @@ namespace ventaura_backend.Migrations
                     Dislikes = table.Column<string>(type: "text", nullable: false),
                     PriceRange = table.Column<string>(type: "text", nullable: false),
                     MaxDistance = table.Column<double>(type: "double precision", nullable: true),
-                    IsLoggedIn = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    IsLoggedIn = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -70,6 +92,9 @@ namespace ventaura_backend.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "HostEvents");
+
             migrationBuilder.DropTable(
                 name: "UserContent");
 

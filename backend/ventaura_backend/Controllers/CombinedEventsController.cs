@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using ventaura_backend.Data;
 using Microsoft.EntityFrameworkCore;
 using ventaura_backend.Utils;
+using ventaura_backend.Models;
 using System.IO;
 using System.Text;
 
@@ -214,6 +215,42 @@ namespace ventaura_backend.Controllers
                 // Log and return general errors.
                 Console.WriteLine($"Error while logging out user {userId}: {ex.Message}");
                 return StatusCode(500, new { Message = "An error occurred while logging out.", Details = ex.Message });
+            }
+        }
+
+        // Endpoint to add a host event to database
+        [HttpPost("create-host-event")]
+        public async Task<IActionResult> CreateHostEvent([FromBody] HostEvent hostEvent)
+        {
+            try
+            {
+                // Validate the incoming event data
+                if (!ModelState.IsValid)
+                {
+                    Console.WriteLine("Invalid host event data received.");
+                    return BadRequest("Invalid event data.");
+                }
+
+                // Set default values for Source and CreatedAt
+                hostEvent.Source = "Host";
+                hostEvent.CreatedAt = DateTime.UtcNow;
+
+                // Add the new host event to the database
+                await _dbContext.HostEvents.AddAsync(hostEvent);
+                await _dbContext.SaveChangesAsync();
+
+                Console.WriteLine($"Host event '{hostEvent.Title}' created successfully.");
+
+                return Ok(new
+                {
+                    Message = "Host event created successfully.",
+                    EventId = hostEvent.EventId
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating host event: {ex.Message}");
+                return StatusCode(500, $"Error creating host event: {ex.Message}");
             }
         }
 
@@ -468,7 +505,6 @@ namespace ventaura_backend.Controllers
                 return StatusCode(500, new { Message = "An error occurred while logging out.", Details = ex.Message });
             }
         }*/
-
 
     }
 }

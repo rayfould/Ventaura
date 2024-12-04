@@ -12,8 +12,8 @@ using ventaura_backend.Data;
 namespace ventaura_backend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20241128210825_RemovedUsersField")]
-    partial class RemovedUsersField
+    [Migration("20241204031313_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,61 @@ namespace ventaura_backend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ventaura_backend.Models.HostEvent", b =>
+                {
+                    b.Property<int>("EventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EventId"));
+
+                    b.Property<decimal?>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("HostUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("Start")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("URL")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("HostEvents");
+                });
 
             modelBuilder.Entity("ventaura_backend.Models.User", b =>
                 {
