@@ -17,10 +17,21 @@ namespace ventaura_backend.Data
         // DbSet properties representing tables in the database.
         public DbSet<User> Users { get; set; }
         public DbSet<UserContent> UserContent { get; set; }
+        public DbSet<HostEvent> HostEvents { get; set; }
 
         // Configures the model and schema for the database during creation.
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            // Configure the primary key for HostEvent
+            modelBuilder.Entity<HostEvent>()
+                .HasKey(he => he.EventId);
+
+            // Configure the default value for the CreatedAt column
+            modelBuilder.Entity<HostEvent>()
+                .Property(he => he.CreatedAt)
+                .HasDefaultValueSql("NOW()");
+
             // Configures the Users table to have a unique index on the Email column.
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
@@ -34,6 +45,9 @@ namespace ventaura_backend.Data
             modelBuilder.Entity<UserContent>()
                 .Property(uc => uc.CreatedAt)
                 .HasDefaultValueSql("NOW()"); // Default value for CreatedAt.
+            
+            base.OnModelCreating(modelBuilder); // Call the base implementation
+            
         }
     }
 }
