@@ -14,7 +14,7 @@ namespace ventaura_backend.Models
         public string CurrencyCode { get; set; }
         public decimal? Amount { get; set; }
         public string URL { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
         public int HostUserId { get; set; }
     }
 }
