@@ -70,8 +70,10 @@ namespace ventaura_backend.Controllers
                     using (var writer = new StreamWriter(csvFilePath, false, Encoding.UTF8))
                     {
                         // Write header
-                        await writer.WriteLineAsync("Title,Description,Location,Start,Source,Type,CurrencyCode,Amount,URL,Distance");
-
+                        // Write lowercase header with contentId
+                        await writer.WriteLineAsync("contentId,title,description,location,start,source,type,currencyCode,amount,url,distance");
+                        
+                        int contentIdCounter = 1; // Start unique ID counter
                         foreach (var e in events)
                         {
                             // Handle invalid or missing event locations
@@ -94,16 +96,21 @@ namespace ventaura_backend.Controllers
                             e.Distance = (float)distance;
 
                             // Write event data to CSV
-                            await writer.WriteLineAsync($@"""{e.Title?.Replace("\"", "\"\"")}""," +
-                                                        $@"""{e.Description?.Replace("\"", "\"\"")}""," +
-                                                        $@"""{e.Location?.Replace("\"", "\"\"")}""," +
+                            // Write event data to CSV without quotes
+                            await writer.WriteLineAsync($"{contentIdCounter}," +
+                                                        $"{e.Title}," +
+                                                        $"{e.Description}," +
+                                                        $"{e.Location}," +
                                                         $"{e.Start?.ToString("yyyy-MM-dd HH:mm:ss") ?? ""}," +
-                                                        $@"""{e.Source?.Replace("\"", "\"\"")}""," +
-                                                        $@"""{e.Type?.Replace("\"", "\"\"")}""," +
-                                                        $@"""{e.CurrencyCode?.Replace("\"", "\"\"")}""," +
+                                                        $"{e.Source}," +
+                                                        $"{e.Type}," +
+                                                        $"{e.CurrencyCode}," +
                                                         $"{e.Amount?.ToString() ?? ""}," +
-                                                        $@"""{e.URL?.Replace("\"", "\"\"")}""," +
+                                                        $"{e.URL}," +
                                                         $"{e.Distance}");
+
+
+                            contentIdCounter++; // Increment contentId for the next event
                         }
                     }
 
