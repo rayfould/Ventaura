@@ -42,11 +42,12 @@ const Success = () => {
   };
 
   return (
-    <div className="add-event-container">
+    <div className="container">
       {sessionId ? (
         <>
           <header className="header">
-            <h2 className="page-title">Payment Successful, Add Event Details:</h2>
+            <h2 className="page-title">Payment Successful! 
+              Add Event Details:</h2>
           </header>
 
           <form onSubmit={handleSubmit} className="event-form">
@@ -119,10 +120,15 @@ const Success = () => {
                 required
               >
                 <option value="">Select event type</option>
-                <option value="festival">Festival</option>
-                <option value="concert">Concert</option>
-                <option value="conference">Conference</option>
-                <option value="workshop">Workshop</option>
+                <option value="Festival-Fairs">Festival/Fair</option>
+                <option value="Music">Music</option>
+                <option value="Performing-Arts">Performing Arts</option>
+                <option value="Sports-Active-Life">Sports/Active Life</option>
+                <option value="Nightlife">Nightlife</option>
+                <option value="Film">Film</option>
+                <option value="Kids-Family">Kids/Family</option>
+                <option value="Food-And-Drink">Food And Drink</option>
+                <option value="Other">Other</option>
               </select>
             </div>
 
