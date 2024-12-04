@@ -106,7 +106,7 @@ button:hover {
     background-color: #cc0000;
 }
 
-/* Sidebar Styling */
+/* Sidebar Styling (Left) */
 .sidebar {
     position: fixed;
     top: 0;
@@ -119,6 +119,7 @@ button:hover {
     z-index: 1000;
     overflow-x: hidden;
     padding-top: 60px;
+    padding-right: 10px;
 }
 
 .sidebar-button {
@@ -148,21 +149,6 @@ button:hover {
     background-color: #0056b3;
 }
 
-.open-sidebar {
-    position: fixed;
-    top: 10px;
-    left: 20px;
-    font-size: 24px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    z-index: 1001;
-}
-
-.open-sidebar:hover {
-    color: #0056b3;
-}
-
 /* Close Sidebar Button */
 .close-sidebar {
     position: absolute;
@@ -177,6 +163,95 @@ button:hover {
 
 .close-sidebar:hover {
     color: #ff4d4d; /* Highlight the close button on hover */
+}
+
+/* Sidebar Styling (Right) */
+.sidebar-right {
+    position: fixed;
+    top: 0;
+    right: -290px; /* Start off-screen on the right side */
+    width: 290px;
+    height: 100%;
+    background-color: #007bff;
+    color: white;
+    transition: 0.3s;
+    z-index: 1000;
+    overflow-x: hidden;
+    padding-top: 60px;
+    padding-left: 10px;
+}
+
+.sidebar-right.open {
+    right: 0; /* Slide in to the right */
+}
+
+.sidebar-right-link {
+    display: block;
+    color: white;
+    padding: 15px 15px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.sidebar-right-div {
+    display: block;
+    color: rgb(182, 182, 199);
+    padding: 15px 15px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.sidebar-right-link:hover {
+    background-color: #0056b3;
+}
+
+/* Open Sidebar Button (Right Side) */
+.open-sidebar-right {
+    position: fixed;
+    top: 80px; /* Adjust to place it appropriately */
+    right: 20px; /* Position in the top-right corner of the page */
+    background: none;
+    border: none;
+    font-size: 24px; /* Adjust the icon size */
+    cursor: pointer;
+    z-index: 1002; /* Ensure it's above the sidebar */
+}
+
+.open-sidebar-right:hover {
+    color: #0056b3; /* Change color on hover */
+}
+
+/* Close Sidebar Button (Right Side) */
+.close-sidebar-right {
+    position: absolute;
+    top: 10px;
+    left: 10px; /* Align in the top-left corner of the sidebar */
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.close-sidebar-right:hover {
+    color: #ff4d4d; /* Highlight the close button on hover */
+}
+
+/* Sidebar Button (Toggle Button) */
+.sidebar-button-right {
+    position: fixed;
+    top: 10px; /* Position at the top of the page */
+    right: 20px; /* Align it to the right side */
+    background: none;
+    border: none;
+    font-size: 24px; /* Adjust as needed */
+    color: #007bff;
+    cursor: pointer;
+    z-index: 1003; /* Ensure it's above the sidebar */
+}
+
+.sidebar-button-right:hover {
+    color: #0056b3; /* Change color on hover */
 }
 
 /* Container Styling */
@@ -206,7 +281,7 @@ button:hover {
 
 .form-button {
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: #052549;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -296,81 +371,47 @@ button:hover {
     display: inline-block;
     margin-top: 10px;
     padding: 8px 12px;
-    background-color: #007bff;
-    color: #fff;
+    border-radius: 5px;
     text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.2s;
+    color: #007bff;
+    border: 1px solid #007bff;
+    transition: background-color 0.3s;
 }
 
 .box a:hover {
-    background-color: #0056b3;
+    background-color: #007bff;
+    color: #fff;
 }
 
-/* Event List Styling */
-.event-list {
-    list-style: none;
-    padding: 0;
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .sidebar, .sidebar-right {
+        width: 200px;
+    }
 }
 
-.event-item {
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.event-title {
+.settings-button {
+    position: absolute;
+    top: 10px;
+    right: 70px; /* Position it next to the sidebar button */
+    padding: 10px 15px;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
     font-size: 20px;
-    margin-bottom: 10px;
-}
+    z-index: 1002;
+  }
+  
+  .settings-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
 
-.event-description {
-    font-size: 16px;
-    color: #666;
-    margin-bottom: 10px;
-}
-
-.event-link {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.event-link:hover {
-    text-decoration: underline;
-}
-
-/* About Us Page */
-.about-container {
-    max-width: 800px;
-    margin: 50px auto;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.about-container h2 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    color: #007bff;
-}
-
-.about-container p {
-    line-height: 1.8;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-/* Spacing for Home Container */
-.home-container {
-    padding-top: 70px;
-}
-
-/* Form Page Styling */
+  /* Form Page Styling */
 .add-event-container {
     max-width: 700px;
     margin: 40px auto;
@@ -396,6 +437,26 @@ button:hover {
     font-size: 16px;
     margin-bottom: 5px;
     color: #333;
+}
+
+.form-input, .form-textarea, .form-select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.form-textarea {
+    height: 120px;
+    resize: vertical;
+}
+
+.form-group .error {
+    color: #ff4d4d;
+    font-size: 14px;
+    margin-top: 5px;
 }
 
 .form-input, .form-textarea, .form-select {
@@ -477,35 +538,3 @@ button[type="submit"]:not(:disabled):hover {
     flex-direction: column;
     gap: 20px;
 }
-
-/* Hover effects for inputs (optional for aesthetic appeal) */
-.form-input:hover, 
-.form-textarea:hover,
-.form-select:hover {
-    border-color: #007bff;
-}
-
-.form-input:focus, 
-.form-textarea:focus,
-.form-select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-.settings-button {
-    position: absolute;
-    top: 10px;
-    right: 70px; /* Position it next to the sidebar button */
-    padding: 10px 15px;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
-    z-index: 1002;
-  }
-  
-  .settings-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-  }

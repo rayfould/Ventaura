@@ -97,7 +97,7 @@ namespace RankingAPIDemo
             var demo = new EventRankingDemo();
 
             // Test with a specific user ID
-            bool success = await demo.RankEventsForUser(45);
+            bool success = await demo.RankEventsForUser(96);
 
             Console.WriteLine($"\nRanking process {(success ? "succeeded" : "failed")}");
             Console.WriteLine("\nPress any key to exit...");

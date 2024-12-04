@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom';
 
 const Canceled = () => {
   return (
+    <div className="container">
     <div className="sr-root">
       <div className="sr-main">
         <header className="sr-header">
@@ -10,9 +11,10 @@ const Canceled = () => {
         </header>
         <div className="sr-payment-summary completed-view">
           <h1>Your payment was canceled</h1>
-          <Link to="/for-you">Go back to shopping</Link>
+          <Link to="/for-you">Return to For You page</Link>
         </div>
       </div>
+    </div>
     </div>
   );
 };
