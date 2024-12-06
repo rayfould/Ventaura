@@ -1,0 +1,57 @@
+
+/* Form Modules */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.form-input, 
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: var(--space-md);
+    font-size: 16px;
+    border: 1px solid rgba(var(--text-rgb), 0.1);
+    border-radius: var(--radius-sm);
+    box-sizing: border-box;
+}
+
+.form-group {
+    margin-bottom: var(--space-md);
+}
+
+.form-group label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: var(--space-xs);
+    color: var(--text);
+}
+
+.form-group .error {
+    color: var(--primary);
+    font-size: 14px;
+    margin-top: var(--space-xs);
+}
+
+button[type="submit"] {
+    width: 100%;
+    background-color: var(--primary);
+    color: var(--background);
+    transition: var(--transition-normal);
+}
+
+button[type="submit"]:disabled {
+    background-color: rgba(var(--text-rgb), 0.2);
+    cursor: not-allowed;
+}
+
+.link {
+    display: block;
+    margin-top: var(--space-md);
+    text-align: center;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+

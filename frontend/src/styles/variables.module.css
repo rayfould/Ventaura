@@ -1,0 +1,41 @@
+/* variables.css */
+:root {
+    /* Theme colors */
+    --primary-rgb: 193, 73, 83;      /* Current: Red */
+    --secondary-rgb: 51, 65, 149;    /* Current: Dark Blue */
+    --accent-rgb: 100, 122, 163;     /* Current: Light Blue */
+    --background-rgb: 245, 244, 245; /* Current: Light Gray */
+    --text-rgb: 15, 14, 14;         /* Current: Dark Gray */
+  
+    /* Solid colors */
+    --primary: rgb(var(--primary-rgb));
+    --secondary: rgb(var(--secondary-rgb));
+    --accent: rgb(var(--accent-rgb));
+    --background: rgb(var(--background-rgb));
+    --text: rgb(var(--text-rgb));
+  
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+  
+    /* Border radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+  
+    /* Z-index layers */
+    --z-base: 1;
+    --z-header: 100;
+    --z-sidebar: 200;
+    --z-modal: 300;
+    --z-tooltip: 400;
+  }
+  

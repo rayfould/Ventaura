@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "../styles.css"; // Import the global CSS
+import styles from '../styles';
 
 const ContactUs = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -13,18 +13,18 @@ const ContactUs = () => {
   };
 
   return (
-    <div>
+    <div className={styles.pageContainer}>
       {/* Header */}
-      <header className="header">
+      <header className={styles.header}>
         <button
-          className="sidebar-button"
+          className={styles.sidebarButton}
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
           ☰
         </button>
         {/* Settings Icon Button */}
         <button
-          className="settings-button"
+          className={styles.settingsButton}
           onClick={() => navigate("/settings")}
         >
           ⚙️
@@ -32,31 +32,34 @@ const ContactUs = () => {
       </header>
 
       {/* Sidebar */}
-      <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <button className="close-sidebar" onClick={() => setIsSidebarOpen(false)}>
+      <div className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ''}`}>
+        <button 
+          className={styles.closeSidebar} 
+          onClick={() => setIsSidebarOpen(false)}
+        >
           X
         </button>
-        <Link to="/for-you" className="sidebar-link">
+        <Link to="/for-you" className={styles.sidebarLink}>
           For You
         </Link>
-        <Link to="/about-us" className="sidebar-link">
+        <Link to="/about-us" className={styles.sidebarLink}>
           About Us
         </Link>
-        <Link to="/contact-us" className="sidebar-link">
+        <Link to="/contact-us" className={styles.sidebarLink}>
           Contact Us
         </Link>
-        <Link to="/post-event-page" className="sidebar-link">
+        <Link to="/post-event-page" className={styles.sidebarLink}>
           Post An Event
         </Link>
-        <Link className="sidebar-link" onClick={handleManualLogout}>
+        <Link className={styles.sidebarLink} onClick={handleManualLogout}>
           Logout
         </Link>
       </div>
 
       {/* Main Content */}
-      <div className="container">
-        <h2>Contact Us</h2>
-        <p>For support or inquiries, email us at support@ventaura.com.</p>
+      <div className={styles.container}>
+        <h2 className={styles.heading}>Contact Us</h2>
+        <p className={styles.text}>For support or inquiries, email us at support@ventaura.com.</p>
       </div>
     </div>
   );

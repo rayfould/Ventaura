@@ -33,7 +33,7 @@ namespace EventRanking
         public int Age { get; set; }
     }
 
-    public class Event
+   public class Event
 {
     [JsonPropertyName("contentId")]
     public int ContentId { get; set; }
@@ -44,8 +44,11 @@ namespace EventRanking
     [JsonPropertyName("description")]
     public string Description { get; set; }
 
-    [JsonPropertyName("location")]
-    public string Location { get; set; }
+    [JsonPropertyName("latitude")]
+    public double Latitude { get; set; }
+
+    [JsonPropertyName("longitude")]
+    public double Longitude { get; set; }
 
     [JsonPropertyName("start")]
     public string Start { get; set; }
@@ -60,7 +63,7 @@ namespace EventRanking
     public string CurrencyCode { get; set; }
 
     [JsonPropertyName("amount")]
-    public string Amount { get; set; }
+    public decimal? Amount { get; set; }
 
     [JsonPropertyName("url")]
     public string Url { get; set; }

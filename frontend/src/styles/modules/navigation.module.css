@@ -1,0 +1,35 @@
+
+/* Sidebar Navigation */
+.sidebar-link {
+    display: block;
+    color: var(--background);
+    padding: var(--space-md);
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.sidebar-right-link,
+.sidebar-right-div {
+    display: block;
+    padding: var(--space-md);
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.sidebar-right-div {
+    color: rgba(var(--text-rgb), 0.6);
+}
+
+/* Navigation Buttons */
+.sidebar-button,
+.sidebar-button-right,
+.open-sidebar-right,
+.close-sidebar,
+.close-sidebar-right {
+    position: fixed;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: var(--z-sidebar);
+}

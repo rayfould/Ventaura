@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles.css"; // Import the global CSS
+import styles from '../styles';
+console.log('Styles object:', styles);
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -10,10 +11,13 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="landing-container">
-      <h1>Ventaura</h1>
-      <p>Your personalized event recommendation platform.</p>
-      <button onClick={handleLogin} className="form-button">
+    <div className={styles.landingContainer}>
+      <h1 className={styles.title}>Ventaura</h1>
+      <p className={styles.description}>Your personalized event recommendation platform.</p>
+      <button 
+        onClick={handleLogin} 
+        className={styles.formButton}
+      >
         Log In
       </button>
     </div>

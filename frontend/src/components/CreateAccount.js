@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../styles.css"; // Import the global CSS
+import styles from '../styles';
 import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 
 const CreateAccount = () => {
@@ -113,16 +113,16 @@ const CreateAccount = () => {
   };
 
   return (
-    <div className="container">
-      <h2>Create Account</h2>
-      <form onSubmit={handleSubmit} className="form">
+    <div className={styles.container}>
+      <h2 className={styles.heading}>Create Account</h2>
+      <form onSubmit={handleSubmit} className={styles.form}>
         <input
           type="email"
           name="email"
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          className="form-input"
+          className={styles.formInput}
           required
         />
         <input
@@ -131,7 +131,7 @@ const CreateAccount = () => {
           placeholder="First Name"
           value={formData.firstName}
           onChange={handleChange}
-          className="form-input"
+          className={styles.formInput}
           required
         />
         <input
@@ -140,35 +140,19 @@ const CreateAccount = () => {
           placeholder="Last Name"
           value={formData.lastName}
           onChange={handleChange}
-          className="form-input"
+          className={styles.formInput}
           required
         />
-        {/* <input
-          type="number"
-          name="latitude"
-          placeholder="Latitude"
-          value={formData.latitude}
-          className="form-input"
-          readOnly
-        />
-        <input
-          type="number"
-          name="longitude"
-          placeholder="Longitude"
-          value={formData.longitude}
-          className="form-input"
-          readOnly
-        /> */}
 
-        <div>
-          <h3>Select Preferences:</h3>
+        <div className={styles.preferencesSection}>
+          <h3 className={styles.subheading}>Select Preferences:</h3>
           {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((preference) => (
             <button
               type="button"
               key={preference}
               onClick={() => handlePreferenceToggle(preference)}
-              className={`preference-button ${
-                formData.preferences.includes(preference) ? "selected" : ""
+              className={`${styles.preferenceButton} ${
+                formData.preferences.includes(preference) ? styles.selected : ""
               }`}
             >
               {preference}
@@ -176,15 +160,15 @@ const CreateAccount = () => {
           ))}
         </div>
 
-        <div>
-          <h3>Select Dislikes:</h3>
+        <div className={styles.preferencesSection}>
+          <h3 className={styles.subheading}>Select Dislikes:</h3>
           {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((dislike) => (
             <button
               type="button"
               key={dislike}
               onClick={() => handleDislikeToggle(dislike)}
-              className={`dislike-button ${
-                formData.dislikes.includes(dislike) ? "selected" : ""
+              className={`${styles.dislikeButton} ${
+                formData.dislikes.includes(dislike) ? styles.selected : ""
               }`}
             >
               {dislike}
@@ -192,9 +176,9 @@ const CreateAccount = () => {
           ))}
         </div>
 
-        <div>
-          <h3>Select Price Range:</h3>
-          <label htmlFor="priceRange">
+        <div className={styles.priceRangeSection}>
+          <h3 className={styles.subheading}>Select Price Range:</h3>
+          <label htmlFor="priceRange" className={styles.rangeLabel}>
             Average Price: ${formData.priceRange}
           </label>
           <input
@@ -206,7 +190,7 @@ const CreateAccount = () => {
             step="1"
             value={formData.priceRange}
             onChange={handleSliderChange}
-            className="slider"
+            className={styles.slider}
           />
         </div>
 
@@ -216,14 +200,14 @@ const CreateAccount = () => {
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}
-          className="form-input"
+          className={styles.formInput}
           required
         />
-        <button type="submit" className="form-button">
+        <button type="submit" className={styles.formButton}>
           Create Account
         </button>
       </form>
-      {message && <p className="message">{message}</p>}
+      {message && <p className={styles.message}>{message}</p>}
     </div>
   );
 };

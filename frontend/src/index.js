@@ -1,17 +1,12 @@
-// index.js (or the main entry point)
+// src/index.js
 import React from 'react';
-import ReactDOM from 'react-dom/client'; // React 18 uses `createRoot`
-import './index.css';
+import ReactDOM from 'react-dom';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import './styles/index.css';  // Only import global styles here
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
-root.render(
+ReactDOM.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
+  document.getElementById('root')
 );
-
-// Report web vitals
-reportWebVitals();

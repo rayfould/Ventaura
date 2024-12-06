@@ -1,0 +1,45 @@
+/* Button Modules */
+.for-you-button,
+.global-page-button {
+    background-color: var(--primary);
+    color: var(--background);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: var(--space-md) var(--space-lg);
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition-normal);
+}
+
+.logout-button {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-lg);
+    padding: var(--space-md) var(--space-lg);
+    background-color: var(--primary);
+    color: var(--background);
+    border-radius: var(--radius-sm);
+    z-index: var(--z-header);
+}
+
+.settings-button {
+    position: absolute;
+    top: var(--space-md);
+    right: 70px;
+    padding: var(--space-md);
+    color: var(--background);
+    border-radius: 50%;
+    font-size: 20px;
+    z-index: var(--z-header);
+}
+
+.preference-button,
+.dislike-button {
+    padding: var(--space-md);
+    margin: var(--space-xs);
+    border: 1px solid rgba(var(--text-rgb), 0.1);
+    border-radius: var(--radius-sm);
+    background-color: var(--accent);
+    color: var(--background);
+}

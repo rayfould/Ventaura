@@ -112,7 +112,7 @@ class MockEventDataGenerator:
         return csv_file_path
 
 
-def main(num_files=1):  # Default to 5 files, but can be changed
+def main(num_files=1):  # Dcefault to 5 files, but can be changed
     # Create the content directory if it doesn't exist
 
     generator = MockEventDataGenerator()

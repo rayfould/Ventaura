@@ -1,0 +1,127 @@
+/* styles/layout.module.css */
+
+/* Page Layout */
+.pageContainer {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.mainLayout {
+    display: flex;
+    margin-top: 60px;
+    height: calc(100vh - 60px);
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: var(--background);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+/* Sidebars */
+.sidebar, .sidebarRight {
+    position: fixed;
+    top: 60px;
+    height: calc(100vh - 60px);
+    width: 250px;
+    background: var(--background);
+    overflow-y: auto;
+    transition: 0.3s;
+    z-index: 1000;
+    padding-top: 60px;
+    padding-right: 10px;
+}
+
+.sidebar {
+    left: -250px;
+    background-color: var(--red);
+    color: white;
+}
+
+.sidebarRight {
+    right: -250px;
+}
+
+.sidebar.open {
+    left: 0;
+}
+
+.sidebarRight.open {
+    right: 0;
+}
+
+/* Main Content */
+.mainContent {
+    flex: 1;
+    margin: 0 auto;
+    padding: 1rem;
+    max-width: 1200px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Grid Layouts */
+.eventGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.boxesContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+}
+
+/* Special Containers */
+.centerButtonsContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-lg);
+    margin-top: var(--space-xl);
+}
+
+.landingContainer {
+    text-align: center;
+    padding: var(--space-xl);
+}
+
+.addEventContainer {
+    max-width: 700px;
+    margin: var(--space-xl) auto;
+    padding: var(--space-lg);
+    background-color: var(--background);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 6px rgba(var(--text-rgb), 0.1);
+}
+
+.addEventContainer h2 {
+    font-size: 2rem;
+    margin-bottom: var(--space-lg);
+    color: var(--primary);
+    text-align: center;
+}

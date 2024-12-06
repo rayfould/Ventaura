@@ -252,7 +252,14 @@ async def rank_events(user_id: int) -> dict:
             )
 
         print("File found, reading CSV...")
-        events_df = pd.read_csv(input_path)
+        events_df = pd.read_csv(
+            input_path,
+            sep=',',
+            quotechar='"',
+            escapechar='\\',
+            doublequote=True,
+            skipinitialspace=True
+        )
         print(f"CSV loaded with {len(events_df)} events")
 
         print("Loading events into ranker...")

@@ -1,8 +1,12 @@
 // ForYou.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Papa from 'papaparse';
+import { usePapaParse } from 'react-papaparse';
+import EventCard from './EventCard.js';  
 import { useLocation, useNavigate, Link } from "react-router-dom"; // Ensure 'Link' is imported here
-import "../styles.css"; // Import the global CSS
+import styles from '../styles';
+  
 
 const ForYou = () => {
   const location = useLocation();
@@ -12,6 +16,8 @@ const ForYou = () => {
   const [message, setMessage] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+  const { readString } = usePapaParse();
+  const [csvData, setCsvData] = useState([]);
 
   // Form data state for handling form input
   const [formData, setFormData] = useState({
@@ -145,139 +151,201 @@ const ForYou = () => {
     }));
   };
 
+  useEffect(() => {
+    const hardcodedUserId = 1; // Hardcode userId for testing
+    console.log("========= START DEBUG =========");
+    console.log("Using hardcoded userId:", hardcodedUserId);
+  
+    const fetchCSVData = async () => {
+      try {
+        console.log("🚀 Starting CSV fetch");
+        
+        // First API call with hardcoded userId
+        console.log("Making first API call to /fetch");
+        const fetchResponse = await axios.get(`http://localhost:5152/api/combined-events/fetch?userId=${hardcodedUserId}`);
+        console.log("📥 Fetch Response:", fetchResponse.data);
+        
+        // Second API call with hardcoded userId
+        console.log("Making second API call to /get-csv");
+        const csvResponse = await axios.get(`http://localhost:5152/api/combined-events/get-csv?userId=${hardcodedUserId}`);
+        console.log("📄 Got CSV data");
+        
+        Papa.parse(csvResponse.data, {
+          header: true,
+          complete: (results) => {
+            console.log("✅ Parse complete!");
+            console.log("📊 Number of events:", results.data.length);
+            console.log("📝 First event:", results.data[0]);
+            setEvents(results.data);
+          },
+          error: (error) => {
+            console.log("❌ Parse error:", error);
+          }
+        });
+  
+      } catch (error) {
+        console.log("❌ ERROR:", error);
+        if (error.response) {
+          console.log("❌ Error Response:", error.response.data);
+        }
+      }
+    };
+  
+    // Call fetchCSVData directly without userId check
+    fetchCSVData();
+    
+  }, [navigate, TIMEOUT_DURATION]); // Remove userId from dependencies since we're hardcoding it
+  
+  
+
+
+  const handleCSVData = (csvString) => {
+    readString(csvString, {
+      worker: true,
+      complete: (results) => {
+        // Filter out empty rows and set the data
+        const filteredData = results.data.filter(row => 
+          Object.values(row).some(value => value !== '')
+        );
+        setCsvData(filteredData);
+        setEvents(filteredData); // Update your existing events state
+      },
+      header: true, // This assumes your CSV has headers matching your event properties
+    });
+  };
+
+  const testEvent = {
+    title: "Test Event",
+    type: "Concert",
+    start: "2024-12-06T19:00:00",
+    distance: 2.5,
+    amount: 25.00,
+    currencyCode: "USD",
+    url: "#"
+  };
+  
+
   return (
-    <div>
-      {/* Header */}
-      <header className="header">
-        {/* Sidebar Button */}
-        <button
-          className="sidebar-button"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        >
+    <div className={styles.pageContainer}>
+      {/* Header stays at top */}
+      <header className={styles.header}>
+        <button className={styles.sidebarButton} onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
           ☰
         </button>
-        {/* Settings Button */}
-        <button
-          className="settings-button"
-          onClick={() => navigate("/settings")}
-        >
-          ⚙️
-        </button>
-        {/* Right Sidebar Button */}
-        <button
-          className="open-sidebar-right"
-          onClick={() => setIsRightSidebarOpen(true)}
-        >
-          ☰ Preferences
-        </button>
+        <div className={styles.centerButtonsContainer}>
+          <button onClick={() => navigate('/for-you')} className={styles.forYouButton}>
+            For You
+          </button>
+          <button onClick={() => navigate('/global-page')} className={styles.globalPageButton}>
+            Global Page
+          </button>
+        </div>
+        <div className={styles.headerRight}>
+          <button className={styles.settingsButton} onClick={() => navigate("/settings")}>
+            ⚙️
+          </button>
+          <button className={styles.openSidebarRight} onClick={() => setIsRightSidebarOpen(true)}>
+            ☰ Preferences
+          </button>
+        </div>
       </header>
 
-      {/* Centered Buttons */}
-      <div className="center-buttons-container">
-        <button onClick={() => navigate('/for-you')} className="for-you-button">
-          For You
-        </button>
-        <button onClick={() => navigate('/global-page')} className="global-page-button">
-          Global Page
-        </button>
-      </div>
-
-      {/* Right Sidebar */}
-      <div className={`sidebar-right ${isRightSidebarOpen ? "open" : ""}`}>
-        <button
-          className="close-sidebar-right"
-          onClick={() => setIsRightSidebarOpen(false)}
-        >
-          ×
-        </button>
-
-        <div>
-        <p>Likes:</p>
-          {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((preference) => (
-            <button
-              type="button"
-              key={preference}
-              onClick={() => handlePreferenceToggle(preference)}
-              className={`preference-button ${
-                formData.preferences.includes(preference) ? "selected" : ""
-              }`}
-            >
-              {preference}
-            </button>
-          ))}
+      {/* Main layout container */}
+      <div className={styles.mainLayout}>
+        {/* Left Sidebar */}
+        <div className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ''}`}>
+          <button className={styles.closeSidebar} onClick={() => setIsSidebarOpen(false)}>
+            X
+          </button>
+          {/* Replace Link with button for logout, use Link for navigation */}
+          <Link to="/for-you" className={styles.sidebarLink} onClick={() => setIsSidebarOpen(false)}>
+            For You
+          </Link>
+          <Link to="/about-us" className={styles.sidebarLink} onClick={() => setIsSidebarOpen(false)}>
+            About Us
+          </Link>
+          <Link to="/contact-us" className={styles.sidebarLink} onClick={() => setIsSidebarOpen(false)}>
+            Contact Us
+          </Link>
+          <Link to="/post-event-page" className={styles.sidebarLink} onClick={() => setIsSidebarOpen(false)}>
+            Post An Event
+          </Link>
+          <button 
+            onClick={handleManualLogout} 
+            className={styles.sidebarLink}
+          >
+            Logout
+          </button>
         </div>
+        {/* Main Content */}
+        <main className={styles.mainContent}>
+          {message && <p className={styles.message}>{message}</p>}
+          <div className={styles.eventGrid}>
+            {events && events.map((event, index) => (
+              <EventCard key={index} event={event} />
+            ))}
+          </div>
+        </main>
 
-        <div>
-          <p>Dislikes:</p>
-          {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((dislike) => (
-            <button
-              type="button"
-              key={dislike}
-              onClick={() => handleDislikeToggle(dislike)}
-              className={`dislike-button ${
-                formData.dislikes.includes(dislike) ? "selected" : ""
-              }`}
-            >
-              {dislike}
-            </button>
-          ))}
-        </div>
+        {/* Right Sidebar */}
+        <div className={`${styles.sidebarRight} ${isRightSidebarOpen ? styles.open : ''}`}>
+          <button className={styles.closeSidebarRight} onClick={() => setIsRightSidebarOpen(false)}>
+            ×
+          </button>
 
-        <div>
-          <h3>Select Price Range:</h3>
-          <label htmlFor="priceRange">
-            Average Price: ${formData.priceRange}
-          </label>
-          <input
-            type="range"
-            id="priceRange"
-            name="priceRange"
-            min="0"
-            max="100+"
-            step="1"
-            value={formData.priceRange}
-            onChange={handleSliderChange}
-            className="slider"
-          />
-        </div>
+          <div className={styles.preferencesSection}>
+            <p className={styles.sectionTitle}>Likes:</p>
+            {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((preference) => (
+              <button
+                type="button"
+                key={preference}
+                onClick={() => handlePreferenceToggle(preference)}
+                className={`${styles.preferenceButton} ${
+                  formData.preferences.includes(preference) ? styles.selected : ''
+                }`}
+              >
+                {preference}
+              </button>
+            ))}
+          </div>
 
-        <button type="submit" className="form-button">
-          Update information
-        </button>
-      </div>
+          <div className={styles.preferencesSection}>
+            <p className={styles.sectionTitle}>Dislikes:</p>
+            {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((dislike) => (
+              <button
+                type="button"
+                key={dislike}
+                onClick={() => handleDislikeToggle(dislike)}
+                className={`${styles.dislikeButton} ${
+                  formData.dislikes.includes(dislike) ? styles.selected : ''
+                }`}
+              >
+                {dislike}
+              </button>
+            ))}
+          </div>
 
-      {/* Left Sidebar */}
-      <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <button
-          className="close-sidebar"
-          onClick={() => setIsSidebarOpen(false)}
-        >
-          X
-        </button>
-        <Link to="/for-you" className="sidebar-link">For You</Link>
-        <Link to="/about-us" className="sidebar-link">About Us</Link>
-        <Link to="/contact-us" className="sidebar-link">Contact Us</Link>
-        <Link to="/post-event-page" className="sidebar-link">Post An Event</Link>
-        <Link className="sidebar-link" onClick={handleManualLogout}>Logout</Link>
-      </div>
+          <div className={styles.priceRangeSection}>
+            <h3 className={styles.subheading}>Select Price Range:</h3>
+            <label htmlFor="priceRange" className={styles.rangeLabel}>
+              Average Price: ${formData.priceRange}
+            </label>
+            <input
+              type="range"
+              id="priceRange"
+              name="priceRange"
+              min="0"
+              max="100+"
+              step="1"
+              value={formData.priceRange}
+              onChange={handleSliderChange}
+              className={styles.slider}
+            />
+          </div>
 
-      {/* Main Content */}
-      <div className="home-container">
-        {message && <p className="message">{message}</p>}
-        <div className="boxes-container">
-          {events.map((event, index) => (
-            <div className="box" key={index}>
-              <h3>{event.title}</h3>
-              <p>{event.description}</p>
-              <p><strong>Location:</strong> {event.location}</p>
-              <p><strong>Start:</strong> {event.start ? new Date(event.start).toLocaleString() : "N/A"}</p>
-              <p><strong>Source:</strong> {event.source}</p>
-              <p><strong>Type:</strong> {event.type}</p>
-              <p><strong>Price:</strong> {event.currencyCode && event.amount ? `${event.currencyCode} ${event.amount}` : "Free"}</p>
-              <p><strong>Distance:</strong> {event.distance ? `${event.distance.toFixed(2)} km` : "N/A"}</p>
-              <a href={event.url} target="_blank" rel="noopener noreferrer" className="event-link">View More</a>
-            </div>
-          ))}
+          <button type="submit" className={styles.formButton}>
+            Update information
+          </button>
         </div>
       </div>
     </div>

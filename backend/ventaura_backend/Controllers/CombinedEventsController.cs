@@ -96,22 +96,39 @@ namespace ventaura_backend.Controllers
                             );
                             e.Distance = (float)distance;
 
-                            // Write event data to CSV
-                            // Write event data to CSV without quotes
-                            await writer.WriteLineAsync($"{contentIdCounter}," +
-                                                        $"{e.Title}," +
-                                                        $"{e.Description}," +
-                                                        $"{e.Location}," +
-                                                        $"{e.Start?.ToString("yyyy-MM-dd HH:mm:ss") ?? ""}," +
-                                                        $"{e.Source}," +
-                                                        $"{e.Type}," +
-                                                        $"{e.CurrencyCode}," +
-                                                        $"{e.Amount?.ToString() ?? ""}," +
-                                                        $"{e.URL}," +
-                                                        $"{e.Distance}");
+                            // Helper function to clean text fields
+                            string CleanField(string field)
+                            {
+                                if (string.IsNullOrEmpty(field)) return "";
+                                
+                                // Remove newlines and extra spaces
+                                field = field.Replace("\r", " ")
+                                            .Replace("\n", " ")
+                                            .Replace("  ", " ")
+                                            .Trim();
+                                
+                                // Quote if field contains commas or quotes
+                                if (field.Contains(",") || field.Contains("\""))
+                                    return $"\"{field.Replace("\"", "\"\"")}\"";
+                                
+                                return field;
+                            }
 
-
-                            contentIdCounter++; // Increment contentId for the next event
+                            // Write the line with cleaned fields
+                            await writer.WriteLineAsync(
+                                $"{contentIdCounter}," +
+                                $"{CleanField(e.Title)}," +
+                                $"{CleanField(e.Description)}," +
+                                $"{CleanField(e.Location)}," +
+                                $"{CleanField(e.Start?.ToString("yyyy-MM-dd HH:mm:ss"))}," +
+                                $"{CleanField(e.Source)}," +
+                                $"{CleanField(e.Type)}," +
+                                $"{CleanField(e.CurrencyCode)}," +
+                                $"{CleanField(e.Amount?.ToString())}," +
+                                $"{CleanField(e.URL)}," +
+                                $"{e.Distance}"
+                            );
+                            contentIdCounter++;
                         }
                     }
 

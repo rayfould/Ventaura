@@ -1,14 +1,15 @@
 import React from 'react';
+import styles from '../styles';
 
 const Checkout = () => {
   return (
-    <div className="sr-root">
-      <div className="sr-main">
-        <section className="container">
+    <div className={styles.srRoot}>
+      <div className={styles.srMain}>
+        <section className={styles.container}>
           <div>
-            <h1>Add event to database</h1>
-            <h4>Purchase a place on our website</h4>
-            <div className="pasha-image">
+            <h1 className={styles.heading}>Add event to database</h1>
+            <h4 className={styles.subheading}>Purchase a place on our website</h4>
+            <div className={styles.pashaImage}>
               <img
                 alt="Random asset from Picsum"
                 src="https://thumbs.dreamstime.com/b/advertising-word-cloud-business-concept-56936998.jpg"
@@ -18,8 +19,18 @@ const Checkout = () => {
             </div>
           </div>
 
-          <form action="http://localhost:5152/api/create-checkout-session" method="POST">
-            <button id="submit" role="link">Buy</button>
+          <form 
+            action="http://localhost:5152/api/create-checkout-session" 
+            method="POST"
+            className={styles.checkoutForm}
+          >
+            <button 
+              id="submit" 
+              role="link"
+              className={styles.submitButton}
+            >
+              Buy
+            </button>
           </form>
         </section>
       </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../styles.css"; // Import the global CSS
+import styles from '../styles';
 import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 
 const Settings = () => {
@@ -64,50 +64,52 @@ const Settings = () => {
   };
 
   return (
-    <div className="container">
-      <header className="header">
+    <div className={styles.pageContainer}>
+      <header className={styles.header}>
         <button
-          className="sidebar-button"
+          className={styles.backButton}
           onClick={() => navigate("/for-you")}
         >
           Back
         </button>
       </header>
 
-      <h2>Settings</h2>
-      <form onSubmit={handleSubmit} className="form">
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={userData.email}
-          onChange={handleChange}
-          className="form-input"
-          required
-        />
-        <input
-          type="text"
-          name="firstName"
-          placeholder="First Name"
-          value={userData.firstName}
-          onChange={handleChange}
-          className="form-input"
-          required
-        />
-        <input
-          type="text"
-          name="lastName"
-          placeholder="Last Name"
-          value={userData.lastName}
-          onChange={handleChange}
-          className="form-input"
-          required
-        />
-        <button type="submit" className="form-button">
-          Update Settings
-        </button>
-      </form>
-      {message && <p className="message">{message}</p>}
+      <div className={styles.settingsContainer}>
+        <h2 className={styles.heading}>Settings</h2>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={userData.email}
+            onChange={handleChange}
+            className={styles.formInput}
+            required
+          />
+          <input
+            type="text"
+            name="firstName"
+            placeholder="First Name"
+            value={userData.firstName}
+            onChange={handleChange}
+            className={styles.formInput}
+            required
+          />
+          <input
+            type="text"
+            name="lastName"
+            placeholder="Last Name"
+            value={userData.lastName}
+            onChange={handleChange}
+            className={styles.formInput}
+            required
+          />
+          <button type="submit" className={styles.formButton}>
+            Update Settings
+          </button>
+        </form>
+        {message && <p className={styles.message}>{message}</p>}
+      </div>
     </div>
   );
 };

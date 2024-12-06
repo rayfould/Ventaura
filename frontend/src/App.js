@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./components/LandingPage";
 import Login from "./components/Login";
 import CreateAccount from "./components/CreateAccount";
@@ -12,20 +12,26 @@ import Canceled from './components/Canceled.jsx';
 import Success from './components/Success.jsx';
 import Checkout from './components/Checkout.jsx';
 import Settings from "./components/Settings.js"; 
-import "./styles.css";
+import styles from './/styles';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/create-account" element={<CreateAccount />} />
+        {/* Remove or comment out these if you want to bypass them */}
+        {/* <Route path="/login" element={<Login />} />
+        <Route path="/create-account" element={<CreateAccount />} /> */}
+        
+        {/* Direct to ForYou from both / and /login */}
+        <Route path="/" element={<Navigate to="/for-you" replace />} />
+        <Route path="/login" element={<Navigate to="/for-you" replace />} />
+        
+        {/* Your existing routes */}
         <Route path="/for-you" element={<ForYou />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/about-us" element={<AboutUs />} />
-        <Route path="/global-page" element={<GlobalPage />} />;
-        <Route path="/post-event-page" element={<AddEvent />} />;
+        <Route path="/global-page" element={<GlobalPage />} />
+        <Route path="/post-event-page" element={<AddEvent />} />
         <Route path="/Checkout" element={<Checkout />} />
         <Route path="/success.html" element={<Success />} />
         <Route path="/canceled.html" element={<Canceled />} />
@@ -36,4 +42,3 @@ function App() {
 }
 
 export default App;
-
