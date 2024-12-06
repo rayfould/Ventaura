@@ -1,7 +1,12 @@
+// Success.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import styles from '../styles';
-import { useNavigate } from "react-router-dom"; // Import useNavigate hook
+import { useNavigate } from "react-router-dom";
+
+// Import specific CSS modules
+import layoutStyles from '../styles/layout.module.css';
+import formsStyles from '../styles/modules/forms.module.css';
+import buttonStyles from '../styles/modules/buttons.module.css';
 
 const Success = () => {
   const [formData, setFormData] = useState({
@@ -38,86 +43,89 @@ const Success = () => {
   };
 
   const handleSubmit = async (e) => {
-    navigate("/for-you"); // Redirect to the /for-you page
+    e.preventDefault();
+    // Here you can handle form submission to add the event to the database
+    // For now, we'll just redirect to the /for-you page
+    navigate("/for-you");
   };
 
   return (
-    <div className={styles.pageContainer}>
+    <div className={layoutStyles.pageContainer}>
       {sessionId ? (
         <>
-          <header className={styles.header}>
-            <h2 className={styles.pageTitle}>
+          <header className={layoutStyles.header}>
+            <h2 className={layoutStyles.pageTitle}>
               Payment Successful! Add Event Details:
             </h2>
           </header>
 
-          <form onSubmit={handleSubmit} className={styles.eventForm}>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Event Title:</label>
+          <form onSubmit={handleSubmit} className={formsStyles.eventForm}>
+            <div className={formsStyles.formGroup}>
+              <label className={formsStyles.label}>Event Title:</label>
               <input
                 type="text"
                 name="eventTitle"
                 value={formData.eventTitle}
                 onChange={handleChange}
-                className={styles.formInput}
+                className={formsStyles.formInput}
                 required
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Event Description:</label>
+            <div className={formsStyles.formGroup}>
+              <label className={formsStyles.label}>Event Description:</label>
               <textarea
                 name="eventDescription"
                 value={formData.eventDescription}
                 onChange={handleChange}
-                className={styles.formInput}
+                className={formsStyles.formInput}
                 required
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Location:</label>
+            <div className={formsStyles.formGroup}>
+              <label className={formsStyles.label}>Location:</label>
               <input
                 type="text"
                 name="eventLocation"
                 value={formData.eventLocation}
                 onChange={handleChange}
-                className={styles.formInput}
+                className={formsStyles.formInput}
                 required
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Date:</label>
+            <div className={formsStyles.formGroup}>
+              <label className={formsStyles.label}>Date:</label>
               <input
                 type="date"
                 name="eventDate"
                 value={formData.eventDate}
                 onChange={handleChange}
-                className={styles.formInput}
+                className={formsStyles.formInput}
                 required
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Time:</label>
+            <div className={formsStyles.formGroup}>
+              <label className={formsStyles.label}>Time:</label>
               <input
                 type="time"
                 name="eventTime"
                 value={formData.eventTime}
                 onChange={handleChange}
-                className={styles.formInput}
+                className={formsStyles.formInput}
                 required
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Event Type:</label>
+            <div className={formsStyles.formGroup}>
+              <label className={formsStyles.label}>Event Type:</label>
               <select
                 name="eventType"
                 value={formData.eventType}
                 onChange={handleChange}
-                className={styles.formSelect}
+                className={formsStyles.formSelect}
                 required
               >
                 <option value="">Select event type</option>
@@ -133,37 +141,37 @@ const Success = () => {
               </select>
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Price (USD):</label>
+            <div className={formsStyles.formGroup}>
+              <label className={formsStyles.label}>Price (USD):</label>
               <input
                 type="number"
                 name="price"
                 value={formData.price}
                 onChange={handleChange}
-                className={styles.formInput}
+                className={formsStyles.formInput}
                 required
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Contact Info (Phone number):</label>
+            <div className={formsStyles.formGroup}>
+              <label className={formsStyles.label}>Contact Info (Phone number):</label>
               <input
                 type="text"
                 name="contactInfo"
                 value={formData.contactInfo}
                 onChange={handleChange}
-                className={styles.formInput}
+                className={formsStyles.formInput}
                 required
               />
             </div>
 
-            <button type="submit" className={styles.formButton}>
+            <button type="submit" className={buttonStyles.formButton}>
               Submit Event
             </button>
           </form>
         </>
       ) : (
-        <p className={styles.message}>{message}</p>
+        <p className={formsStyles.message}>{message}</p>
       )}
     </div>
   );

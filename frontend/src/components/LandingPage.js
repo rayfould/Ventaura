@@ -1,7 +1,10 @@
+// LandingPage.js
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import styles from '../styles';
-console.log('Styles object:', styles);
+
+// Import shared CSS modules
+import layoutStyles from '../styles/layout.module.css';
+import buttonStyles from '../styles/modules/buttons.module.css';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -11,12 +14,12 @@ const LandingPage = () => {
   };
 
   return (
-    <div className={styles.landingContainer}>
-      <h1 className={styles.title}>Ventaura</h1>
-      <p className={styles.description}>Your personalized event recommendation platform.</p>
+    <div className={`${layoutStyles.container} ${layoutStyles.landingContainer}`}>
+      <h1 className={layoutStyles.title}>Ventaura</h1>
+      <p className={layoutStyles.description}>Your personalized event recommendation platform.</p>
       <button 
         onClick={handleLogin} 
-        className={styles.formButton}
+        className={buttonStyles.primaryButton}
       >
         Log In
       </button>

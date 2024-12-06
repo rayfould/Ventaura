@@ -1,4 +1,4 @@
-
+/* boxes.module.css */
 
 /* Box Module */
 .box {
@@ -8,4 +8,10 @@
     padding: var(--space-md);
     box-shadow: 0 4px 6px rgba(var(--text-rgb), 0.1);
     transition: var(--transition-normal);
+    cursor: pointer;
+}
+
+.box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(var(--text-rgb), 0.15);
 }

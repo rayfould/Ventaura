@@ -1,6 +1,12 @@
-import React, { useState, useEffect } from 'react';
+// AddEvent.js
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import styles from '../styles';
+
+// Import specific CSS modules
+import layoutStyles from '../styles/layout.module.css';
+import buttonStyles from '../styles/modules/buttons.module.css';
+import navigationStyles from '../styles/modules/navigation.module.css';
+import formsStyles from '../styles/modules/forms.module.css';
 
 const AddEvent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -13,18 +19,18 @@ const AddEvent = () => {
   };
 
   return (
-    <div className={styles.pageContainer}>
+    <div className={layoutStyles.pageContainer}>
       {/* Header */}
-      <header className={styles.header}>
+      <header className={layoutStyles.header}>
         <button
-          className={styles.sidebarButton}
+          className={buttonStyles.sidebarButton}
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
           ☰
         </button>
         {/* Settings Icon Button */}
         <button
-          className={styles.settingsButton}
+          className={buttonStyles.settingsButton}
           onClick={() => navigate("/settings")}
         >
           ⚙️
@@ -32,46 +38,48 @@ const AddEvent = () => {
       </header>
 
       {/* Sidebar */}
-      <div className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ''}`}>
+      <div className={`${layoutStyles.sidebar} ${isSidebarOpen ? layoutStyles.open : ''}`}>
         <button 
-          className={styles.closeSidebar} 
+          className={buttonStyles.closeSidebar} 
           onClick={() => setIsSidebarOpen(false)}
         >
           X
         </button>
-        <Link to="/for-you" className={styles.sidebarLink}>
+        <Link to="/for-you" className={navigationStyles.sidebarLink}>
           For You
         </Link>
-        <Link to="/about-us" className={styles.sidebarLink}>
+        <Link to="/about-us" className={navigationStyles.sidebarLink}>
           About Us
         </Link>
-        <Link to="/contact-us" className={styles.sidebarLink}>
+        <Link to="/contact-us" className={navigationStyles.sidebarLink}>
           Contact Us
         </Link>
-        <Link to="/post-event-page" className={styles.sidebarLink}>
+        <Link to="/post-event-page" className={navigationStyles.sidebarLink}>
           Post An Event
         </Link>
-        <Link className={styles.sidebarLink} onClick={handleManualLogout}>
+        <button 
+          onClick={handleManualLogout} 
+          className={navigationStyles.sidebarLink}
+        >
           Logout
-        </Link>
+        </button>
       </div>
       
-      <div className={styles.container}>
-        <header className={styles.header}>
-          <h2 className={styles.pageTitle}>Add Event Here:</h2>
-        </header>
+      {/* Main Content */}
+      <div className={layoutStyles.container}>
+        <h2 className={layoutStyles.heading}>Add Event Here:</h2>
 
-        <form className={styles.eventForm}>
-          {/* Submit Button - only enabled if the form is valid */}
-          <form action="http://localhost:5152/api/create-checkout-session" method="POST">
-            <button 
-              type="submit" 
-              role="link" 
-              className={styles.submitButton} 
-            >
-              Make Payment
-            </button>
-          </form>
+        <form 
+          className={formsStyles.form}
+          action="http://localhost:5152/api/create-checkout-session" 
+          method="POST"
+        >
+          <button 
+            type="submit" 
+            className={buttonStyles.button} 
+          >
+            Make Payment
+          </button>
         </form>
       </div>
     </div>

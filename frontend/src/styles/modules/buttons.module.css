@@ -1,4 +1,6 @@
-/* Button Modules */
+/* buttons.module.css */
+
+/* Button Styles */
 .for-you-button,
 .global-page-button {
     background-color: var(--primary);
@@ -12,6 +14,12 @@
     transition: var(--transition-normal);
 }
 
+.for-you-button:hover,
+.global-page-button:hover {
+    background-color: rgba(var(--primary-rgb), 0.9);
+}
+
+/* Logout Button */
 .logout-button {
     position: absolute;
     top: var(--space-md);
@@ -21,8 +29,15 @@
     color: var(--background);
     border-radius: var(--radius-sm);
     z-index: var(--z-header);
+    cursor: pointer;
+    transition: var(--transition-normal);
 }
 
+.logout-button:hover {
+    background-color: rgba(var(--primary-rgb), 0.9);
+}
+
+/* Settings Button */
 .settings-button {
     position: absolute;
     top: var(--space-md);
@@ -32,8 +47,16 @@
     border-radius: 50%;
     font-size: 20px;
     z-index: var(--z-header);
+    cursor: pointer;
+    background-color: var(--primary);
+    transition: var(--transition-normal);
 }
 
+.settings-button:hover {
+    background-color: rgba(var(--primary-rgb), 0.9);
+}
+
+/* Preference and Dislike Buttons */
 .preference-button,
 .dislike-button {
     padding: var(--space-md);
@@ -42,4 +65,48 @@
     border-radius: var(--radius-sm);
     background-color: var(--accent);
     color: var(--background);
+    cursor: pointer;
+    transition: var(--transition-normal);
+}
+
+.preference-button.selected,
+.dislike-button.selected {
+    background-color: var(--secondary);
+}
+
+/* Generic Button Styles */
+.button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    background-color: var(--primary);
+    color: var(--background);
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+.button:hover {
+    background-color: rgba(var(--primary-rgb), 0.9);
+    color: var(--background);
+}
+
+/* Link Styles */
+.link {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    background: none;
+    color: var(--primary);
+    text-decoration: none;
+    transition: color var(--transition-normal), text-decoration var(--transition-normal);
+}
+
+.link:hover {
+    text-decoration: underline;
+    background-color: rgba(var(--primary-rgb), 0.1);
 }

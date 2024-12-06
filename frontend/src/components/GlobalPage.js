@@ -1,7 +1,13 @@
+// GlobalPage.js
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import styles from '../styles';
+
+// Import shared CSS modules
+import layoutStyles from '../styles/layout.module.css';
+import buttonStyles from '../styles/modules/buttons.module.css';
+import navigationStyles from '../styles/modules/navigation.module.css';
+import formsStyles from '../styles/modules/forms.module.css';
 
 const GlobalPage = () => {
   const userId = localStorage.getItem("userId");
@@ -60,18 +66,18 @@ const GlobalPage = () => {
   };
 
   return (
-    <div className={styles.pageContainer}>
+    <div className={layoutStyles.pageContainer}>
       {/* Header */}
-      <header className={styles.header}>
+      <header className={layoutStyles.header}>
         <button
-          className={styles.sidebarButton}
+          className={buttonStyles.sidebarButton}
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
           ☰
         </button>
         {/* Settings Icon Button */}
         <button
-          className={styles.settingsButton}
+          className={buttonStyles.settingsButton}
           onClick={() => navigate("/settings")}
         >
           ⚙️
@@ -79,86 +85,95 @@ const GlobalPage = () => {
       </header>
 
       {/* Sidebar */}
-      <div className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ''}`}>
+      <div className={`${navigationStyles.sidebar} ${isSidebarOpen ? navigationStyles.open : ''}`}>
         <button 
-          className={styles.closeSidebar} 
+          className={buttonStyles.closeSidebar} 
           onClick={() => setIsSidebarOpen(false)}
         >
           X
         </button>
-        <Link to="/for-you" className={styles.sidebarLink}>
+        <Link to="/for-you" className={navigationStyles.sidebarLink}>
           For You
         </Link>
-        <Link to="/about-us" className={styles.sidebarLink}>
+        <Link to="/about-us" className={navigationStyles.sidebarLink}>
           About Us
         </Link>
-        <Link to="/contact-us" className={styles.sidebarLink}>
+        <Link to="/contact-us" className={navigationStyles.sidebarLink}>
           Contact Us
         </Link>
-        <Link to="/post-event-page" className={styles.sidebarLink}>
+        <Link to="/post-event-page" className={navigationStyles.sidebarLink}>
           Post An Event
         </Link>
-        <Link className={styles.sidebarLink} onClick={handleManualLogout}>
+        <button 
+          onClick={handleManualLogout} 
+          className={navigationStyles.sidebarLink}
+        >
           Logout
-        </Link>
+        </button>
       </div>
 
       {/* Centered Buttons */}
-      <div className={styles.centerButtonsContainer}>
-        <button onClick={() => navigate('/for-you')} className={styles.forYouButton}>
+      <div className={layoutStyles.centerButtonsContainer}>
+        <button 
+          onClick={() => navigate('/for-you')} 
+          className={buttonStyles.forYouButton}
+        >
           For You
         </button>
-        <button onClick={() => navigate('/global-page')} className={styles.globalPageButton}>
+        <button 
+          onClick={() => navigate('/global-page')} 
+          className={buttonStyles.globalPageButton}
+        >
           Global Page
         </button>
       </div>
 
       {/* Main Content */}
-      <div className={styles.homeContainer}>
-        <h1 className={styles.heading}>Global Events</h1>
-        <p className={styles.text}>Enter a city name to search for events happening there:</p>
-        <form onSubmit={handleSearch} className={styles.searchForm}>
+      <div className={layoutStyles.homeContainer}>
+        <h1 className={layoutStyles.heading}>Global Events</h1>
+        <p className={layoutStyles.text}>Enter a city name to search for events happening there:</p>
+        <form onSubmit={handleSearch} className={formsStyles.searchForm}>
           <input
             type="text"
             placeholder="City Name"
             value={city}
             onChange={handleCityChange}
-            className={styles.formInput}
+            className={buttonStyles.formInput} // Assuming formInput is defined in buttons.module.css
             required
           />
-          <button type="submit" className={styles.formButton}>
+          <button type="submit" className={buttonStyles.formButton}>
             Search
           </button>
         </form>
-        {message && <p className={styles.message}>{message}</p>}
-        <div className={styles.boxesContainer}>
+        {message && <p className={layoutStyles.message}>{message}</p>}
+        <div className={layoutStyles.eventGrid}>
           {events.map((event, index) => (
-            <div className={styles.box} key={index}>
-              <h3 className={styles.boxTitle}>{event.title}</h3>
-              <p className={styles.boxDescription}>{event.description}</p>
-              <p className={styles.boxDetail}>
+            <div className={layoutStyles.box} key={index}>
+              <h3 className={layoutStyles.boxTitle}>{event.title}</h3>
+              <p className={layoutStyles.boxDescription}>{event.description}</p>
+              <p className={layoutStyles.boxDetail}>
                 <strong>Location:</strong> {event.location}
               </p>
-              <p className={styles.boxDetail}>
+              <p className={layoutStyles.boxDetail}>
                 <strong>Start:</strong> {event.start ? new Date(event.start).toLocaleString() : "N/A"}
               </p>
-              <p className={styles.boxDetail}>
+              <p className={layoutStyles.boxDetail}>
                 <strong>Source:</strong> {event.source}
               </p>
-              <p className={styles.boxDetail}>
+              <p className={layoutStyles.boxDetail}>
                 <strong>Type:</strong> {event.type}
               </p>
-              <p className={styles.boxDetail}>
+              <p className={layoutStyles.boxDetail}>
                 <strong>Price:</strong> {event.currencyCode && event.amount ? `${event.currencyCode} ${event.amount}` : "Free"}
               </p>
-              <p className={styles.boxDetail}>
+              <p className={layoutStyles.boxDetail}>
                 <strong>Distance:</strong> {event.distance ? `${event.distance.toFixed(2)} km` : "N/A"}
               </p>
               <a
                 href={event.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={styles.eventLink}
+                className={buttonStyles.eventLink} // Assuming eventLink is defined in buttons.module.css
               >
                 View More
               </a>

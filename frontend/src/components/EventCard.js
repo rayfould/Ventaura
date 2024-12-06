@@ -1,6 +1,9 @@
 // EventCard.js
 import React from 'react';
-import styles from '../styles';
+
+// Import specific CSS modules
+import eventCardStyles from '../styles/modules/EventCard.module.css';
+import layoutStyles from '../styles/layout.module.css';
 
 const EventCard = ({ event }) => {
   // Format date to short format
@@ -22,13 +25,13 @@ const EventCard = ({ event }) => {
   };
 
   // Format distance
-const formatDistance = (distance) => {
-  if (!distance) return "NULL";
-  // Convert string to number and check if it's valid
-  const distanceNum = Number(distance);
-  if (isNaN(distanceNum)) return "NULL";
-  return `${distanceNum.toFixed(2)} km`;
-};
+  const formatDistance = (distance) => {
+    if (!distance) return "NULL";
+    // Convert string to number and check if it's valid
+    const distanceNum = Number(distance);
+    if (isNaN(distanceNum)) return "NULL";
+    return `${distanceNum.toFixed(2)} km`;
+  };
 
   // Handle click event
   const handleClick = () => {
@@ -37,26 +40,27 @@ const formatDistance = (distance) => {
     }
   }; 
 
-// Add conditional classes based on event type
-  const cardClasses = `${styles.eventCard} ${event.type ? styles[`type${event.type}`] : ''}`;
+  // Add conditional classes based on event type
+  const cardClasses = `${eventCardStyles.eventCard} ${event.type ? eventCardStyles[`type${event.type.replace(/[^a-zA-Z0-9]/g, '')}`] : ''}`;
 
   return (
     <div className={cardClasses} onClick={handleClick}>
-      <div className={styles.cardContent}>
-        <div className={styles.cardFront}>
-          <div className={styles.typeIcon}>
+      <div className={eventCardStyles.cardContent}>
+        <div className={eventCardStyles.cardFront}>
+          <div className={eventCardStyles.typeIcon}>
             {/* Icon based on event type */}
+            {event.typeIcon || '🎟️'}
           </div>
-          <h3 className={styles.title}>{event.title}</h3>
-          <div className={styles.details}>
-            <p className={styles.date}>{formatDate(event.start)}</p>
-            <p className={styles.distance}>{formatDistance(event.distance)}</p>
+          <h3 className={layoutStyles.heading}>{event.title}</h3>
+          <div className={eventCardStyles.details}>
+            <p className={eventCardStyles.date}>{formatDate(event.start)}</p>
+            <p className={eventCardStyles.distance}>{formatDistance(event.distance)}</p>
           </div>
         </div>
-        <div className={styles.cardBack}>
+        <div className={eventCardStyles.cardBack}>
           {/* Additional details */}
-          <p className={styles.description}>{event.description}</p>
-          <p className={styles.price}>
+          <p className={eventCardStyles.description}>{event.description || "No description available."}</p>
+          <p className={eventCardStyles.price}>
             {formatPrice(event.amount, event.currencyCode)}
           </p>
         </div>

@@ -1,5 +1,6 @@
+/* forms.module.css */
 
-/* Form Modules */
+/* Form Styles */
 .form {
     display: flex;
     flex-direction: column;
@@ -34,11 +35,16 @@
     margin-top: var(--space-xs);
 }
 
+/* Submit Button */
 button[type="submit"] {
     width: 100%;
     background-color: var(--primary);
     color: var(--background);
     transition: var(--transition-normal);
+    padding: var(--space-md) var(--space-lg);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
 }
 
 button[type="submit"]:disabled {
@@ -46,12 +52,16 @@ button[type="submit"]:disabled {
     cursor: not-allowed;
 }
 
+/* Link Styles within Forms */
 .link {
     display: block;
     margin-top: var(--space-md);
     text-align: center;
     color: var(--primary);
     text-decoration: none;
+    transition: text-decoration var(--transition-normal);
 }
 
-
+.link:hover {
+    text-decoration: underline;
+}

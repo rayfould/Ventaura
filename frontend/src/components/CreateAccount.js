@@ -1,7 +1,12 @@
+// CreateAccount.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import styles from '../styles';
-import { useNavigate } from "react-router-dom"; // Import useNavigate hook
+import { useNavigate } from "react-router-dom";
+
+// Import specific CSS modules
+import layoutStyles from '../styles/layout.module.css';
+import formsStyles from '../styles/modules/forms.module.css';
+import buttonStyles from '../styles/modules/buttons.module.css';
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
@@ -113,16 +118,16 @@ const CreateAccount = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.heading}>Create Account</h2>
-      <form onSubmit={handleSubmit} className={styles.form}>
+    <div className={layoutStyles.container}>
+      <h2 className={layoutStyles.heading}>Create Account</h2>
+      <form onSubmit={handleSubmit} className={formsStyles.form}>
         <input
           type="email"
           name="email"
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          className={styles.formInput}
+          className={formsStyles.formInput}
           required
         />
         <input
@@ -131,7 +136,7 @@ const CreateAccount = () => {
           placeholder="First Name"
           value={formData.firstName}
           onChange={handleChange}
-          className={styles.formInput}
+          className={formsStyles.formInput}
           required
         />
         <input
@@ -140,19 +145,19 @@ const CreateAccount = () => {
           placeholder="Last Name"
           value={formData.lastName}
           onChange={handleChange}
-          className={styles.formInput}
+          className={formsStyles.formInput}
           required
         />
 
-        <div className={styles.preferencesSection}>
-          <h3 className={styles.subheading}>Select Preferences:</h3>
+        <div className={formsStyles.preferencesSection}>
+          <h3 className={formsStyles.subheading}>Select Preferences:</h3>
           {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((preference) => (
             <button
               type="button"
               key={preference}
               onClick={() => handlePreferenceToggle(preference)}
-              className={`${styles.preferenceButton} ${
-                formData.preferences.includes(preference) ? styles.selected : ""
+              className={`${formsStyles.preferenceButton} ${
+                formData.preferences.includes(preference) ? formsStyles.selected : ""
               }`}
             >
               {preference}
@@ -160,15 +165,15 @@ const CreateAccount = () => {
           ))}
         </div>
 
-        <div className={styles.preferencesSection}>
-          <h3 className={styles.subheading}>Select Dislikes:</h3>
+        <div className={formsStyles.preferencesSection}>
+          <h3 className={formsStyles.subheading}>Select Dislikes:</h3>
           {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((dislike) => (
             <button
               type="button"
               key={dislike}
               onClick={() => handleDislikeToggle(dislike)}
-              className={`${styles.dislikeButton} ${
-                formData.dislikes.includes(dislike) ? styles.selected : ""
+              className={`${formsStyles.dislikeButton} ${
+                formData.dislikes.includes(dislike) ? formsStyles.selected : ""
               }`}
             >
               {dislike}
@@ -176,9 +181,9 @@ const CreateAccount = () => {
           ))}
         </div>
 
-        <div className={styles.priceRangeSection}>
-          <h3 className={styles.subheading}>Select Price Range:</h3>
-          <label htmlFor="priceRange" className={styles.rangeLabel}>
+        <div className={formsStyles.priceRangeSection}>
+          <h3 className={formsStyles.subheading}>Select Price Range:</h3>
+          <label htmlFor="priceRange" className={formsStyles.rangeLabel}>
             Average Price: ${formData.priceRange}
           </label>
           <input
@@ -190,7 +195,7 @@ const CreateAccount = () => {
             step="1"
             value={formData.priceRange}
             onChange={handleSliderChange}
-            className={styles.slider}
+            className={formsStyles.slider}
           />
         </div>
 
@@ -200,14 +205,14 @@ const CreateAccount = () => {
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}
-          className={styles.formInput}
+          className={formsStyles.formInput}
           required
         />
-        <button type="submit" className={styles.formButton}>
+        <button type="submit" className={buttonStyles.formButton}>
           Create Account
         </button>
       </form>
-      {message && <p className={styles.message}>{message}</p>}
+      {message && <p className={formsStyles.message}>{message}</p>}
     </div>
   );
 };

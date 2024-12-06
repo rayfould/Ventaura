@@ -1,4 +1,4 @@
-/* styles/layout.module.css */
+/* layout.module.css */
 
 /* Page Layout */
 .pageContainer {
@@ -23,7 +23,7 @@
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 1000;
+    z-index: var(--z-header);
 }
 
 .header h1 {
@@ -40,9 +40,8 @@
     background: var(--background);
     overflow-y: auto;
     transition: 0.3s;
-    z-index: 1000;
-    padding-top: 60px;
-    padding-right: 10px;
+    z-index: var(--z-sidebar);
+    padding-top: 10px;
 }
 
 .sidebar {
@@ -124,4 +123,16 @@
     margin-bottom: var(--space-lg);
     color: var(--primary);
     text-align: center;
+}
+
+/* Responsive Layout Adjustments */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .sidebar, 
+    .sidebarRight {
+        width: 200px;
+    }
 }
