@@ -7,7 +7,6 @@
   --accent-rgb: 100, 122, 163;     /* Current: Light Blue */
   --background-rgb: 245, 244, 245; /* Current: Light Gray */
   --text-rgb: 15, 14, 14;          /* Current: Dark Gray */
-  --red: #C14953;                   /* Added as used in .sidebar */
 
   /* Solid colors */
   --primary: rgb(var(--primary-rgb));

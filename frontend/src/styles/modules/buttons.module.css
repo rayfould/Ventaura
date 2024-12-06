@@ -1,10 +1,10 @@
 /* buttons.module.css */
 
 /* Button Styles */
-.for-you-button,
-.global-page-button {
+.forYouButton,
+.globalPageButton {
     background-color: var(--primary);
-    color: var(--background);
+    color: #ffff;
     border: none;
     border-radius: var(--radius-sm);
     padding: var(--space-md) var(--space-lg);
@@ -14,9 +14,9 @@
     transition: var(--transition-normal);
 }
 
-.for-you-button:hover,
-.global-page-button:hover {
-    background-color: rgba(var(--primary-rgb), 0.9);
+.forYouButton:hover,
+.globalPageButton:hover  {
+    background-color: rgba(var(--secondary-rgb), 0.9);
 }
 
 /* Logout Button */
