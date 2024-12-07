@@ -1,112 +1,153 @@
 /* buttons.module.css */
 
+/* Import global variables */
+@import '../variables.module.css';
+
 /* Button Styles */
 .forYouButton,
 .globalPageButton {
-    background-color: var(--primary);
-    color: #ffff;
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: var(--space-md) var(--space-lg);
-    font-size: 16px;
-    cursor: pointer;
-    text-decoration: none;
-    transition: var(--transition-normal);
+  position: relative;
+  background-color: var(--primary); /* Changed from #444 to var(--primary) */
+  color: var(--background); /* Changed from #fff to var(--background) for contrast */
+  text-decoration: none;
+  text-transform: uppercase;
+  border: none;
+  letter-spacing: 0.1rem;
+  font-size: 1rem;
+  padding: 1rem 3rem;
+  transition: 0.2s;
+  cursor: pointer;
 }
 
 .forYouButton:hover,
-.globalPageButton:hover  {
-    background-color: rgba(var(--secondary-rgb), 0.9);
+.globalPageButton:hover {
+  letter-spacing: 0.2rem;
+  padding: 1.1rem 3.1rem;
+  background-color: var(--primaryLight);
+  color: #ffff; 
+  animation: box 3s infinite;
 }
 
 /* Logout Button */
-.logout-button {
-    position: absolute;
-    top: var(--space-md);
-    right: var(--space-lg);
-    padding: var(--space-md) var(--space-lg);
-    background-color: var(--primary);
-    color: var(--background);
-    border-radius: var(--radius-sm);
-    z-index: var(--z-header);
-    cursor: pointer;
-    transition: var(--transition-normal);
+.logoutButton {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  background-color: var(--primary);
+  color: var(--background);
+  border-radius: var(--radius-sm);
+  z-index: var(--z-header);
+  cursor: pointer;
+  transition: var(--transition-normal);
 }
 
-.logout-button:hover {
-    background-color: rgba(var(--primary-rgb), 0.9);
+.logoutButton:hover {
+  background-color: rgba(var(--primary-rgb), 0.9);
 }
 
 /* Settings Button */
-.settings-button {
-    position: absolute;
-    top: var(--space-md);
-    right: 70px;
-    padding: var(--space-md);
-    color: var(--background);
-    border-radius: 50%;
-    font-size: 20px;
-    z-index: var(--z-header);
-    cursor: pointer;
-    background-color: var(--primary);
-    transition: var(--transition-normal);
+.settingsButton {
+  position: absolute;
+  top: var(--space-md);
+  right: 70px;
+  padding: var(--space-md);
+  color: var(--background);
+  border-radius: 50%;
+  font-size: 20px;
+  z-index: var(--z-header);
+  cursor: pointer;
+  background-color: var(--primary);
+  transition: var(--transition-normal);
 }
 
-.settings-button:hover {
-    background-color: rgba(var(--primary-rgb), 0.9);
+.settingsButton:hover {
+  background-color: rgba(var(--primary-rgb), 0.9);
 }
 
 /* Preference and Dislike Buttons */
-.preference-button,
-.dislike-button {
-    padding: var(--space-md);
-    margin: var(--space-xs);
-    border: 1px solid rgba(var(--text-rgb), 0.1);
-    border-radius: var(--radius-sm);
-    background-color: var(--accent);
-    color: var(--background);
-    cursor: pointer;
-    transition: var(--transition-normal);
+.preferenceButton,
+.dislikeButton {
+  padding: var(--space-md);
+  margin: var(--space-xs);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  background-color: var(--accent);
+  color: var(--background);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.preference-button.selected,
-.dislike-button.selected {
-    background-color: var(--secondary);
+.preferenceButton:hover,
+.dislikeButton:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.preferenceButton.selected,
+.dislikeButton.selected {
+  background-color: var(--secondary);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Generic Button Styles */
 .button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    background-color: var(--primary);
-    color: var(--background);
-    transition: background-color var(--transition-normal), color var(--transition-normal);
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  background-color: var(--primary);
+  color: var(--background);
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 .button:hover {
-    background-color: rgba(var(--primary-rgb), 0.9);
-    color: var(--background);
+  background-color: rgba(var(--primary-rgb), 0.9);
+  color: var(--background);
 }
 
 /* Link Styles */
 .link {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    background: none;
-    color: var(--primary);
-    text-decoration: none;
-    transition: color var(--transition-normal), text-decoration var(--transition-normal);
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  background: none;
+  color: var(--primary);
+  text-decoration: none;
+  transition: color var(--transition-normal), text-decoration var(--transition-normal);
 }
 
 .link:hover {
-    text-decoration: underline;
-    background-color: rgba(var(--primary-rgb), 0.1);
+  text-decoration: underline;
+  background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+/* Animation Keyframes */
+@keyframes move {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes box {
+  0% {
+    box-shadow: #27272c;
+  }
+  50% {
+    box-shadow: 0 0 25px var(--secondary);
+  }
+  100% {
+    box-shadow: #27272c;
+  }
 }

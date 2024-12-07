@@ -1,45 +1,11 @@
-/* navigation.module.css */
 
-/* Logo Styles */
-.logo {
-    display: block;
-    margin: 0 auto;
-    max-width: 200px;
-    height: auto;
-}
-
-/* Navigation Links */
-.navLink {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    background-color: var(--primary);
-    color: var(--background);
-    transition: background-color var(--transition-normal), color var(--transition-normal);
-}
-
-.navLink:hover {
-    background-color: rgba(var(--primary-rgb), 0.9);
-    color: var(--background);
-}
-
-/* Sidebar Navigation Links */
+/* Sidebar Navigation */
 .sidebar-link {
     display: block;
     color: var(--background);
     padding: var(--space-md);
     font-size: 18px;
     text-decoration: none;
-    cursor: pointer;
-    transition: background-color var(--transition-normal), color var(--transition-normal);
-}
-
-.sidebar-link:hover {
-    background-color: rgba(var(--primary-rgb), 0.1);
-    color: var(--primary);
 }
 
 .sidebar-right-link,
@@ -48,7 +14,6 @@
     padding: var(--space-md);
     text-decoration: none;
     font-size: 18px;
-    cursor: pointer;
 }
 
 .sidebar-right-div {
@@ -67,13 +32,4 @@
     font-size: 24px;
     cursor: pointer;
     z-index: var(--z-sidebar);
-}
-
-.open-sidebar-right,
-.close-sidebar-right {
-    right: 0; /* Adjust as necessary */
-}
-
-.close-sidebar {
-    left: 0; /* Adjust as necessary */
 }
