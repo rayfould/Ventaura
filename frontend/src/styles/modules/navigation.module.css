@@ -4,8 +4,8 @@
 .logo {
     display: block;
     margin: 0 auto;
-    max-width: 200px;
-    height: auto;
+    width: 300px;
+    height: 300px;
 }
 
 /* Navigation Links */
@@ -29,7 +29,7 @@
 /* Sidebar Navigation Links */
 .sidebar-link {
     display: block;
-    width: 75%;         /* 90% width for 5% gap on each side */
+    width: 50%;         /* 90% width for 5% gap on each side */
     margin: 10px auto;     /* Center the link */
     color: var(--background);
     padding: var(--space-xl);
@@ -58,16 +58,4 @@
     color: rgba(var(--text-rgb), 0.6);
 }
 
-/* Navigation Buttons */
-.sidebar-button,
-.sidebar-button-right,
-.open-sidebar-right,
-.close-sidebar,
-.close-sidebar-right {
-    position: fixed;
-    background: red;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: var(--z-sidebar);
-}
+

@@ -25,6 +25,7 @@
     left: 0;
     width: 100%;
     z-index: var(--z-header);
+    height: 100px;
 }
 
 .header h1 {
@@ -111,11 +112,14 @@
 
 /* Special Containers */
 .center-buttons-container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
     align-items: center;
     gap: var(--space-lg);
-    margin-top: var(--space-xl);
 }
 
 .landing-container {

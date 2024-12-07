@@ -11,6 +11,7 @@ import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
+import logo from '../assets/ventaura-logo-white.png'; // Adjust the path as necessary
 
 const ForYou = () => {
   const location = useLocation();
@@ -227,18 +228,25 @@ const ForYou = () => {
 
   return (
     <div className={layoutStyles['page-container']}>
-      {/* Header stays at top */}
+      {/* Header */}
       <header className={layoutStyles.header}>
-      <button className={buttonStyles['sidebar-button']} onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label="Toggle Sidebar">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+        <button 
+          className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+          aria-label="Toggle Sidebar"
+        >
+        </button>
         <div className={layoutStyles['center-buttons-container']}>
-          <button onClick={() => navigate('/for-you')} className={buttonStyles['for-you-button']}>
+          <button 
+            onClick={() => navigate('/for-you')} 
+            className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
+          >
             For You
           </button>
-          <button onClick={() => navigate('/global-page')} className={buttonStyles['global-page-button']}>
+          <button 
+            onClick={() => navigate('/global-page')} 
+            className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
+          >
             Global Page
           </button>
         </div>
@@ -257,15 +265,20 @@ const ForYou = () => {
         {/* Left Navigation Sidebar */}
         <div className={`${layoutStyles.sidebar} ${isSidebarOpen ? layoutStyles.open : ''}`}>
           
-          {/* Top Section: Close Button and Navigation Links */}
+          {/* Top Section: Logo and Navigation Links */}
           <div className={navigationStyles['top-section']}>
+            {/* Logo Container */}
+            <div className={navigationStyles['logo-container']}>
+              <img src={logo} alt="Logo" className={navigationStyles['logo']} />
+            </div>
+
+            {/* Close Sidebar Button */}
             <button 
               className={buttonStyles['close-sidebar']} 
               onClick={() => setIsSidebarOpen(false)}
               aria-label="Close Sidebar"
-            >
-              X
-            </button>
+            />
+
 
             {/* Navigation Links Container */}
             <div className={navigationStyles['links-container']}>

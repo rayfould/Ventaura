@@ -24,11 +24,71 @@
   animation: box 3s infinite;
 }
 
+
+.button-56 {
+  margin: 0 auto;
+  align-items: center;
+  background-color: var(--primary);
+  border: 2px solid #111;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  font-size: 32px;
+  font-weight: bold;
+  height: 48px;
+  justify-content: center;
+  line-height: 24px;
+  max-width: 100%;
+  padding: 0 25px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button-56:after {
+  background-color: #111;
+  border-radius: 8px;
+  content: "";
+  display: block;
+  height: 48px;
+  left: 0;
+  width: 100%;
+  position: absolute;
+  top: -2px;
+  transform: translate(8px, 8px);
+  transition: transform 0.2s ease-out;
+  z-index: -1;
+}
+
+.button-56:hover:after {
+  transform: translate(0, 0);
+}
+
+.button-56:active {
+  background-color: #ffdeda;
+  outline: 0;
+}
+
+.button-56:hover {
+  outline: 0;
+}
+
+@media (min-width: 768px) {
+  .button-56 {
+    padding: 0 40px;
+  }
+}
+
 /* Logout Button */
 .logout-button {
   font-size: 18px;
   width: 75%; /* Adjust as needed */
-  margin: 200px auto 0 auto;
+  margin: 50px auto 0 auto;
     padding: var(--space-lg);
   background-color: var(--secondary);
   color: var(--background);
@@ -164,40 +224,75 @@
   border: none;
   cursor: pointer;
   padding: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
   width: 50px;
   height: 50px;
-  
-  /* Remove default button styles */
-  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm); /* Rounded for modern look */
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-/* Bars inside the button */
-.sidebar-button span {
+.sidebar-button i {
+  font-size: 24px;
+  color: white;
+}
+
+.sidebar-button:hover {
+  background-color: var(--secondary);
+  transform: scale(1.1); /* Slightly enlarge on hover */
+}
+
+
+
+.close-sidebar {
+  position: absolute;
+  right: 10px;  /* Position from right edge of sidebar */
+  top: 50%;    /* Center vertically */
+  transform: translateY(-50%);  /* Adjust for perfect vertical centering */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Create the arrow using pseudo-elements */
+.close-sidebar::before {
+  content: '';
   display: block;
-  height: 5px;
-  width: 100%;
-  background-color: white;
-  border-radius: 2px;
+  width: 18px;
+  height: 18px;
+  border-left: 4px solid white;
+  border-bottom: 4px solid white;
+  transform: rotate(45deg);  /* Rotate to point left */
+  transition: transform 0.3s ease;
+}
+
+/* Optional hover effect */
+.close-sidebar:hover::before {
+  transform: rotate(45deg) scale(1.2);
+}
+
+
+.sidebar-handle {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 100px;
+  background-color: var(--primary);
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-/* Hover effect */
-.sidebar-button:hover span {
-  background-color: #f0f0f0;
+.sidebar-handle:hover {
+  width: 20px;
+  background-color: var(--secondary);
 }
 
-/* Optional: Animate to 'X' when active */
-.sidebar-button.open span:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-}
-
-.sidebar-button.open span:nth-child(2) {
-  opacity: 0;
-}
-
-.sidebar-button.open span:nth-child(3) {
-  transform: rotate(-45deg) translate(5px, -5px);
-}
