@@ -1,14 +1,9 @@
 /* buttons.module.css */
-
-/* Import global variables */
-@import '../variables.module.css';
-
-/* Button Styles */
-.forYouButton,
-.globalPageButton {
+.for-you-button,
+.global-page-button {
   position: relative;
-  background-color: var(--primary); /* Changed from #444 to var(--primary) */
-  color: var(--background); /* Changed from #fff to var(--background) for contrast */
+  background-color: var(--primary); /* Updated to use CSS variables */
+  color: var(--background);         /* Updated for better contrast */
   text-decoration: none;
   text-transform: uppercase;
   border: none;
@@ -17,37 +12,48 @@
   padding: 1rem 3rem;
   transition: 0.2s;
   cursor: pointer;
+  border-radius: var(--radius-sm);  /* Added for consistency */
 }
 
-.forYouButton:hover,
-.globalPageButton:hover {
+.for-you-button:hover,
+.global-page-button:hover {
   letter-spacing: 0.2rem;
   padding: 1.1rem 3.1rem;
-  background-color: var(--primaryLight);
-  color: #ffff; 
+  background-color: var(--secondary); /* Replaced var(--clr) with var(--secondary) */
+  color: var(--background);           /* Ensures text remains visible */
   animation: box 3s infinite;
 }
 
 /* Logout Button */
-.logoutButton {
-  position: absolute;
-  top: var(--space-md);
-  right: var(--space-lg);
-  padding: var(--space-md) var(--space-lg);
-  background-color: var(--primary);
+.logout-button {
+  font-size: 18px;
+  width: 75%; /* Adjust as needed */
+  margin: 200px auto 0 auto;
+    padding: var(--space-lg);
+  background-color: var(--secondary);
   color: var(--background);
+  border: none; /* Remove default border */
   border-radius: var(--radius-sm);
-  z-index: var(--z-header);
   cursor: pointer;
-  transition: var(--transition-normal);
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+  
+  /* Center the text */
+  text-align: center;
+  
+  /* Flexbox for vertical centering */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.logoutButton:hover {
-  background-color: rgba(var(--primary-rgb), 0.9);
+.logout-button:hover {
+  background-color: white;
+  border: 1px solid white;
+  color: var(--text);
 }
 
 /* Settings Button */
-.settingsButton {
+.settings-button {
   position: absolute;
   top: var(--space-md);
   right: 70px;
@@ -61,13 +67,13 @@
   transition: var(--transition-normal);
 }
 
-.settingsButton:hover {
+.settings-button:hover {
   background-color: rgba(var(--primary-rgb), 0.9);
 }
 
 /* Preference and Dislike Buttons */
-.preferenceButton,
-.dislikeButton {
+.preference-button,
+.dislike-button {
   padding: var(--space-md);
   margin: var(--space-xs);
   border: 2px solid transparent;
@@ -78,14 +84,14 @@
   transition: all 0.2s ease;
 }
 
-.preferenceButton:hover,
-.dislikeButton:hover {
+.preference-button:hover,
+.dislike-button:hover {
   border-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
 }
 
-.preferenceButton.selected,
-.dislikeButton.selected {
+.preference-button.selected,
+.dislike-button.selected {
   background-color: var(--secondary);
   border-color: rgba(255, 255, 255, 0.3);
 }
@@ -142,12 +148,56 @@
 
 @keyframes box {
   0% {
-    box-shadow: #27272c;
+    box-shadow: 0 0 5px rgba(var(--text-rgb), 0.1);
   }
   50% {
     box-shadow: 0 0 25px var(--secondary);
   }
   100% {
-    box-shadow: #27272c;
+    box-shadow: 0 0 5px rgba(var(--text-rgb), 0.1);
   }
+}
+
+/* Sidebar Button */
+.sidebar-button {
+  background-color: var(--primary);
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 50px;
+  height: 50px;
+  
+  /* Remove default button styles */
+  outline: none;
+}
+
+/* Bars inside the button */
+.sidebar-button span {
+  display: block;
+  height: 5px;
+  width: 100%;
+  background-color: white;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.sidebar-button:hover span {
+  background-color: #f0f0f0;
+}
+
+/* Optional: Animate to 'X' when active */
+.sidebar-button.open span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.sidebar-button.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.sidebar-button.open span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
 }

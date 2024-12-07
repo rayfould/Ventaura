@@ -4,7 +4,6 @@ import React from 'react';
 // Import shared CSS modules
 import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
-import '../styles/variables.module.css';
 
 
 const Checkout = () => {

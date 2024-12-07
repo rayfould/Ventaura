@@ -3,7 +3,7 @@
 :root {
   /* Theme colors */
   --primary-rgb: 193, 73, 83;          /* Current: Red */
-  --primaryLight-rgb: 173, 53, 63;     /* Current: Light Red */
+  --primary-light-rgb: 173, 53, 63;     /* Current: Light Red */
   --secondary-rgb: 51, 65, 149;        /* Current: Dark Blue */
   --accent-rgb: 100, 122, 163;         /* Current: Light Blue */
   --background-rgb: 245, 244, 245;     /* Current: Light Gray */
@@ -11,7 +11,7 @@
 
   /* Solid colors */
   --primary: rgb(var(--primary-rgb));
-  --primaryLight: rgb(var(--primaryLight-rgb)); /* Corrected variable name */
+  --primary-light: rgb(var(--primaryLight-rgb)); /* Corrected variable name */
   --secondary: rgb(var(--secondary-rgb));
   --accent: rgb(var(--accent-rgb));
   --background: rgb(var(--background-rgb));

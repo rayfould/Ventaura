@@ -7,7 +7,6 @@ import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
-import '../styles/variables.module.css';
 
 
 const AddEvent = () => {

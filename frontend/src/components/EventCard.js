@@ -4,7 +4,6 @@ import React from 'react';
 // Import specific CSS modules
 import eventCardStyles from '../styles/modules/EventCard.module.css';
 import layoutStyles from '../styles/layout.module.css';
-import '../styles/variables.module.css';
 
 const EventCard = ({ event }) => {
   // Format date to short format

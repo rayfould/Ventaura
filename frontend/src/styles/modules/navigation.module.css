@@ -1,19 +1,57 @@
+/* navigation.module.css */
 
-/* Sidebar Navigation */
+/* Logo Styles */
+.logo {
+    display: block;
+    margin: 0 auto;
+    max-width: 200px;
+    height: auto;
+}
+
+/* Navigation Links */
+.nav-link {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    background-color: var(--primary);
+    color: var(--background);
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+.nav-link:hover {
+    background-color: rgba(var(--primary-rgb), 0.9);
+    color: var(--background);
+}
+
+/* Sidebar Navigation Links */
 .sidebar-link {
     display: block;
+    width: 75%;         /* 90% width for 5% gap on each side */
+    margin: 10px auto;     /* Center the link */
     color: var(--background);
-    padding: var(--space-md);
-    font-size: 18px;
+    padding: var(--space-xl);
+    font-size: 24px;
     text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+    text-align: center;
+}
+
+.sidebar-link:hover {
+    background-color: rgba(var(--secondary-rgb), 0.1);
+    border: 1px solid #fff;
 }
 
 .sidebar-right-link,
 .sidebar-right-div {
     display: block;
-    padding: var(--space-md);
+    padding: var(--space-xl);
     text-decoration: none;
     font-size: 18px;
+    cursor: pointer;
 }
 
 .sidebar-right-div {
@@ -27,7 +65,7 @@
 .close-sidebar,
 .close-sidebar-right {
     position: fixed;
-    background: none;
+    background: red;
     border: none;
     font-size: 24px;
     cursor: pointer;

@@ -11,7 +11,6 @@ import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
-import '../styles/variables.module.css';
 
 const ForYou = () => {
   const location = useLocation();
@@ -225,64 +224,79 @@ const ForYou = () => {
     currencyCode: "USD",
     url: "#"
   };
-  
 
   return (
-    <div className={layoutStyles.pageContainer}>
+    <div className={layoutStyles['page-container']}>
       {/* Header stays at top */}
       <header className={layoutStyles.header}>
-        <button className={buttonStyles.sidebarButton} onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-          ☰
-        </button>
-        <div className={layoutStyles.centerButtonsContainer}>
-          <button onClick={() => navigate('/for-you')} className={buttonStyles.forYouButton}>
+      <button className={buttonStyles['sidebar-button']} onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label="Toggle Sidebar">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+        <div className={layoutStyles['center-buttons-container']}>
+          <button onClick={() => navigate('/for-you')} className={buttonStyles['for-you-button']}>
             For You
           </button>
-          <button onClick={() => navigate('/global-page')} className={buttonStyles.globalPageButton}>
+          <button onClick={() => navigate('/global-page')} className={buttonStyles['global-page-button']}>
             Global Page
           </button>
         </div>
-        <div className={layoutStyles.headerRight}>
-          <button className={buttonStyles.settingsButton} onClick={() => navigate("/settings")}>
+        <div className={layoutStyles['header-right']}>
+          <button className={buttonStyles['settings-button']} onClick={() => navigate("/settings")}>
             ⚙️
           </button>
-          <button className={buttonStyles.openSidebarRight} onClick={() => setIsRightSidebarOpen(true)}>
+          <button className={buttonStyles['open-sidebar-right']} onClick={() => setIsRightSidebarOpen(true)}>
             ☰ Preferences
           </button>
         </div>
       </header>
 
       {/* Main layout container */}
-      <div className={layoutStyles.mainLayout}>
+      <div className={layoutStyles['main-layout']}>
         {/* Left Navigation Sidebar */}
         <div className={`${layoutStyles.sidebar} ${isSidebarOpen ? layoutStyles.open : ''}`}>
-          <button className={buttonStyles.closeSidebar} onClick={() => setIsSidebarOpen(false)}>
-            X
-          </button>
-          <Link to="/for-you" className={navigationStyles.sidebarLink} onClick={() => setIsSidebarOpen(false)}>
-            For You
-          </Link>
-          <Link to="/about-us" className={navigationStyles.sidebarLink} onClick={() => setIsSidebarOpen(false)}>
-            About Us
-          </Link>
-          <Link to="/contact-us" className={navigationStyles.sidebarLink} onClick={() => setIsSidebarOpen(false)}>
-            Contact Us
-          </Link>
-          <Link to="/post-event-page" className={navigationStyles.sidebarLink} onClick={() => setIsSidebarOpen(false)}>
-            Post An Event
-          </Link>
+          
+          {/* Top Section: Close Button and Navigation Links */}
+          <div className={navigationStyles['top-section']}>
+            <button 
+              className={buttonStyles['close-sidebar']} 
+              onClick={() => setIsSidebarOpen(false)}
+              aria-label="Close Sidebar"
+            >
+              X
+            </button>
+
+            {/* Navigation Links Container */}
+            <div className={navigationStyles['links-container']}>
+              <Link to="/for-you" className={navigationStyles['sidebar-link']} onClick={() => setIsSidebarOpen(false)}>
+                For You
+              </Link>
+              <Link to="/about-us" className={navigationStyles['sidebar-link']} onClick={() => setIsSidebarOpen(false)}>
+                About Us
+              </Link>
+              <Link to="/contact-us" className={navigationStyles['sidebar-link']} onClick={() => setIsSidebarOpen(false)}>
+                Contact Us
+              </Link>
+              <Link to="/post-event-page" className={navigationStyles['sidebar-link']} onClick={() => setIsSidebarOpen(false)}>
+                Post An Event
+              </Link>
+            </div>
+          </div>
+
+          {/* Bottom Section: Logout Button */}
           <button 
             onClick={handleManualLogout} 
-            className={navigationStyles.sidebarLink}
+            className={buttonStyles['logout-button']}
           >
             Logout
           </button>
         </div>
         
         {/* Main Content Area */}
-        <main className={layoutStyles.mainContent}>
+        <main className={layoutStyles['main-content']}>
           {message && <p className={layoutStyles.message}>{message}</p>}
-          <div className={layoutStyles.eventGrid}>
+          <div className={layoutStyles['event-grid']}>
             {events && events.map((event, index) => (
               <EventCard key={index} event={event} />
             ))}
@@ -290,8 +304,8 @@ const ForYou = () => {
         </main>
 
         {/* Right Preferences Sidebar */}
-        <div className={`${layoutStyles.sidebarRight} ${isRightSidebarOpen ? layoutStyles.open : ''}`}>
-          <button className={navigationStyles.closeSidebarRight} onClick={() => setIsRightSidebarOpen(false)}>
+        <div className={`${layoutStyles['sidebar-right']} ${isRightSidebarOpen ? layoutStyles.open : ''}`}>
+          <button className={navigationStyles['close-sidebar-right']} onClick={() => setIsRightSidebarOpen(false)}>
             ×
           </button>
 
@@ -303,7 +317,7 @@ const ForYou = () => {
                 type="button"
                 key={preference}
                 onClick={() => handlePreferenceToggle(preference)}
-                className={`${buttonStyles.preferenceButton} ${
+                className={`${buttonStyles['preference-button']} ${
                   formData.preferences.includes(preference) ? buttonStyles.selected : ''
                 }`}
               >
@@ -320,7 +334,7 @@ const ForYou = () => {
                 type="button"
                 key={dislike}
                 onClick={() => handleDislikeToggle(dislike)}
-                className={`${buttonStyles.dislikeButton} ${
+                className={`${buttonStyles['dislike-button']} ${
                   formData.dislikes.includes(dislike) ? buttonStyles.selected : ''
                 }`}
               >
@@ -349,7 +363,7 @@ const ForYou = () => {
           </div>
 
           {/* Update Information Button */}
-          <button type="submit" className={buttonStyles.formButton}>
+          <button type="submit" className={buttonStyles.button}>
             Update information
           </button>
         </div>
