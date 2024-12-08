@@ -26,7 +26,14 @@
     left: 0;
     width: 100%;
     z-index: var(--z-header);
-    height: 150px;
+    height: 200px;
+    transition: top 0.3s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Hidden Header */
+.header.hidden {
+    top: -130px; /* Move the header above the viewport */
 }
 
 .header h1 {
@@ -127,7 +134,18 @@
 .center-buttons-container {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: 80%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.logo-container {
+    position: absolute;
+    left: 50%;
+    top: 35%;
     transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
