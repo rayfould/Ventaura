@@ -23,15 +23,25 @@ namespace ventaura_backend.Models
         public string Name { get; set; } // Name of the event.
         public string Type { get; set; } // Type of event (e.g., concert, sports).
         public string URL { get; set; } // URL for event details or ticket purchase.
-        public Start Start { get; set; } // Event start date and time.
+        public Dates Dates { get; set; } // Event start date and time.
         public VenueEmbedded _embedded { get; set; } // Contains venue information for the event.
         public List<Classification> Classifications { get; set; } // List of event classifications.
     }
 
     // Represents the start date and time of an event.
+    public class Dates
+    {
+        public Start Start { get; set; }
+    }
+
     public class Start
     {
-        public DateTime? LocalDate { get; set; } // Local date of the event.
+        public DateTime? LocalDate { get; set; }
+        public string LocalTime { get; set; }     // If returned by the API
+        public bool TimeTBA { get; set; }         // If returned by the API
+        public bool DateTBD { get; set; }         // If returned by the API
+        public bool DateTBA { get; set; }         // If returned by the API
+        // Add other fields as needed based on API response
     }
 
     // Represents the embedded venue data for an event.

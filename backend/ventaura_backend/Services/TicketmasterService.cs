@@ -40,18 +40,43 @@ namespace ventaura_backend.Services
                 var apiData = await response.Content.ReadFromJsonAsync<TicketmasterResponseModel>();
 
                 // Map the API response to a list of UserContent objects.
-                var events = apiData?._embedded?.Events?.Select(eventItem => new UserContent
+                var events = apiData?._embedded?.Events?.Select(eventItem =>
                 {
-                    UserId = userId,
-                    Title = eventItem.Name, // Event title.
-                    Description = eventItem.Type ?? "No description available", // Event type or default text.
-                    Location = eventItem._embedded?.Venues?.FirstOrDefault()?.Location != null
-                        ? $"{eventItem._embedded.Venues.First().Location.Latitude}, {eventItem._embedded.Venues.First().Location.Longitude}" // Combine latitude and longitude.
-                        : "Location not available", // Default text if location is missing.
-                    Start = eventItem.Start?.LocalDate ?? DateTime.UtcNow, // Event start date or current time as fallback.
-                    Source = "Ticketmaster", // Source identifier for the data.
-                    Type = eventItem.Classifications?.FirstOrDefault()?.Genre?.Name, // Event genre.
-                    URL = eventItem.URL // Event URL for more details.
+                    // Set a default fallback start date if no date is provided.
+                    DateTime startDate = DateTime.UtcNow;
+
+                    if (eventItem.Dates?.Start?.LocalDate.HasValue == true)
+                    {
+                        startDate = eventItem.Dates.Start.LocalDate.Value;
+
+                        // Check if time is available and not TBA
+                        bool timeTBA = eventItem.Dates.Start.TimeTBA;
+                        string localTime = eventItem.Dates.Start.LocalTime;
+
+                        if (!timeTBA && !string.IsNullOrEmpty(localTime))
+                        {
+                            // Attempt to parse the local time, usually "HH:mm:ss"
+                            if (TimeSpan.TryParse(localTime, out var timeSpan))
+                            {
+                                // Combine the date and the parsed time
+                                startDate = startDate.Date + timeSpan;
+                            }
+                        }
+                    }
+
+                    return new UserContent
+                    {
+                        UserId = userId,
+                        Title = eventItem.Name,
+                        Description = eventItem.Type ?? "No description available",
+                        Location = eventItem._embedded?.Venues?.FirstOrDefault()?.Location != null
+                            ? $"{eventItem._embedded.Venues.First().Location.Latitude}, {eventItem._embedded.Venues.First().Location.Longitude}"
+                            : "Location not available",
+                        Start = startDate,
+                        Source = "Ticketmaster",
+                        Type = eventItem.Classifications?.FirstOrDefault()?.Genre?.Name,
+                        URL = eventItem.URL
+                    };
                 }).ToList() ?? new List<UserContent>();
 
                 Console.WriteLine($"Ticketmaster events fetched: {events.Count}");
