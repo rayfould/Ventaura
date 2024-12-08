@@ -1,8 +1,13 @@
-/* This file defines the UsersController for managing user-related operations in the 
-Ventaura application. It provides endpoints for user account creation, authentication, 
-and retrieval, ensuring secure password storage and dynamic location updates during login. 
-The controller facilitates user onboarding and access to personalized event recommendations 
-while maintaining robust error handling and validation. */
+/* 
+This file defines the UsersController responsible for managing user-related operations 
+within the Ventaura application. It provides endpoints for:
+- Creating new user accounts, ensuring secure password storage and validation.
+- Authenticating existing users and updating their location data at login.
+- Retrieving user details by ID.
+- Updating user preferences and profile information.
+Through careful validation, transaction handling, and password hashing, this controller 
+supports robust, secure user management and facilitates personalized event recommendations.
+*/
 
 using Microsoft.AspNetCore.Mvc;
 using ventaura_backend.Data;
@@ -13,20 +18,22 @@ using Npgsql;
 
 namespace ventaura_backend.Controllers
 {
-    // Marks this class as an API controller and sets the route prefix for all user-related endpoints.
+    // Indicates that this class is an API controller and routes are prefixed with "api/users".
     [ApiController]
     [Route("api/users")]
     public class UsersController : ControllerBase
     {
+        // Database context for accessing and manipulating user records.
         private readonly DatabaseContext _dbContext;
 
-        // Constructor to inject the database context for accessing user data.
+        // Constructor injecting the database context dependency for data operations.
         public UsersController(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
         }
 
-        // Endpoint to create a new user account.
+        // POST endpoint: Creates a new user account with given details.
+        // Performs validation, checks for duplicate emails, and stores a securely hashed password.
         [HttpPost("create-account")]
         public async Task<IActionResult> CreateAccount([FromBody] User newUser)
         {
@@ -34,36 +41,38 @@ namespace ventaura_backend.Controllers
             {
                 Console.WriteLine("Start CreateAccount process...");
 
-                // Validate input model
+                // Validate the input model to ensure required fields are present.
                 if (!ModelState.IsValid)
                 {
                     Console.WriteLine("Validation failed: Missing required fields.");
                     return BadRequest(ModelState);
                 }
 
-                // Retry mechanism for transient failures
+                // Use an execution strategy to handle transient failures (e.g., retry logic).
                 var executionStrategy = _dbContext.Database.CreateExecutionStrategy();
                 await executionStrategy.ExecuteAsync(async () =>
                 {
+                    // Begin a database transaction for atomic operation.
                     using (var transaction = await _dbContext.Database.BeginTransactionAsync())
                     {
-                        // Check if email already exists
+                        // Check if the email already exists in the database.
                         Console.WriteLine($"Checking if email {newUser.Email} already exists...");
                         var existingUser = await _dbContext.Users.AsNoTracking()
                             .FirstOrDefaultAsync(u => u.Email == newUser.Email);
 
                         if (existingUser != null)
                         {
+                            // If email is taken, throw an exception to handle it gracefully.
                             throw new InvalidOperationException("An account with this email already exists.");
                         }
 
-                        // Prepare new user object
+                        // Create a new user entity and hash the provided password.
                         var user = new User
                         {
                             Email = newUser.Email,
                             FirstName = newUser.FirstName,
                             LastName = newUser.LastName,
-                            PasswordHash = BCrypt.Net.BCrypt.HashPassword(newUser.PasswordHash),
+                            PasswordHash = BCrypt.Net.BCrypt.HashPassword(newUser.PasswordHash), // Secure hashing
                             Latitude = newUser.Latitude,
                             Longitude = newUser.Longitude,
                             Preferences = newUser.Preferences,
@@ -82,40 +91,47 @@ namespace ventaura_backend.Controllers
                     }
                 });
 
+                // Return a success response upon successful account creation.
                 return Ok(new { Message = "Account created successfully." });
             }
             catch (InvalidOperationException ex)
             {
+                // Handle validation errors like duplicate emails.
                 Console.WriteLine($"Validation error: {ex.Message}");
                 return Conflict(ex.Message);
             }
             catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
             {
+                // Handle database-level uniqueness constraints.
                 Console.WriteLine($"Duplicate email error: {pgEx.MessageText}");
                 return Conflict("An account with this email already exists.");
             }
             catch (Exception ex)
             {
+                // Handle unexpected exceptions.
                 Console.WriteLine($"Error: {ex.Message}");
                 return StatusCode(500, "An unexpected error occurred.");
             }
         }
 
-        // Endpoint to retrieve a user's details by ID.
+        // GET endpoint: Retrieves a user's details by their unique ID.
+        // Returns 404 if the user does not exist.
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
-             // Fetch the user from the database by their ID.
+            // Attempt to find the user by ID in the database.
             var user = await _dbContext.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound("User not found.");
             }
 
+            // Return the user object if found.
             return Ok(user);
         }
 
-        // Endpoint to handle user login.
+        // POST endpoint: Authenticates a user given their email and password,
+        // optionally updating their latitude and longitude during login.
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginRequest loginRequest)
         {
@@ -123,28 +139,24 @@ namespace ventaura_backend.Controllers
             {
                 Console.WriteLine($"Login attempt for email: {loginRequest.Email}");
 
-                // Check if a user with the provided email exists in the database.
-                var user = await _dbContext.Users
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
+                // Retrieve the user by email to verify credentials.
+                var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
 
-                // Validate the user's password using bcrypt.
+                // Check if user exists and verify password using bcrypt.
                 if (user == null || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.PasswordHash))
                 {
                     Console.WriteLine($"Invalid login attempt for email {loginRequest.Email}.");
                     return BadRequest(new { Message = "Invalid email or password." });
                 }
 
-                // Re-fetch the user as tracking is needed for updates.
-                user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
-
                 if (user == null)
                 {
+                    // This check is theoretically redundant, but left in case of unexpected null states.
                     Console.WriteLine($"User unexpectedly null during re-fetch: {loginRequest.Email}");
                     return StatusCode(500, "An error occurred during login.");
                 }
 
-                 // Validate and update the user's location if provided.
+                // If location is provided in the login request, update it for the user.
                 if (loginRequest.Latitude.HasValue && loginRequest.Longitude.HasValue)
                 {
                     Console.WriteLine($"Updating location for user {user.Email}: ({loginRequest.Latitude}, {loginRequest.Longitude})");
@@ -155,25 +167,102 @@ namespace ventaura_backend.Controllers
                 // Mark the user as logged in.
                 user.IsLoggedIn = true;
 
+                // Save changes to the database.
                 await _dbContext.SaveChangesAsync();
 
                 Console.WriteLine($"User {user.Email} logged in successfully and location updated.");
 
-                // Redirect the user to fetch combined events after login.
-                // return Redirect($"/api/combined-events/fetch?userId={user.UserId}");
-                // Return a success response with userId
+                // Return success response with the user's ID. 
                 return Ok(new { Message = "Login successful!", userId = user.UserId });
             }
             catch (Exception ex)
             {
-                // Log and return server error for unexpected issues.
+                // Handle unexpected login errors.
                 Console.WriteLine($"Error logging in user: {ex.Message}");
                 return StatusCode(500, "An error occurred while logging in.");
             }
         }
+
+        // PUT endpoint: Updates user preferences and profile details.
+        // Accepts optional fields; only updates the fields that are provided.
+        [HttpPut("updatePreferences")]
+        public async Task<IActionResult> UpdateUserPreferences([FromBody] UpdateUserPreferencesDto updatedPreferences)
+        {
+            try
+            {
+                // Validate that the request contains a valid user ID.
+                if (updatedPreferences == null || updatedPreferences.UserId <= 0)
+                {
+                    return BadRequest("Invalid user details provided.");
+                }
+
+                // Find the user in the database.
+                var user = await _dbContext.Users.FindAsync(updatedPreferences.UserId);
+                if (user == null)
+                {
+                    return NotFound($"User with ID {updatedPreferences.UserId} not found.");
+                }
+
+                Console.WriteLine("User found.");
+                Console.WriteLine("Updating user information.");
+
+                // Update user properties only if new values are provided.
+                if (!string.IsNullOrEmpty(updatedPreferences.Email))
+                {
+                    user.Email = updatedPreferences.Email;
+                }
+                if (!string.IsNullOrEmpty(updatedPreferences.FirstName))
+                {
+                    user.FirstName = updatedPreferences.FirstName;
+                }
+                if (!string.IsNullOrEmpty(updatedPreferences.LastName))
+                {
+                    user.LastName = updatedPreferences.LastName;
+                }
+                if (!string.IsNullOrEmpty(updatedPreferences.Preferences))
+                {
+                    user.Preferences = updatedPreferences.Preferences;
+                }
+                if (!string.IsNullOrEmpty(updatedPreferences.Dislikes))
+                {
+                    user.Dislikes = updatedPreferences.Dislikes;
+                }
+                if (!string.IsNullOrEmpty(updatedPreferences.PriceRange))
+                {
+                    user.PriceRange = updatedPreferences.PriceRange;
+                }
+                if (updatedPreferences.MaxDistance.HasValue)
+                {
+                    user.MaxDistance = updatedPreferences.MaxDistance;
+                }
+                if (updatedPreferences.Latitude.HasValue)
+                {
+                    user.Latitude = updatedPreferences.Latitude;
+                }
+                if (updatedPreferences.Longitude.HasValue)
+                {
+                    user.Longitude = updatedPreferences.Longitude;
+                }
+
+                // Save the updated user information to the database.
+                _dbContext.Users.Update(user);
+                await _dbContext.SaveChangesAsync();
+
+                Console.WriteLine("User preferences updated successfully.");
+
+                // Return a success message.
+                return Ok(new { Message = "User preferences updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors during preference updates.
+                Console.WriteLine($"Error in UpdateUserPreferences: {ex.Message}");
+                return StatusCode(500, "An error occurred while updating user preferences.");
+            }
+        }
     }
 
-    // Data Transfer Object (DTO) to handle login request details.
+    // DTO for handling login requests, including optional location updates.
     public class UserLoginRequest
     {
         public string Email { get; set; }
@@ -182,4 +271,18 @@ namespace ventaura_backend.Controllers
         public double? Longitude { get; set; }
     }
 
+    // DTO for updating user preferences and other fields in a controlled manner.
+    public class UpdateUserPreferencesDto
+    {
+        public int UserId { get; set; }           // Required field (User identifier)
+        public string? Email { get; set; }         // Optional update fields
+        public string? FirstName { get; set; }     
+        public string? LastName { get; set; }      
+        public string? Preferences { get; set; }   
+        public string? Dislikes { get; set; }
+        public string? PriceRange { get; set; }
+        public double? MaxDistance { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+    }
 }
