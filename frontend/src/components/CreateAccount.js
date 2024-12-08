@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-// Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
@@ -23,7 +22,7 @@ const CreateAccount = () => {
   });
 
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // Initialize navigate hook
+  const navigate = useNavigate();
 
   // Get user's live location using Geolocation API
   useEffect(() => {
@@ -65,9 +64,9 @@ const CreateAccount = () => {
       const newDislikes = prevData.dislikes.includes(dislike)
         ? prevData.dislikes.filter((item) => item !== dislike)
         : [...prevData.dislikes, dislike];
-      return { ...prevData, dislikes: newDislikes}
+      return { ...prevData, dislikes: newDislikes };
     });
-  }
+  };
 
   const handleSliderChange = (e) => {
     setFormData((prevData) => ({
@@ -79,36 +78,30 @@ const CreateAccount = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Prepare the data to send
+    // Convert fields to the types expected by the backend
     const requestData = {
       ...formData,
       latitude: Number(formData.latitude),
       longitude: Number(formData.longitude),
-      // Convert priceRange to a string as Swagger expects a string
-      priceRange: formData.priceRange.toString(),
-      // maxDistance is a number, so ensure it's numeric
+      priceRange: formData.priceRange.toString(), // Ensure priceRange is a string if backend expects that
       maxDistance: Number(formData.maxDistance),
       preferences: formData.preferences.join(", "),
       dislikes: formData.dislikes.join(", "),
       passwordHash: formData.password,
       isLoggedIn: false,
-    };    
+    };
 
     console.log("Form data being sent:", requestData);
 
     try {
       const response = await axios.post(
         "http://localhost:5152/api/users/create-account",
-        {
-          ...formData,
-          preferences: formData.preferences.join(", "), // Join preferences as a comma-separated string
-          passwordHash: formData.password, // Send password as passwordHash
-        }
+        requestData
       );
       setMessage(response.data.Message);
       setTimeout(() => {
-        navigate("/login"); // Redirect to login screen after a brief delay
-      }, 2000); // Adjust the delay if needed
+        navigate("/login");
+      }, 2000);
       setFormData({
         email: "",
         firstName: "",
@@ -118,6 +111,7 @@ const CreateAccount = () => {
         preferences: [],
         dislikes: [],
         priceRange: 50,
+        maxDistance: 10,
         password: "",
       });
     } catch (error) {
@@ -211,7 +205,7 @@ const CreateAccount = () => {
             id="priceRange"
             name="priceRange"
             min="0"
-            max="100+"
+            max="100"
             step="1"
             value={formData.priceRange}
             onChange={handleSliderChange}
@@ -229,7 +223,7 @@ const CreateAccount = () => {
             id="maxDistance"
             name="maxDistance"
             min="0"
-            max="100" // or any max distance you choose
+            max="100"
             step="1"
             value={formData.maxDistance}
             onChange={handleChange}
