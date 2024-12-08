@@ -2,8 +2,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Theme colors */
-  --primary-rgb: 193, 73, 83;        /* Current: Red 193, 73, 83; */
+  /* Theme colors 
+  --primary-rgb: 193, 73, 83; */
+  --primary-rgb: 178, 61, 71;       /* Current: Red 193, 73, 83; */
   --primary-light-rgb: 173, 53, 63;     /* Current: Light Red */
   --secondary-rgb: 51, 65, 149;      /* Current: Dark Blue 51, 65, 149; */
   --accent-rgb: 100, 122, 163;         /* Current: Light Blue */
