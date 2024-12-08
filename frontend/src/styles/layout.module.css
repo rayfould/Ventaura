@@ -153,10 +153,6 @@
     gap: var(--space-lg);
 }
 
-.landing-container {
-    text-align: center;
-    padding: var(--space-xl);
-}
 .location-container{
     position: absolute;
     left: 10%;
@@ -269,6 +265,14 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+
+
+
+
+
+
+/*Landing Page */
   
 .landing-container {
     display: flex;
@@ -279,7 +283,7 @@
 }
 
 .landing-logo {
-    width: 700px;
+    width: 850px;
     height: auto;
     position: absolute;
     top: 45%;
@@ -291,7 +295,7 @@
 .landing-left button {
     position: absolute;
     top: 55%;
-    left: 30%;        /* Center horizontally */
+    left: 40;        /* Center horizontally */
 }
 
 /* Left Side */
@@ -414,3 +418,137 @@
     opacity: 0.9;
 }
 
+/* How It Works Section */
+.how-it-works {
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.how-it-works h2 {
+    font-size: 3rem;
+    margin-bottom: 3rem;
+}
+
+.steps-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    padding: 0 1rem
+}
+
+.steps-container h3 {
+    font-size: 20px;
+}
+.steps-container p {
+    font-size: 16px;
+}
+
+.step-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2.5rem;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.step-number {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: bold;
+}
+
+/* Call to Action Section */
+.cta-section {
+    padding: 6rem 0;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    margin: 4rem 0;
+}
+
+.cta-section button:not(.button-56) {
+    position: relative;
+    margin: 0 auto;
+    display: block;
+}
+
+.cta-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.cta-section p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+/* Enhanced animations */
+.step-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.step-card:hover .step-number {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.1); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+    position: absolute;
+    bottom: 50px;
+    left: 75%;
+    transform: translateX(-50%);
+    cursor: pointer;
+}
+
+.scroll-arrow {
+    width: 30px;
+    height: 30px;
+    border-right: 3px solid rgba(255, 255, 255, 0.8);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.8);
+    transform: rotate(45deg);
+    animation: scroll-bounce 3s infinite;
+    opacity: 0.8;
+}
+
+@keyframes scroll-bounce {
+    0% {
+        transform: rotate(45deg) translate(0, 0);
+        opacity: 0.8;
+    }
+    50% {
+        transform: rotate(45deg) translate(10px, 10px);
+        opacity: 0.4;
+    }
+    100% {
+        transform: rotate(45deg) translate(0, 0);
+        opacity: 0.8;
+    }
+}
+
+/* Optional: Add hover effect */
+.scroll-arrow:hover {
+    border-right-color: white;
+    border-bottom-color: white;
+    opacity: 1;
+}

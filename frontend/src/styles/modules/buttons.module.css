@@ -50,6 +50,8 @@
   touch-action: manipulation;
 }
 
+
+
 .button-56:after {
   background-color: #111;
   border-radius: 8px;
@@ -65,21 +67,22 @@
   z-index: -1;
 }
 
+
 .button-56:hover:after {
   transform: translate(0, 0);
 }
 
-.button-56:active {
+.button-56:active{
   background-color: #ffdeda;
   outline: 0;
 }
 
-.button-56:hover {
+.button-56:hover{
   outline: 0;
 }
 
 @media (min-width: 768px) {
-  .button-56 {
+  .button-56{
     padding: 0 40px;
   }
 }
