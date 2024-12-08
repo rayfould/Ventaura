@@ -18,6 +18,7 @@ const CreateAccount = () => {
     preferences: [],
     dislikes: [],
     priceRange: 50, // Default value for the slider
+    maxDistance: 10, // Default preferred distance (e.g., 10 miles)
     password: "",
   });
 
@@ -78,11 +79,22 @@ const CreateAccount = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Form data being sent:", {
+    // Prepare the data to send
+    const requestData = {
       ...formData,
+      latitude: Number(formData.latitude),
+      longitude: Number(formData.longitude),
+      // Convert priceRange to a string as Swagger expects a string
+      priceRange: formData.priceRange.toString(),
+      // maxDistance is a number, so ensure it's numeric
+      maxDistance: Number(formData.maxDistance),
       preferences: formData.preferences.join(", "),
+      dislikes: formData.dislikes.join(", "),
       passwordHash: formData.password,
-    });
+      isLoggedIn: false,
+    };    
+
+    console.log("Form data being sent:", requestData);
 
     try {
       const response = await axios.post(
@@ -151,7 +163,11 @@ const CreateAccount = () => {
 
         <div className={formsStyles.preferencesSection}>
           <h3 className={formsStyles.subheading}>Select Preferences:</h3>
-          {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((preference) => (
+          {["Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
+            "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
+            "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", "Charity", 
+            "Science", "Basketball", "Pottery", "Tennis", "Soccer", "Football", 
+            "Fishing", "Hiking"].map((preference) => (
             <button
               type="button"
               key={preference}
@@ -167,7 +183,11 @@ const CreateAccount = () => {
 
         <div className={formsStyles.preferencesSection}>
           <h3 className={formsStyles.subheading}>Select Dislikes:</h3>
-          {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((dislike) => (
+          {["Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
+            "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
+            "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", "Charity", 
+            "Science", "Basketball", "Pottery", "Tennis", "Soccer", "Football", 
+            "Fishing", "Hiking"].map((dislike) => (
             <button
               type="button"
               key={dislike}
@@ -195,6 +215,24 @@ const CreateAccount = () => {
             step="1"
             value={formData.priceRange}
             onChange={handleSliderChange}
+            className={formsStyles.slider}
+          />
+        </div>
+
+        <div className={formsStyles.priceRangeSection}>
+          <h3 className={formsStyles.subheading}>Select Preferred Distance:</h3>
+          <label htmlFor="maxDistance" className={formsStyles.rangeLabel}>
+            Max Distance: {formData.maxDistance} km
+          </label>
+          <input
+            type="range"
+            id="maxDistance"
+            name="maxDistance"
+            min="0"
+            max="100" // or any max distance you choose
+            step="1"
+            value={formData.maxDistance}
+            onChange={handleChange}
             className={formsStyles.slider}
           />
         </div>
