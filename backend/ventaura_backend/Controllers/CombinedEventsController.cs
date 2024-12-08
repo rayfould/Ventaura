@@ -170,12 +170,10 @@ namespace ventaura_backend.Controllers
                     return NotFound(new { Message = "CSV file not found." });
                 }
 
-                // Return the CSV file as a response
-                var fileStream = new FileStream(csvFilePath, FileMode.Open, FileAccess.Read);
-                var fileName = $"{userId}.csv";
+                var csvContent = System.IO.File.ReadAllText(csvFilePath);
 
-                Console.WriteLine($"Serving CSV file {csvFilePath}.");
-                return File(fileStream, "text/csv", fileName);
+                Console.WriteLine($"Serving CSV file {csvFilePath} for userId {userId}.");
+                return Content(csvContent, "text/csv");
             }
             catch (Exception ex)
             {

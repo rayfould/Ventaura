@@ -16,10 +16,9 @@ const Login = () => {
     longitude: "",
   });
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false); // New: Tracks loading state
   const navigate = useNavigate();
 
-  // Get User's Location on Page Load
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -40,46 +39,28 @@ const Login = () => {
     }
   }, []);
 
-  // Handle Form Changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle Form Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); 
-    setIsLoading(true); 
-
-    const payload = {
-      email: formData.email,
-      password: formData.password,
-      latitude: formData.latitude,
-      longitude: formData.longitude
-    };
-
-    console.log("Sending Payload:", payload);
-
+    setMessage(""); // Clear any previous messages
+    setIsLoading(true); // Set loading state
     try {
       const response = await axios.post(
         "http://localhost:5152/api/users/login",
-        payload
+        formData
       );
-
-      console.log("Response Data:", response.data); 
-
-      if (response.status === 200 && response.data.userId) {
-        // Save the userId to localStorage
-        localStorage.setItem("userId", response.data.userId);
-        navigate("/for-you", { state: { userId: response.data.userId } });
-      } else {
-        setMessage("Unexpected server response.");
-      }
+      
+      // Save the userId to localStorage
+      localStorage.setItem("userId", response.data.userId);
+      
+      setIsLoading(false); // Reset loading state
+      navigate("/for-you", { state: { userId: response.data.userId } });
     } catch (error) {
-      console.error("Error Response:", error.response); 
+      setIsLoading(false); // Reset loading state
       setMessage(error.response?.data?.message || "Invalid email or password.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
