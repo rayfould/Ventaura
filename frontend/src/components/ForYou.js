@@ -12,7 +12,7 @@ import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 import logo from '../assets/ventaura-logo-white.png'; 
-import logoFull from '../assets/ventaura-logo-semi-full.png'; 
+import logoFull from '../assets/ventaura-logo-semi-full-low-dark.png'; 
 
 const ForYou = () => {
   const location = useLocation();
