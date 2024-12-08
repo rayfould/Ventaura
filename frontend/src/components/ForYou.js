@@ -12,7 +12,7 @@ import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 import logo from '../assets/ventaura-logo-white.png'; 
-import logoFull from '../assets/ventaura-logo-full.png'; 
+import logoFull from '../assets/ventaura-logo-semi-full.png'; 
 
 const ForYou = () => {
   const location = useLocation();
@@ -24,6 +24,9 @@ const ForYou = () => {
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const { readString } = usePapaParse();
   const [csvData, setCsvData] = useState([]);
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0); 
+   
 
   // Form data state for handling form input
   const [formData, setFormData] = useState({
@@ -227,42 +230,91 @@ const ForYou = () => {
     url: "#"
   };
 
+ // Handle scroll to hide/show header
+  const handleScroll = () => {
+    if (typeof window !== 'undefined') {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down
+        setShowHeader(false);
+      } else {
+        // Scrolling up
+        setShowHeader(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', handleScroll);
+
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+      };
+    }
+  }, [lastScrollY]);
+
+  // Determine active page
+  const isActive = (path) => {
+    return navigate.location && navigate.location.pathname === path;
+  };
+
+
   return (
     <div className={layoutStyles['page-container']}>
       {/* Header */}
-      <header className={layoutStyles.header}>
+      <header 
+      className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
+    >
+      {/* Sidebar Toggle Button */}
+      <button 
+        className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+        aria-label="Toggle Sidebar"
+      ></button>
+
+      {/* Logo */}
+      <div className={layoutStyles['logo-container']}>
+        <img src={logoFull} alt="Logo" className={navigationStyles['logo-header']} />
+      </div>
+
+      {/* Center Buttons */}
+      <div className={layoutStyles['center-buttons-container']}>
         <button 
-          className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-          aria-label="Toggle Sidebar"
+          onClick={() => navigate('/for-you')} 
+          className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
         >
+          For You
         </button>
-        <div className={navigationStyles['logo-container']}>
-              <img src={logoFull} alt="Logo" className={navigationStyles['logo']} />
-            </div>
-        <div className={layoutStyles['center-buttons-container']}>
-          <button 
-            onClick={() => navigate('/for-you')} 
-            className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
-          >
-            For You
-          </button>
-          <button 
-            onClick={() => navigate('/global-page')} 
-            className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
-          >
-            Global
-          </button>
-        </div>
-        <div className={layoutStyles['header-right']}>
-          <button className={buttonStyles['settings-button']} onClick={() => navigate("/settings")}>
-            ⚙️
-          </button>
-          <button className={buttonStyles['open-sidebar-right']} onClick={() => setIsRightSidebarOpen(true)}>
-            ☰ Preferences
-          </button>
-        </div>
-      </header>
+        <button 
+          onClick={() => navigate('/global-page')} 
+          className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
+        >
+          Global
+        </button>
+      </div>
+
+      {/* Right Buttons */}
+      <div className={layoutStyles['header-right']}>
+        <button 
+          className={buttonStyles['settings-button']} 
+          onClick={() => navigate("/settings")}
+          aria-label="Settings"
+        >
+          ⚙️
+        </button>
+        <button 
+          className={buttonStyles['open-sidebar-right']} 
+          onClick={() => setIsRightSidebarOpen(true)}
+          aria-label="Preferences"
+        >
+          ☰ Preferences
+        </button>
+      </div>
+    </header>
 
       {/* Main layout container */}
       <div className={layoutStyles['main-layout']}>
