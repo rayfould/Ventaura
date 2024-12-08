@@ -30,7 +30,12 @@ public class GlobalEventsController : ControllerBase
     // It first geocodes the city to find its coordinates, then fetches events using those coordinates.
     // Each event is enriched with user-specific details and distance calculations.
     [HttpGet("search")]
-    public async Task<IActionResult> SearchEvents([FromQuery] string city, [FromQuery] int userId)
+    public async Task<IActionResult> SearchEvents([FromQuery] string city, 
+        [FromQuery] int userId, 
+        [FromQuery] string eventType = null, 
+        [FromQuery] double? maxDistance = null, 
+        [FromQuery] decimal? maxPrice = null
+    )
     {
         // Validate that a city name is provided.
         if (string.IsNullOrWhiteSpace(city))
@@ -80,11 +85,29 @@ public class GlobalEventsController : ControllerBase
                 else
                 {
                     // If the location isn't parseable, assign a default distance value.
-                    events[i].Distance = -1;
+                    events[i].Distance = 0;
                 }
             }
 
-            Console.WriteLine($"Events for {city} successfully fetched and returned for user {userId}.");
+            // **Filter by Event Type**
+            if (!string.IsNullOrEmpty(eventType))
+            {
+                events = events.Where(e => e.Type != null && e.Type.Equals(eventType, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            // **Filter by Max Distance**
+            if (maxDistance.HasValue)
+            {
+                events = events.Where(e => e.Distance >= 0 && e.Distance <= maxDistance).ToList();
+            }
+
+            // **Filter by Max Price**
+            if (maxPrice.HasValue)
+            {
+                events = events.Where(e => e.Amount != null && e.Amount <= maxPrice).ToList();
+            }
+
+            Console.WriteLine($"✅ Events for {city} successfully fetched and filtered for user {userId}.");
 
             // Return the processed events with a success message.
             return Ok(new { Message = "Events fetched successfully.", events });

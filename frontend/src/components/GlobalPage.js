@@ -1,54 +1,74 @@
-// GlobalPage.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 // Import shared CSS modules
-import layoutStyles from '../styles/layout.module.css';
-import buttonStyles from '../styles/modules/buttons.module.css';
-import navigationStyles from '../styles/modules/navigation.module.css';
-import formsStyles from '../styles/modules/forms.module.css';
+import styles from '../styles/modules/globalpage.module.css';
+import EventCard from './EventCard.js'; 
+import logo from '../assets/ventaura-logo-white.png'; 
+import logoFull from '../assets/ventaura-logo-semi-full.png'; 
 
+const eventTypes = [
+  "Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
+  "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
+  "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", 
+  "Science", "Basketball", "Baseball", "Pottery", "Tennis", "Soccer", "Football", 
+  "Fishing", "Hiking", "Food and Drink", "Other"
+];
 
 const GlobalPage = () => {
   const userId = localStorage.getItem("userId");
   const [city, setCity] = useState("");
   const [events, setEvents] = useState([]);
   const [message, setMessage] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    eventType: '',
+    maxDistance: '',
+    maxPrice: ''
+  });
   const navigate = useNavigate();
 
-  const handleCityChange = (e) => {
-    setCity(e.target.value);
+  const handleCityChange = (e) => setCity(e.target.value);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value
+    }));
+  };
+
+  const handleEventTypeToggle = (type) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      eventType: prevFilters.eventType === type ? '' : type
+    }));
   };
 
   const handleSearch = async (e) => {
-    if (!userId) {
-      setMessage("User is not logged in.");
-      navigate("/login");
-      return;
-    }
-
     e.preventDefault();
     if (!city.trim()) {
       setMessage("Please enter a city name.");
       return;
     }
-
     try {
       const response = await axios.get(
-        `http://localhost:5152/api/global-events/search`,
-        { params: { city, userId } }
+        `http://localhost:5152/api/global-events/search`, 
+        { 
+          params: { 
+            city, 
+            userId, 
+            eventType: filters.eventType, 
+            maxDistance: filters.maxDistance, 
+            maxPrice: filters.maxPrice 
+          } 
+        }
       );
-
       setEvents(response.data.events || []);
       setMessage(response.data.Message || "Events fetched successfully.");
     } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.Message || "Error fetching events.");
-      } else {
-        setMessage("An error occurred while fetching events.");
-      }
+      setMessage("An error occurred while fetching events.");
     }
   };
 
@@ -57,9 +77,7 @@ const GlobalPage = () => {
       await axios.post(
         `http://localhost:5152/api/combined-events/logout?userId=${userId}`
       );
-
       localStorage.removeItem("userId");
-      alert("Logged out successfully.");
       navigate("/login");
     } catch (error) {
       alert("An error occurred while logging out.");
@@ -67,120 +85,111 @@ const GlobalPage = () => {
   };
 
   return (
-    <div className={layoutStyles.pageContainer}>
+    <div className={styles['page-container']}>
+
       {/* Header */}
-      <header className={layoutStyles.header}>
-        <button
-          className={buttonStyles.sidebarButton}
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      <header className={styles.header}>
+        <div className={styles['location-container']}>
+          <img src={logoFull} alt="Logo" className={styles['logo-header']} />
+        </div>
+
+        <button 
+          className={styles['open-sidebar-right']} 
+          onClick={() => setIsRightSidebarOpen(true)} 
+          aria-label="Open Sidebar"
         >
           ☰
         </button>
-        {/* Settings Icon Button */}
-        <button
-          className={buttonStyles.settingsButton}
-          onClick={() => navigate("/settings")}
-        >
-          ⚙️
-        </button>
       </header>
 
-      {/* Sidebar */}
-      <div className={`${navigationStyles.sidebar} ${isSidebarOpen ? navigationStyles.open : ''}`}>
-        <button 
-          className={buttonStyles.closeSidebar} 
-          onClick={() => setIsSidebarOpen(false)}
-        >
-          X
-        </button>
-        <Link to="/for-you" className={navigationStyles.sidebarLink}>
-          For You
-        </Link>
-        <Link to="/about-us" className={navigationStyles.sidebarLink}>
-          About Us
-        </Link>
-        <Link to="/contact-us" className={navigationStyles.sidebarLink}>
-          Contact Us
-        </Link>
-        <Link to="/post-event-page" className={navigationStyles.sidebarLink}>
-          Post An Event
-        </Link>
-        <button 
-          onClick={handleManualLogout} 
-          className={navigationStyles.sidebarLink}
-        >
-          Logout
-        </button>
-      </div>
+      {/* Main Content Area */}
+      <main className={styles['main-content']}>
 
-      {/* Centered Buttons */}
-      <div className={layoutStyles.centerButtonsContainer}>
-        <button 
-          onClick={() => navigate('/for-you')} 
-          className={buttonStyles.forYouButton}
+        {/* Search Form */}
+        <form 
+          onSubmit={handleSearch} 
+          className={`${styles.searchForm} ${styles.formMarginTop}`}
         >
-          For You
-        </button>
-        <button 
-          onClick={() => navigate('/global-page')} 
-          className={buttonStyles.globalPageButton}
-        >
-          Global Page
-        </button>
-      </div>
-
-      {/* Main Content */}
-      <div className={layoutStyles.homeContainer}>
-        <h1 className={layoutStyles.heading}>Global Events</h1>
-        <p className={layoutStyles.text}>Enter a city name to search for events happening there:</p>
-        <form onSubmit={handleSearch} className={formsStyles.searchForm}>
-          <input
-            type="text"
-            placeholder="City Name"
-            value={city}
-            onChange={handleCityChange}
-            className={buttonStyles.formInput} // Assuming formInput is defined in buttons.module.css
-            required
+          <input 
+            type="text" 
+            value={city} 
+            onChange={handleCityChange} 
+            placeholder="Search for a city" 
+            className={styles.formInput} 
+            required 
           />
-          <button type="submit" className={buttonStyles.formButton}>
+          <button type="submit" className={styles.button}>
             Search
           </button>
         </form>
-        {message && <p className={layoutStyles.message}>{message}</p>}
-        <div className={layoutStyles.eventGrid}>
+
+        {/* Filter Section */}
+        <div className={styles['filter-section']}>
+          <h3>Filters</h3>
+
+          <select 
+            name="eventType" 
+            value={filters.eventType} 
+            onChange={handleFilterChange}
+            className={styles.formInput}
+          >
+            <option value="">Select Event Type</option>
+            {eventTypes.map((type) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+
+          <input 
+            type="number" 
+            name="maxDistance" 
+            placeholder="Max Distance (km)" 
+            value={filters.maxDistance} 
+            onChange={handleFilterChange} 
+            className={styles.formInput}
+          />
+
+          <input 
+            type="number" 
+            name="maxPrice" 
+            placeholder="Max Price" 
+            value={filters.maxPrice} 
+            onChange={handleFilterChange} 
+            className={styles.formInput}
+          />
+        </div>
+
+        {message && <p className={styles.message}>{message}</p>}
+
+        {/* Event Grid */}
+        <div className={styles['event-grid']}>
           {events.map((event, index) => (
-            <div className={layoutStyles.box} key={index}>
-              <h3 className={layoutStyles.boxTitle}>{event.title}</h3>
-              <p className={layoutStyles.boxDescription}>{event.description}</p>
-              <p className={layoutStyles.boxDetail}>
-                <strong>Location:</strong> {event.location}
-              </p>
-              <p className={layoutStyles.boxDetail}>
-                <strong>Start:</strong> {event.start ? new Date(event.start).toLocaleString() : "N/A"}
-              </p>
-              <p className={layoutStyles.boxDetail}>
-                <strong>Source:</strong> {event.source}
-              </p>
-              <p className={layoutStyles.boxDetail}>
-                <strong>Type:</strong> {event.type}
-              </p>
-              <p className={layoutStyles.boxDetail}>
-                <strong>Price:</strong> {event.currencyCode && event.amount ? `${event.currencyCode} ${event.amount}` : "Free"}
-              </p>
-              <p className={layoutStyles.boxDetail}>
-                <strong>Distance:</strong> {event.distance ? `${event.distance.toFixed(2)} km` : "N/A"}
-              </p>
-              <a
-                href={event.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={buttonStyles.eventLink} // Assuming eventLink is defined in buttons.module.css
-              >
-                View More
-              </a>
-            </div>
+            <EventCard key={index} event={event} />
           ))}
         </div>
+      </main>
+
+      {/* Right Sidebar */}
+      <div className={`${styles['sidebar-right']} ${isRightSidebarOpen ? styles.open : ''}`}>
+        <button 
+          className={styles['close-sidebar-right']} 
+          onClick={() => setIsRightSidebarOpen(false)}
+        >
+          ×
+        </button>
+
+        <button 
+          onClick={handleManualLogout} 
+          className={styles['logout-button']}
+        >
+          Logout
+        </button>
+
+        <Link to="/for-you" className={styles['sidebar-link']}>
+          For You
+        </Link>
+        <Link to="/global-page" className={styles['sidebar-link']}>
+          Global
+        </Link>
       </div>
     </div>
   );
