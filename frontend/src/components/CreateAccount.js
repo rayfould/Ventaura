@@ -9,22 +9,26 @@ import buttonStyles from '../styles/modules/buttons.module.css';
 
 // **Preference & Dislike Mapping**
 const preferenceMapping = {
-  "Festivals": "Festivals-Fairs",
-  "Outdoors": "Sports-active-life",
-  "Exhibitions": "Visual-Arts",
-  "Community": "Charities",
-  "Theater": "Performing-Arts",
-  "Family": "Kids-Family",
-  "Film": "Film",
-  "Charity": "Charities",
+  "Festivals": "festivals-fairs",
+  "Outdoors": "sports-active-life",
+  "Exhibitions": "visual-arts",
+  "Community": "charities",
+  "Theater": "performing-arts",
+  "Family": "kids-family",
+  "Wellness": "sports-active-life",
+  "Food and Drink": "food-and-drink",
+  "Music": "music",
+  "Film": "film",
+  "Nightlife": "nightlife",
+  "Other": "other"
 };
 
 const uniqueOptions = [
   "Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
   "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
-  "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", "Charity", 
-  "Science", "Basketball", "Pottery", "Tennis", "Soccer", "Football", 
-  "Fishing", "Hiking", "Other"
+  "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", 
+  "Science", "Basketball", "Baseball", "Pottery", "Tennis", "Soccer", "Football", 
+  "Fishing", "Hiking", "Food and Drink", "Other"
 ];
 
 const priceOptions = ["$", "$$", "$$$", "Irrelevant"]; // **Defined priceOptions**

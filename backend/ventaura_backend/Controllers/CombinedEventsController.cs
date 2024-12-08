@@ -39,7 +39,42 @@ namespace ventaura_backend.Controllers
         {
             try
             {
-                // Retrieve the user and validate their location data
+
+                // **1. Type Mapping Implementation**
+                var typeMapping = new Dictionary<string, string>
+                {
+                    { "festivals-fairs", "Festivals" },
+                    { "sports-active-life", "Outdoors" },
+                    { "visual-arts", "Exhibitions" },
+                    { "charities", "Community" },
+                    { "performing-arts", "Theater" },
+                    { "kids-family", "Family" },
+                    { "film", "Film" },
+                    { "food-and-drink", "Food and Drink" },
+                    { "music", "Music" },
+                    { "Holiday", "Holiday" },
+                    { "Networking", "Networking" },
+                    { "Gaming", "Gaming" },
+                    { "Pets", "Pets" },
+                    { "Virtual", "Virtual" },
+                    { "Science", "Science" },
+                    { "Basketball", "Basketball" },
+                    { "Pottery", "Pottery" },
+                    { "Tennis", "Tennis" },
+                    { "Soccer", "Soccer" },
+                    { "Football", "Football" },
+                    { "Fishing", "Fishing" },
+                    { "Hiking", "Hiking" },
+                    { "Wellness", "Wellness" },
+                    { "nightlife", "Nightlife" },
+                    { "Workshops", "Workshops" },
+                    { "Conferences", "Conferences" },
+                    { "Hockey", "Hockey"},
+                    { "Baseball", "Baseball"},
+                    { "other", "Other" }
+                };
+
+                // **2. Get User**
                 var user = await _dbContext.Users.FindAsync(userId);
                 if (user == null || user.Latitude == null || user.Longitude == null)
                 {
@@ -49,111 +84,118 @@ namespace ventaura_backend.Controllers
 
                 Console.WriteLine($"Location successfully extracted for userId: {userId}.");
 
-                // Fetch events from the combined API service
-                Console.WriteLine($"Fetching events for userId {userId}...");
-                var events = await _combinedApiService.FetchEventsAsync(user.Latitude.Value, user.Longitude.Value, userId);
+                 // **3. Fetch API Events**
+                Console.WriteLine($"Fetching events from API for userId {userId}...");
+                var apiEvents = await _combinedApiService.FetchEventsAsync(user.Latitude.Value, user.Longitude.Value, userId);
 
-                // Process events for CSV creation
-                if (events.Any())
+                // **4. Fetch Host Events**
+                Console.WriteLine($"Fetching host events for userId {userId}...");
+                var hostEvents = await _dbContext.HostEvents.ToListAsync();
+
+                // **5. Process API Events**
+                var apiEventObjects = apiEvents.Select(e => new CombinedEvent
                 {
-                    Console.WriteLine($"Preparing data for {events.Count} events to generate CSV.");
+                    Title = e.Title ?? "Unknown Title",
+                    Description = e.Description ?? "No description",
+                    Location = e.Location ?? "Unknown Location",
+                    Start = e.Start,
+                    Source = e.Source ?? "API",
+                    Type = typeMapping.ContainsKey(e.Type.ToLower()) ? typeMapping[e.Type.ToLower()] : e.Type,
+                    CurrencyCode = e.CurrencyCode ?? "N/A",
+                    Amount = (decimal?)e.Amount ?? 0,
+                    URL = e.URL ?? "N/A",
+                    Distance = e.Distance ?? 0
+                }).ToList();
 
-                    var csvFilePath = Path.Combine("CsvFiles", $"{userId}.csv");
-
-                    // Ensure the directory exists
-                    var directory = Path.GetDirectoryName(csvFilePath);
-                    if (!Directory.Exists(directory))
+                 // **6. Process Host Events**
+                var processedHostEvents = hostEvents.Select(he => 
+                {
+                    double latitude, longitude;
+                    if (!TryParseLocation(he.Location, out latitude, out longitude))
                     {
-                        Directory.CreateDirectory(directory);
+                        latitude = user.Latitude.Value;
+                        longitude = user.Longitude.Value;
                     }
 
-                    // Write CSV file
-                    using (var writer = new StreamWriter(csvFilePath, false, Encoding.UTF8))
+                    var distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, latitude, longitude);
+
+                    return new CombinedEvent
                     {
-                        // Write header
-                        // Write lowercase header with contentId
-                        await writer.WriteLineAsync("contentId,title,description,location,start,source,type,currencyCode,amount,url,distance");
-                        
-                        int contentIdCounter = 1; // Start unique ID counter
-                        foreach (var e in events)
-                        {
-                            // Handle invalid or missing event locations
-                            double eventLatitude, eventLongitude;
-                            if (string.IsNullOrEmpty(e.Location) ||
-                                !e.Location.Contains(",") ||
-                                !double.TryParse(e.Location.Split(',')[0], out eventLatitude) ||
-                                !double.TryParse(e.Location.Split(',')[1], out eventLongitude))
-                            {
-                                eventLatitude = user.Latitude.Value;
-                                eventLongitude = user.Longitude.Value;
-                            }
+                        Title = he.Title ?? "Unknown Title",
+                        Description = he.Description ?? "No description",
+                        Location = he.Location ?? "Unknown Location",
+                        Start = he.Start,
+                        Source = "Host",
+                        Type = typeMapping.ContainsKey(he.Type.ToLower()) ? typeMapping[he.Type.ToLower()] : he.Type,
+                        CurrencyCode = he.CurrencyCode ?? "N/A",
+                        Amount = he.Amount ?? 0,
+                        URL = he.URL ?? "N/A",
+                        Distance = distance
+                    };
+                }).ToList();
 
-                            var distance = DistanceCalculator.CalculateDistance(
-                                user.Latitude.Value,
-                                user.Longitude.Value,
-                                eventLatitude,
-                                eventLongitude
-                            );
-                            e.Distance = (float)distance;
+                // **7. Combine Events**
+                var combinedEvents = apiEventObjects.Concat(processedHostEvents).ToList();
 
-                            // Helper function to clean text fields
-                            string CleanField(string field)
-                            {
-                                if (string.IsNullOrEmpty(field)) return "";
-                                
-                                // Remove newlines and extra spaces
-                                field = field.Replace("\r", " ")
-                                            .Replace("\n", " ")
-                                            .Replace("  ", " ")
-                                            .Trim();
-                                
-                                // Quote if field contains commas or quotes
-                                if (field.Contains(",") || field.Contains("\""))
-                                    return $"\"{field.Replace("\"", "\"\"")}\"";
-                                
-                                return field;
-                            }
-
-                            // Write the line with cleaned fields
-                            await writer.WriteLineAsync(
-                                $"{contentIdCounter}," +
-                                $"{CleanField(e.Title)}," +
-                                $"{CleanField(e.Description)}," +
-                                $"{CleanField(e.Location)}," +
-                                $"{CleanField(e.Start?.ToString("yyyy-MM-dd HH:mm:ss"))}," +
-                                $"{CleanField(e.Source)}," +
-                                $"{CleanField(e.Type)}," +
-                                $"{CleanField(e.CurrencyCode)}," +
-                                $"{CleanField(e.Amount?.ToString())}," +
-                                $"{CleanField(e.URL)}," +
-                                $"{e.Distance}"
-                            );
-                            contentIdCounter++;
-                        }
-                    }
-
-                    Console.WriteLine($"CSV file created at {csvFilePath}.");
-
-                    return Ok(new
-                    {
-                        Message = "Events processed successfully and CSV created.",
-                        CsvPath = csvFilePath,
-                        TotalEvents = events.Count,
-                        ValidEvents = events.Count(e => !string.IsNullOrEmpty(e.Location)),
-                        InvalidEvents = events.Count(e => string.IsNullOrEmpty(e.Location))
-                    });
-                }
-                else
+                if (!combinedEvents.Any())
                 {
                     Console.WriteLine("No events to process.");
                     return Ok(new { Message = "No events available to process.", TotalEvents = 0 });
                 }
+
+                // **8. Write CSV File**
+                var csvFilePath = Path.Combine("CsvFiles", $"{userId}.csv");
+                Directory.CreateDirectory(Path.GetDirectoryName(csvFilePath));
+
+                using (var writer = new StreamWriter(csvFilePath, false, Encoding.UTF8))
+                {
+                    await writer.WriteLineAsync("contentId,title,description,location,start,source,type,currencyCode,amount,url,distance");
+
+                    int contentIdCounter = 1;
+                    foreach (var e in combinedEvents)
+                    {
+                        await writer.WriteLineAsync(
+                            $"{contentIdCounter}," +
+                            $"{CleanField(e.Title)}," +
+                            $"{CleanField(e.Description)}," +
+                            $"{CleanField(e.Location)}," +
+                            $"{CleanField(e.Start.HasValue ? e.Start.Value.ToString("yyyy-MM-dd HH:mm:ss") : "")}," +
+                            $"{CleanField(e.Source)}," +
+                            $"{CleanField(e.Type)}," +
+                            $"{CleanField(e.CurrencyCode)}," +
+                            $"{CleanField(e.Amount?.ToString())}," +
+                            $"{CleanField(e.URL)}," +
+                            $"{e.Distance}"
+                        );
+                        contentIdCounter++;
+                    }
+                }
+
+                return Ok(new { Message = "Events processed successfully and CSV created.", CsvPath = csvFilePath });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in FetchCombinedEvents: {ex.Message}");
                 return StatusCode(500, "An error occurred while fetching events.");
             }
+        }
+
+        private string CleanField(string field)
+        {
+            if (string.IsNullOrEmpty(field)) return "";
+            field = field.Replace("\r", " ").Replace("\n", " ").Trim();
+            if (field.Contains(",") || field.Contains("\""))
+                return $"\"{field.Replace("\"", "\"\"")}\"";
+            return field;
+        }
+
+        private bool TryParseLocation(string location, out double latitude, out double longitude)
+        {
+            latitude = 0;
+            longitude = 0;
+            if (string.IsNullOrEmpty(location) || !location.Contains(",")) return false;
+            var parts = location.Split(',');
+            return double.TryParse(parts[0].Trim(), out latitude) && double.TryParse(parts[1].Trim(), out longitude);
         }
 
         // Endpoint for the frontend to access th csv file - TO BE MODIFIEF
