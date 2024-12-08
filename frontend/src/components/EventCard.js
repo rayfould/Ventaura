@@ -1,14 +1,13 @@
-// EventCard.js
-import React from 'react';
-
-// Import specific CSS modules
+// EventCard.jsx
+import React, { useState } from 'react';
 import eventCardStyles from '../styles/modules/EventCard.module.css';
-import layoutStyles from '../styles/layout.module.css';
 
 const EventCard = ({ event }) => {
-  // Format date to short format
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  // Formatting functions
   const formatDate = (dateString) => {
-    if (!dateString) return "NULL";
+    if (!dateString) return "N/A";
     const options = { 
       month: 'short',
       day: 'numeric',
@@ -18,51 +17,56 @@ const EventCard = ({ event }) => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
-  // Format price
   const formatPrice = (amount, currencyCode) => {
-    if (!amount || !currencyCode) return "NULL";
-    return `$${amount}`;
+    if (!amount || !currencyCode) return "Free";
+    return `${currencyCode}${amount}`;
   };
 
-  // Format distance
   const formatDistance = (distance) => {
-    if (!distance) return "NULL";
-    // Convert string to number and check if it's valid
+    if (!distance) return "N/A";
     const distanceNum = Number(distance);
-    if (isNaN(distanceNum)) return "NULL";
+    if (isNaN(distanceNum)) return "N/A";
     return `${distanceNum.toFixed(2)} km`;
   };
 
-  // Handle click event
-  const handleClick = () => {
-    if (event.url) {
-      window.open(event.url, '_blank', 'noopener,noreferrer');
-    }
-  }; 
-
-  // Add conditional classes based on event type
-  const cardClasses = `${eventCardStyles.eventCard} ${event.type ? eventCardStyles[`type${event.type.replace(/[^a-zA-Z0-9]/g, '')}`] : ''}`;
-
   return (
-    <div className={cardClasses} onClick={handleClick}>
+    <div 
+      className={`${eventCardStyles.eventCard} ${isFlipped ? eventCardStyles.flipped : ''}`} 
+      onClick={() => setIsFlipped(!isFlipped)}
+      role="button"
+      tabIndex={0}
+      onKeyPress={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          setIsFlipped(!isFlipped);
+        }
+      }}
+    >
       <div className={eventCardStyles.cardContent}>
+        {/* Front Face */}
         <div className={eventCardStyles.cardFront}>
-          <div className={eventCardStyles.typeIcon}>
-            {/* Icon based on event type */}
-            {event.typeIcon || '🎟️'}
-          </div>
-          <h3 className={layoutStyles.heading}>{event.title}</h3>
-          <div className={eventCardStyles.details}>
-            <p className={eventCardStyles.date}>{formatDate(event.start)}</p>
-            <p className={eventCardStyles.distance}>{formatDistance(event.distance)}</p>
-          </div>
+          <h3 className={eventCardStyles.title}>{event.title}</h3>
+          {/* Hover Hint */}
+          <div className={eventCardStyles.hoverHint}></div>
         </div>
+
+        {/* Back Face */}
         <div className={eventCardStyles.cardBack}>
-          {/* Additional details */}
-          <p className={eventCardStyles.description}>{event.description || "No description available."}</p>
-          <p className={eventCardStyles.price}>
-            {formatPrice(event.amount, event.currencyCode)}
-          </p>
+        <p className={eventCardStyles.description}>{event.description}</p>
+          <div className={eventCardStyles.details}>
+            <p><strong>Type:</strong> {event.type}</p>
+            <p><strong>Date:</strong> {formatDate(event.start)}</p>
+            <p><strong>Distance:</strong> {formatDistance(event.distance)}</p>
+            <p><strong>Price:</strong> {formatPrice(event.amount, event.currencyCode)}</p>
+            <a 
+              href={event.url} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className={eventCardStyles.link}
+              onClick={(e) => e.stopPropagation()}
+            >
+              More Info
+            </a>
+          </div>
         </div>
       </div>
     </div>

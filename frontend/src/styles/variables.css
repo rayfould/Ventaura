@@ -3,9 +3,9 @@
 
 :root {
   /* Theme colors */
-  --primary-rgb: 193, 73, 83;          /* Current: Red */
+  --primary-rgb: 193, 73, 83;        /* Current: Red 193, 73, 83; */
   --primary-light-rgb: 173, 53, 63;     /* Current: Light Red */
-  --secondary-rgb: 51, 65, 149;        /* Current: Dark Blue */
+  --secondary-rgb: 51, 65, 149;      /* Current: Dark Blue 51, 65, 149; */
   --accent-rgb: 100, 122, 163;         /* Current: Light Blue */
   --background-rgb: 245, 244, 245;     /* Current: Light Gray */
   --text-rgb: 15, 14, 14;              /* Current: Dark Gray */
