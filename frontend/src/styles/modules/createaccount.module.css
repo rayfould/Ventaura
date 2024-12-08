@@ -93,37 +93,44 @@
   }
   
 /* Preference and Dislike Buttons */
-
-.preference-button, 
-.dislike-button {
+/* Preference Buttons */
+.preference-button {
     background-color: var(--light-gray);
     color: var(--primary);
     padding: 0.5rem 1rem;
     border-radius: var(--radius-sm);
     cursor: pointer;
     text-align: center; 
-    width: 100%; 
-}
-  
-/* Style for selected preference buttons */
-.preference-button.selected {
-    background-color: #28a745; /* Green color for selected preferences */
-    color: var(--background); /* Ensure good contrast */
   }
   
-  /* Style for selected dislike buttons */
+  .preference-button.selected {
+    background-color: #28a745 !important; /* Use !important to guarantee this style */
+    color: var(--background) !important;  /* Ensure this color is applied */
+}
+  .preference-button:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  /* Dislike Buttons */
+  .dislike-button {
+    background-color: var(--light-gray);
+    color: var(--primary);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-align: center; 
+  }
+  
   .dislike-button.selected {
-    background-color: #dc3545; /* Red color for selected dislikes */
-    color: var(--background); /* Ensure good contrast */
-  }
-  
-
-.preference-button:hover, 
-.dislike-button:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+    background-color: #dc3545 !important; /* Use !important to guarantee this style */
+    color: var(--background) !important;  /* Ensure this color is applied */
 }
 
+  .dislike-button:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
   
   /* Center Preferences and Dislikes using grid */
   .grid-container {
@@ -255,6 +262,11 @@
     color: var(--background);
   }
 
+  /* Style for the selected price button */
+    .price-button.selected {
+        background-color: var(--secondary) !important; /* Blue color for selected price button */
+        color: var(--background) !important;
+    }
 
   .button-grid {
     display: grid;
