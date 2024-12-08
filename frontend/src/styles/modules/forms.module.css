@@ -65,3 +65,73 @@ button[type="submit"]:disabled {
 .link:hover {
     text-decoration: underline;
 }
+
+/* Login page addition */
+.login-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: var(--background);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.heading {
+    text-align: center; /* Center the 'Login' heading */
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    color: var(--error);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    text-align: center; /* Center the error message */
+}
+
+.helper-text {
+    text-align: center; /* Center 'Don't have an account?' */
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+.helper-text a {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+/* Center Preferences and Dislikes using grid */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    justify-content: center; /* Center the entire grid */
+    gap: 0.5rem; /* Space between buttons */
+    width: 100%; /* Full width of container */
+}
+  
+.preference-button, 
+.dislike-button {
+    background-color: var(--light-gray);
+    color: var(--primary);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-align: center; 
+}
+  
+.preference-button.selected, 
+.dislike-button.selected {
+    background-color: var(--primary);
+    color: var(--background);
+}
+
+.account-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: var(--background);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}

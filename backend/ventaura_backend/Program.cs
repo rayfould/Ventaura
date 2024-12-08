@@ -1,25 +1,27 @@
-/* This file is the main entry point for the Ventaura application's backend, 
-configuring and starting the web server. It sets up services, middleware, and the application's 
-routing. It ensures proper integration of database, API services, CORS policies, and development 
-tools like Swagger for API documentation. */
+/* 
+This file is the main entry point for the Ventaura application's backend, responsible for initializing 
+the web server, configuring services, middleware, and routing. It integrates the database, sets up 
+API services for external data fetches, defines CORS policies for frontend-backend communication, 
+and configures development tools like Swagger for API documentation. Additionally, it includes 
+integration with Stripe for payment handling, serving static files, and handling checkout sessions. 
+Once everything is configured, it runs the application.
+*/
 
 using Microsoft.EntityFrameworkCore;
 using ventaura_backend.Data; // For DatabaseContext 
 using ventaura_backend.Services; // For TicketmasterService, AmadeusService, and CombinedAPIService
-
-//for Stripe things
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
 using System.IO;
 
-//Loads .env for Stripe
+// Loads environment variables from .env (used for Stripe keys, etc.)
 DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load environment variables into the configuration, this is for Stripe
+// Configure Stripe options by loading environment variables.
 builder.Services.Configure<StripeOptions>(options =>
 {
     options.PublishableKey = Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY");
@@ -29,10 +31,10 @@ builder.Services.Configure<StripeOptions>(options =>
     options.Domain = Environment.GetEnvironmentVariable("DOMAIN");
 });
 
-// Add services to the container.
-builder.Services.AddControllers(); // Enables the use of controllers in the application.
+// Add controllers to the service container, enabling the use of MVC/Web API endpoints.
+builder.Services.AddControllers();
 
-// Register the DatabaseContext with the connection string from appsettings.json
+// Register the DatabaseContext with a connection string, including retry logic for transient failures.
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), options =>
         options.EnableRetryOnFailure(
@@ -40,46 +42,50 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
             maxRetryDelay: TimeSpan.FromSeconds(10),
             errorCodesToAdd: null)));
 
-// Register application services for dependency injection.
-builder.Services.AddScoped<TicketmasterService>(); // Service for Ticketmaster API interactions.
-builder.Services.AddScoped<AmadeusService>(); // Service for Amadeus API interactions.
-builder.Services.AddScoped<CombinedAPIService>(); // Service for combining API results.
+// Register application services for dependency injection:
+// - TicketmasterService and AmadeusService handle external event data retrieval.
+// - CombinedAPIService merges various event sources into a unified view.
+builder.Services.AddScoped<TicketmasterService>();
+builder.Services.AddScoped<AmadeusService>();
+builder.Services.AddScoped<CombinedAPIService>();
 
-// Add CORS policy to allow cross-origin requests (useful for frontend-backend integration).
+// Add a general CORS policy allowing any origin, method, and header.
+// This broad policy is useful for development and may be restricted in production.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin() // Allow requests from any origin.
-              .AllowAnyMethod() // Allow any HTTP method (e.g., GET, POST).
-              .AllowAnyHeader(); // Allow any HTTP headers.
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
-// Register HttpClient for making HTTP requests to external APIs.
+// Register HttpClient and named HttpClients to facilitate external API calls.
+// This includes GoogleGeocodingService and YelpFusionService for geocoding and Yelp data retrieval.
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<GoogleGeocodingService>();
 builder.Services.AddHttpClient<YelpFusionService>();
 
-// Register Swagger for API documentation and testing.
+// Enable Swagger for API documentation and interactive testing of endpoints.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Register a named HttpClient for the RankingAPI with a specified base address.
 builder.Services.AddHttpClient("RankingAPI", client =>
 {
     client.BaseAddress = new Uri("http://localhost:8000");
 });
 
-// Register Ranking service
+// Register the RankingService for event ranking logic.
 builder.Services.AddScoped<RankingService>();
 
-
-//Allows access of this for our frontend
+// Add another CORS policy specifically for the React frontend (e.g., http://localhost:3000).
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", builder =>
     {
-        builder.WithOrigins("http://localhost:3000") // React development server URL
+        builder.WithOrigins("http://localhost:3000")
                .AllowAnyMethod()
                .AllowAnyHeader();
     });
@@ -87,29 +93,30 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Use the configured CORS policy.
+// Use the general "AllowAll" CORS policy defined earlier.
 app.UseCors("AllowAll");
 
-// Stripe secret key to enable functionality
+// Configure Stripe with the secret key from environment variables.
 StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
 
-//Get price variable from .env
+// Retrieve the price from environment variables for use in Stripe sessions.
 var price = Environment.GetEnvironmentVariable("PRICE");
 
-// Configure the HTTP request pipeline for development and production environments.
+// In development, show detailed error pages.
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage(); // Show detailed error pages in development mode.
+    app.UseDeveloperExceptionPage();
 }
 
+// Also in development, use Swagger and its UI for testing API endpoints.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(); // Enable Swagger for API documentation.
-    app.UseSwaggerUI(); // Serve Swagger UI for easy API testing.
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-//ALL OF THE BELOW UNTIL ALL CAPS IS FOR STRIPE, NEWLY ADDED BY SAM
-// Serve static files (if applicable)
+// The following code handles Stripe integration and static file serving.
+// It serves static files from a directory specified by the STATIC_DIR environment variable.
 app.UseStaticFiles(new StaticFileOptions()
 {
     FileProvider = new PhysicalFileProvider(
@@ -119,10 +126,10 @@ app.UseStaticFiles(new StaticFileOptions()
     RequestPath = new PathString("")
 });
 
-// Serve the HTML for the frontend
+// Define a GET endpoint to redirect the root ("/") to "index.html".
 app.MapGet("/", () => Results.Redirect("index.html"));
 
-// Get session details from Stripe
+// Retrieve details of a Stripe checkout session by ID.
 app.MapGet("checkout-session", async (string sessionId) =>
 {
     var service = new SessionService();
@@ -130,7 +137,7 @@ app.MapGet("checkout-session", async (string sessionId) =>
     return Results.Ok(session);
 });
 
-// Handle creating a checkout session
+// Create a new Stripe checkout session using parameters set in StripeOptions.
 app.MapPost("/api/create-checkout-session", async (IOptions<StripeOptions> options, HttpContext context) =>
 {
     var sessionOptions = new SessionCreateOptions
@@ -151,16 +158,18 @@ app.MapPost("/api/create-checkout-session", async (IOptions<StripeOptions> optio
     var service = new SessionService();
     var session = await service.CreateAsync(sessionOptions);
     context.Response.Headers.Add("Location", session.Url);
-    return Results.StatusCode(303);
+    return Results.StatusCode(303); // Redirect to the Stripe hosted checkout page.
 });
 
+// Use the React-specific CORS policy if needed.
 app.UseCors("AllowReactApp");
 
-//THIS IS THE END OF WHAT SAM NEWLY ADDED
+// Enable endpoint routing and authorization middleware.
+app.UseRouting();
+app.UseAuthorization();
 
-app.UseRouting(); // Enable endpoint routing.
-app.UseAuthorization(); // Enable authorization middleware (if required).
+// Map the controllers defined in the application to routes.
+app.MapControllers();
 
-app.MapControllers(); // Map controller routes.
-
-app.Run(); // Start the application.
+// Start the application and listen for incoming requests.
+app.Run();

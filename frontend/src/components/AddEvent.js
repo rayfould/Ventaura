@@ -8,13 +8,12 @@ import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 
-
 const AddEvent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleManualLogout = () => {
-    // Handle logout logic here (optional, based on your app's requirements)
+    // Handle logout logic here if needed
     alert("Logged out (logout logic not implemented).");
     navigate("/login");
   };
@@ -24,65 +23,79 @@ const AddEvent = () => {
       {/* Header */}
       <header className={layoutStyles.header}>
         <button
-          className={buttonStyles.sidebarButton}
+          className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`}
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          aria-label="Toggle Sidebar"
         >
-          ☰
+          {/* This button is styled to show/hide the sidebar, no icon text needed as styling might handle it */}
         </button>
-        {/* Settings Icon Button */}
-        <button
-          className={buttonStyles.settingsButton}
-          onClick={() => navigate("/settings")}
-        >
-          ⚙️
-        </button>
+        <h1 className={layoutStyles['header-title']}>Add Your Own Event</h1>
+        <div className={layoutStyles['header-right']}>
+          <button 
+            className={buttonStyles['settings-button']} 
+            onClick={() => navigate("/settings")}
+            aria-label="Go to Settings"
+          >
+            ⚙️
+          </button>
+        </div>
       </header>
 
       {/* Sidebar */}
       <div className={`${layoutStyles.sidebar} ${isSidebarOpen ? layoutStyles.open : ''}`}>
-        <button 
-          className={buttonStyles.closeSidebar} 
+        <button
+          className={buttonStyles['close-sidebar']}
           onClick={() => setIsSidebarOpen(false)}
-        >
-          X
-        </button>
-        <Link to="/for-you" className={navigationStyles.sidebarLink}>
+          aria-label="Close Sidebar"
+        />
+        <Link to="/for-you" className={navigationStyles['sidebar-link']}>
           For You
         </Link>
-        <Link to="/about-us" className={navigationStyles.sidebarLink}>
+        <Link to="/about-us" className={navigationStyles['sidebar-link']}>
           About Us
         </Link>
-        <Link to="/contact-us" className={navigationStyles.sidebarLink}>
+        <Link to="/contact-us" className={navigationStyles['sidebar-link']}>
           Contact Us
         </Link>
-        <Link to="/post-event-page" className={navigationStyles.sidebarLink}>
+        <Link to="/post-event-page" className={navigationStyles['sidebar-link']}>
           Post An Event
         </Link>
         <button 
           onClick={handleManualLogout} 
-          className={navigationStyles.sidebarLink}
+          className={buttonStyles['logout-button']}
         >
           Logout
         </button>
       </div>
-      
-      {/* Main Content */}
-      <div className={layoutStyles.container}>
-        <h2 className={layoutStyles.heading}>Add Event Here:</h2>
 
-        <form 
+      {/* Main Content */}
+      <main className={layoutStyles.container}>
+        <p className={formsStyles.formDescription}>
+          By posting your event here, you gain affordable, effective advertising 
+          that reaches a wide audience. We’ll match your event with users whose 
+          preferences align with what you offer, ensuring that the right people 
+          discover it.
+        </p>
+        <p className={formsStyles.formDescription}>
+          To add a new event, please proceed with the payment process.
+        </p>
+        <p className={formsStyles.formDescription}>
+          Once the payment is completed, you’ll be redirected to fill out your event details.
+        </p>
+
+        <form
           className={formsStyles.form}
-          action="http://localhost:5152/api/create-checkout-session" 
+          action="http://localhost:5152/api/create-checkout-session"
           method="POST"
         >
           <button 
             type="submit" 
-            className={buttonStyles.button} 
+            className={buttonStyles.primaryButton}
           >
             Make Payment
           </button>
         </form>
-      </div>
+      </main>
     </div>
   );
 };

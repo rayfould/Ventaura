@@ -1,3 +1,5 @@
+/*  This file is unused now but has been kept for evidence of work. It is an API controller for Amadeus. */
+
 // using Microsoft.AspNetCore.Mvc;
 // using combinedapi.Data;
 // using combinedapi.Services;

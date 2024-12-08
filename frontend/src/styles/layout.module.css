@@ -227,3 +227,27 @@
     cursor: pointer;
     z-index: var(--z-sidebar);
 }
+
+/* About us page additions */
+.center-content {
+    text-align: center;
+}
+  
+.text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+  
+.header-title {
+    color: var(--background); /* White text on blue background */
+    font-size: 2rem; 
+    text-align: center;
+    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+  
+

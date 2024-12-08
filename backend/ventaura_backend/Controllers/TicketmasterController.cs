@@ -1,3 +1,6 @@
+/* This page has been replace by the CombinedEventsController.cs but has been preserved for histrory of work. 
+It isn't currently used in the running of the app. */
+
 /* using Microsoft.AspNetCore.Mvc;
 using combinedapi.Data;
 using combinedapi.Services;
