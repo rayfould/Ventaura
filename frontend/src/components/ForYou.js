@@ -26,6 +26,8 @@ const ForYou = () => {
   const [csvData, setCsvData] = useState([]);
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0); 
+  const [userLocation, setUserLocation] = useState('Loading...');
+  const [coordinates, setCoordinates] = useState(null);
    
 
   // Form data state for handling form input
@@ -220,6 +222,34 @@ const ForYou = () => {
     });
   };
 
+  // Add this useEffect to get location
+useEffect(() => {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        setCoordinates({ latitude, longitude });
+        
+        // Optional: Convert coordinates to city name using reverse geocoding
+        try {
+          const response = await fetch(
+            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=YOUR_API_KEY`
+          );
+          const data = await response.json();
+          if (data.results[0]) {
+            setUserLocation(data.results[0].components.city);
+          }
+        } catch (error) {
+          setUserLocation('Location unavailable');
+        }
+      },
+      () => {
+        setUserLocation('Location unavailable');
+      }
+    );
+  }
+}, []);
+
   const testEvent = {
     title: "Test Event",
     type: "Concert",
@@ -269,6 +299,11 @@ const ForYou = () => {
       <header 
       className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
     >
+
+      <div className={layoutStyles['location-container']}>
+          <span className={layoutStyles['location-icon']}>📍</span>
+          <span className={layoutStyles['location-text']}>{userLocation}</span>
+      </div>
       {/* Sidebar Toggle Button */}
       <button 
         className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
@@ -303,8 +338,8 @@ const ForYou = () => {
           className={buttonStyles['settings-button']} 
           onClick={() => navigate("/settings")}
           aria-label="Settings"
-        >
-          ⚙️
+        >  
+          👤
         </button>
         <button 
           className={buttonStyles['open-sidebar-right']} 

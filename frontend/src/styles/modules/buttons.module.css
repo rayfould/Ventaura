@@ -114,17 +114,27 @@
 
 /* Settings Button */
 .settings-button {
-  position: absolute;
+  position: fixed;
   top: var(--space-md);
   right: 70px;
   padding: var(--space-md);
   color: var(--background);
-  border-radius: 50%;
-  font-size: 20px;
+  border-radius: var(--radius-xs);  /* Changed from 50% to square with slight rounding */
+  font-size: 32px;
   z-index: var(--z-header);
   cursor: pointer;
   background-color: var(--primary);
   transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;  /* Fixed width */
+  height: 60px; /* Fixed height */
+}
+
+.settings-button:hover {
+  background-color: var(--secondary);
+  transform: translateY(-1px);
 }
 
 .settings-button:hover {

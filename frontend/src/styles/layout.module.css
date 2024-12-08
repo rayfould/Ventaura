@@ -28,7 +28,7 @@
     z-index: var(--z-header);
     height: 200px;
     transition: top 0.3s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .5);
 }
 
 /* Hidden Header */
@@ -156,6 +156,24 @@
 .landing-container {
     text-align: center;
     padding: var(--space-xl);
+}
+.location-container{
+    position: absolute;
+    left: 10%;
+    top: 80%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.location-icon {
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 2s infinite;
 }
 
 .add-event-container {

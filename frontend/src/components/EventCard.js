@@ -1,7 +1,8 @@
 // EventCard.jsx
 import React, { useState } from 'react';
 import eventCardStyles from '../styles/modules/EventCard.module.css';
-
+import eventIcons from '../assets/icons/eventIcons';
+import Other from '../assets/icons/Other.png'; // Import the fallback icon (optional, if not included in eventIcons)
 const EventCard = ({ event }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -22,12 +23,24 @@ const EventCard = ({ event }) => {
     return `${currencyCode}${amount}`;
   };
 
+  const truncateTitle = (title = '') => {
+    const maxLength = 30;
+    if (!title || title.length <= maxLength) return title || 'Untitled Event';
+    return `${title.substring(0, maxLength)}...`;
+  };
+
   const formatDistance = (distance) => {
     if (!distance) return "N/A";
     const distanceNum = Number(distance);
     if (isNaN(distanceNum)) return "N/A";
     return `${distanceNum.toFixed(2)} km`;
   };
+
+  const getIcon = (type) => {
+    // Normalize the type string to match the keys in eventIcons
+    return eventIcons[type] || Other;
+  };
+
 
   return (
     <div 
@@ -44,9 +57,16 @@ const EventCard = ({ event }) => {
       <div className={eventCardStyles.cardContent}>
         {/* Front Face */}
         <div className={eventCardStyles.cardFront}>
-          <h3 className={eventCardStyles.title}>{event.title}</h3>
-          {/* Hover Hint */}
-          <div className={eventCardStyles.hoverHint}></div>
+          <div className={eventCardStyles.imageContainer}>
+            <img 
+              src={getIcon(event.type)} 
+              alt={`${event.type} icon`} 
+              className={eventCardStyles.eventIcon} 
+            />
+          </div>
+          <div className={eventCardStyles.titleContainer}>
+            <h3 className={eventCardStyles.title}>{truncateTitle(event.title)}</h3>
+          </div>
         </div>
 
         {/* Back Face */}

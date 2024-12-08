@@ -2,7 +2,7 @@
 .eventCard {
   width: 100%;
   max-width: 300px; /* Ensure responsiveness */
-  height: 250px; /* Adjust height as needed */
+  height: 300px; /* Adjust height as needed */
   perspective: 1000px; /* Enable 3D space for children */
   cursor: pointer;
   position: relative;
@@ -33,7 +33,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 10px;
+  padding: 0px;
   box-sizing: border-box;
 }
 
@@ -55,12 +55,25 @@
   justify-content: center;
 }
 
+.imageContainer {
+  width: 100%;
+  height: 90%; /* 90% of card height */
+  position: relative;
+  background-color: #f0f0f0; /* Placeholder color */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .eventImage {
   width: 100%;
   height: 150px;
   object-fit: cover;
   border-radius: 8px;
 }
+
+
+
 
 .frontInfo {
   position: relative;
@@ -70,11 +83,23 @@
   align-items: center;
 }
 
+
+.titleContainer {
+  height: 30%; /* 10% of card height */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  background: white;
+}
+
 .title {
   margin: 10px 0 0 0;
   font-size: 1.2rem;
   color: hsla(216, 44%, 25%, 1); /* delft-blue */
   text-align: center;
+  max-width: 90%;
 }
 
 .typeIcon {
@@ -95,6 +120,11 @@
 
 .detail {
   font-size: 0.8rem;
+}
+
+.link {
+  color: white;
+  font-weight: bold;
 }
 
 .hoverHint {
@@ -147,4 +177,10 @@
   .detail {
     font-size: 0.7rem;
   }
+}
+
+.eventIcon {
+  width: 75%;
+  height: auto;
+  
 }
