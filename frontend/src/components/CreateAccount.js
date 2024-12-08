@@ -7,22 +7,6 @@ import layoutStyles from '../styles/layout.module.css';
 import createAccountStyles from '../styles/modules/createaccount.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
 
-// **Preference & Dislike Mapping**
-const preferenceMapping = {
-  "Festivals": "festivals-fairs",
-  "Outdoors": "sports-active-life",
-  "Exhibitions": "visual-arts",
-  "Community": "charities",
-  "Theater": "performing-arts",
-  "Family": "kids-family",
-  "Wellness": "sports-active-life",
-  "Food and Drink": "food-and-drink",
-  "Music": "music",
-  "Film": "film",
-  "Nightlife": "nightlife",
-  "Other": "other"
-};
-
 const uniqueOptions = [
   "Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
   "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
@@ -110,22 +94,14 @@ const CreateAccount = () => {
       return;
     }
 
-    const mappedPreferences = formData.preferences.map(preference => 
-      preferenceMapping[preference] || preference
-    );
-
-    const mappedDislikes = formData.dislikes.map(dislike => 
-      preferenceMapping[dislike] || dislike
-    );
-
     const requestData = {
       ...formData,
+      preferences: formData.preferences.join(", "), 
+      dislikes: formData.dislikes.join(", "),
       latitude: Number(formData.latitude),
       longitude: Number(formData.longitude),
       priceRange: formData.priceRange.toString(),
       maxDistance: Number(formData.maxDistance),
-      preferences: mappedPreferences.join(", "),
-      dislikes: mappedDislikes.join(", "),
       passwordHash: formData.password,
       isLoggedIn: false,
     };
