@@ -84,6 +84,7 @@
     margin: 0 auto;
     padding: 1rem;
     max-width: 1500px;
+    margin-top: 4rem;
 }
 
 .container {
@@ -94,6 +95,7 @@
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
+    margin-top: 5rem;
 }
 
 /* Grid Layouts */
@@ -222,7 +224,7 @@
 }
   
 .header-title {
-    color: var(--background); /* White text on blue background */
+    color: var(--primary); /* White text on blue background */
     font-size: 2rem; 
     text-align: center;
     margin: 0 auto;
