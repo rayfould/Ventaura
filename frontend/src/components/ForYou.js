@@ -163,9 +163,14 @@ const ForYou = () => {
   };
 
   useEffect(() => {
-    const hardcodedUserId = 1; // Hardcode userId for testing
-    console.log("========= START DEBUG =========");
-    console.log("Using hardcoded userId:", hardcodedUserId);
+    const actualUserId = localStorage.getItem("userId");
+      if (!actualUserId) {
+        console.log("USER ID NOT FOUND. RETURNING TO LOGIN");
+        navigate("/login");
+        return;
+      }
+    console.log("========= FILLING OUT MAIN PAGE =========");
+    console.log("Using userId:", actualUserId);
   
     const fetchCSVData = async () => {
       try {
@@ -173,12 +178,12 @@ const ForYou = () => {
         
         // First API call with hardcoded userId
         console.log("Making first API call to /fetch");
-        const fetchResponse = await axios.get(`http://localhost:5152/api/combined-events/fetch?userId=${hardcodedUserId}`);
+        const fetchResponse = await axios.get(`http://localhost:5152/api/combined-events/fetch?userId=${actualUserId}`);
         console.log("📥 Fetch Response:", fetchResponse.data);
         
         // Second API call with hardcoded userId
         console.log("Making second API call to /get-csv");
-        const csvResponse = await axios.get(`http://localhost:5152/api/combined-events/get-csv?userId=${hardcodedUserId}`);
+        const csvResponse = await axios.get(`http://localhost:5152/api/combined-events/get-csv?userId=${actualUserId}`);
         console.log("📄 Got CSV data");
         
         Papa.parse(csvResponse.data, {
