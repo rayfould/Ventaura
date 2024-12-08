@@ -17,7 +17,7 @@ import logoFull from '../assets/ventaura-logo-semi-full.png';
 const ForYou = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userId } = location.state || {};
+  const [userId, setUserId] = useState(localStorage.getItem("userId"));
   const [events, setEvents] = useState([]);
   const [message, setMessage] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -111,22 +111,25 @@ const ForYou = () => {
   }, [userId, navigate]);
 
   const handleManualLogout = async () => {
-    const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
-
     if (!userId) {
       alert("No user ID found in local storage.");
       return;
     }
-
+  
     try {
       const response = await axios.post(
         `http://localhost:5152/api/combined-events/logout?userId=${userId}`
       );
-
-      // Remove the userId from localStorage
+  
+      // Check if response.data is defined and has a Message property
+      if (response.data && response.data.Message) {
+        alert(response.data.Message);
+      } else {
+        alert("Logout successful");
+      }
+  
+      // Remove userId from localStorage
       localStorage.removeItem("userId");
-
-      alert(response.data.Message);
       navigate("/login");
     } catch (error) {
       if (error.response) {
@@ -136,6 +139,7 @@ const ForYou = () => {
       }
     }
   };
+  
 
   const handlePreferenceToggle = (preference) => {
     setFormData((prevData) => {
@@ -305,10 +309,6 @@ useEffect(() => {
       className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
     >
 
-      <div className={layoutStyles['location-container']}>
-          <span className={layoutStyles['location-icon']}>📍</span>
-          <span className={layoutStyles['location-text']}>{userLocation}</span>
-      </div>
       {/* Sidebar Toggle Button */}
       <button 
         className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
@@ -334,6 +334,12 @@ useEffect(() => {
           className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
         >
           Global
+        </button>
+        <button 
+          onClick={() => navigate('/post-event-page')} 
+          className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
+        >
+          Post Event
         </button>
       </div>
 
@@ -386,9 +392,6 @@ useEffect(() => {
               </Link>
               <Link to="/contact-us" className={navigationStyles['sidebar-link']} onClick={() => setIsSidebarOpen(false)}>
                 Contact Us
-              </Link>
-              <Link to="/post-event-page" className={navigationStyles['sidebar-link']} onClick={() => setIsSidebarOpen(false)}>
-                Post An Event
               </Link>
             </div>
           </div>
