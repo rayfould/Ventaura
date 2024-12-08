@@ -247,7 +247,7 @@ const ForYou = () => {
             onClick={() => navigate('/global-page')} 
             className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
           >
-            Global Page
+            Global
           </button>
         </div>
         <div className={layoutStyles['header-right']}>

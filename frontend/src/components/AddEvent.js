@@ -20,7 +20,7 @@ const AddEvent = () => {
   };
 
   return (
-    <div className={layoutStyles.pageContainer}>
+    <div className={layoutStyles['page-container']}>
       {/* Header */}
       <header className={layoutStyles.header}>
         <button
