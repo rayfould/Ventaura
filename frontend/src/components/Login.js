@@ -85,21 +85,7 @@ const Login = () => {
 
   return (
     <div className={layoutStyles['page-container']}>
-      {/* Header */}
-      <header className={layoutStyles.header}>
-        <button 
-          className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-          aria-label="Toggle Sidebar"
-        >
-        </button>
-        <h1 className={layoutStyles['header-title']}>About Us</h1>
-        <div className={layoutStyles['header-right']}>
-          <button className={buttonStyles['settings-button']} onClick={() => navigate("/settings")}>
-            ⚙️
-          </button>
-        </div>
-      </header>
+      
       <div className={formsStyles['login-container']}>
         <h2 className={formsStyles['heading']}>Login</h2>
 

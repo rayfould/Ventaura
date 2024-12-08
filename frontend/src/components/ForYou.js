@@ -305,10 +305,6 @@ useEffect(() => {
       className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
     >
 
-      <div className={layoutStyles['location-container']}>
-          <span className={layoutStyles['location-icon']}>📍</span>
-          <span className={layoutStyles['location-text']}>{userLocation}</span>
-      </div>
       {/* Sidebar Toggle Button */}
       <button 
         className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
@@ -334,6 +330,12 @@ useEffect(() => {
           className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
         >
           Global
+        </button>
+        <button 
+          onClick={() => navigate('/post-event-page')} 
+          className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
+        >
+          Post Event
         </button>
       </div>
 
@@ -386,9 +388,6 @@ useEffect(() => {
               </Link>
               <Link to="/contact-us" className={navigationStyles['sidebar-link']} onClick={() => setIsSidebarOpen(false)}>
                 Contact Us
-              </Link>
-              <Link to="/post-event-page" className={navigationStyles['sidebar-link']} onClick={() => setIsSidebarOpen(false)}>
-                Post An Event
               </Link>
             </div>
           </div>
