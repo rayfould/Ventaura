@@ -8,6 +8,14 @@ import layoutStyles from '../styles/layout.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
 
+// Expanded list of event types
+const eventTypes = [
+  "Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
+  "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
+  "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", "Charity", 
+  "Science", "Basketball", "Pottery", "Tennis", "Soccer", "Football", 
+  "Fishing", "Hiking"
+];
 
 const Success = () => {
   const [formData, setFormData] = useState({
@@ -20,6 +28,7 @@ const Success = () => {
     price: "",
     contactInfo: "",
   });
+
   const [message, setMessage] = useState("");
   const navigate = useNavigate(); // Initialize navigate hook
 
@@ -45,8 +54,7 @@ const Success = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you can handle form submission to add the event to the database
-    // For now, we'll just redirect to the /for-you page
+    // Handle form submission (e.g., POST to your backend)
     navigate("/for-you");
   };
 
@@ -120,6 +128,7 @@ const Success = () => {
               />
             </div>
 
+            {/* Replace the hardcoded options with a map over eventTypes */}
             <div className={formsStyles.formGroup}>
               <label className={formsStyles.label}>Event Type:</label>
               <select
@@ -130,15 +139,9 @@ const Success = () => {
                 required
               >
                 <option value="">Select event type</option>
-                <option value="Festival-Fairs">Festival/Fair</option>
-                <option value="Music">Music</option>
-                <option value="Performing-Arts">Performing Arts</option>
-                <option value="Sports-Active-Life">Sports/Active Life</option>
-                <option value="Nightlife">Nightlife</option>
-                <option value="Film">Film</option>
-                <option value="Kids-Family">Kids/Family</option>
-                <option value="Food-And-Drink">Food And Drink</option>
-                <option value="Other">Other</option>
+                {eventTypes.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
               </select>
             </div>
 
@@ -179,3 +182,4 @@ const Success = () => {
 };
 
 export default Success;
+
