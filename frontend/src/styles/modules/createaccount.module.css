@@ -1,0 +1,273 @@
+/* Main container for the Create Account form */
+.create-account-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 2rem auto;
+    text-align: center;
+  }
+  
+  .create-account-heading {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .create-account-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    width: 100%; 
+    max-width: 800px; /* Ensure alignment with preferences and dislikes */
+    margin-top: 2rem;
+}
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-input, 
+  .form-select, 
+  textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--light-gray);
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+  }
+  
+  .form-input:focus, 
+  .form-select:focus, 
+  textarea:focus {
+    border-color: var(--primary);
+  }
+  
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .submit-button {
+    background-color: var(--primary);
+    color: var(--background);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 50%; 
+    text-align: center;
+  }
+  
+  .submit-button:hover {
+    background-color: var(--secondary);
+  }
+  
+  .submit-button:active {
+    transform: scale(0.98);
+  }
+  
+  .message {
+    font-size: 1.2rem;
+    color: var(--primary);
+    text-align: center;
+  }
+  
+/* Preference and Dislike Buttons */
+
+.preference-button, 
+.dislike-button {
+    background-color: var(--light-gray);
+    color: var(--primary);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-align: center; 
+    width: 100%; 
+}
+  
+/* Style for selected preference buttons */
+.preference-button.selected {
+    background-color: #28a745; /* Green color for selected preferences */
+    color: var(--background); /* Ensure good contrast */
+  }
+  
+  /* Style for selected dislike buttons */
+  .dislike-button.selected {
+    background-color: #dc3545; /* Red color for selected dislikes */
+    color: var(--background); /* Ensure good contrast */
+  }
+  
+
+.preference-button:hover, 
+.dislike-button:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+  
+  /* Center Preferences and Dislikes using grid */
+  .grid-container {
+    width: 100%; 
+    max-width: 800px; /* Ensure consistent width with the form */
+    margin-bottom: 2rem; 
+}
+  
+  .grid-container button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    text-align: center;
+    background-color: var(--light-gray);
+    color: var(--primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  
+  .grid-container button.selected {
+    background-color: var(--primary);
+    color: var(--background);
+  }
+  
+  .grid-container button:hover {
+    background-color: var(--secondary);
+    color: var(--background);
+    transform: translateY(-2px);
+  }
+  
+  /* Style for price range and max distance sliders */
+  .range-section {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+  
+  .range-label {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .range-slider {
+    width: 100%;
+  }
+  
+  .range-value {
+    font-size: 1rem;
+    color: var(--primary);
+    font-weight: bold;
+    margin-top: 0.25rem;
+    text-align: center;
+  }
+  
+  /* Centered and styled the buttons */
+  .create-account-button {
+    background-color: var(--primary);
+    color: var(--background);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%; 
+    text-align: center;
+  }
+  
+  .create-account-button:hover {
+    background-color: var(--secondary);
+  }
+  
+  .create-account-button:active {
+    transform: scale(0.98);
+  }
+  
+  /* Style for the message that appears on submission */
+  .message {
+    font-size: 1.2rem;
+    color: var(--primary);
+    text-align: center;
+  }
+  
+  .error-message {
+    color: var(--error);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .helper-text {
+    text-align: center; 
+    font-size: 0.9rem;
+    margin-top: 1rem;
+  }
+  
+  .helper-text a {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+  
+  /* Price Range Section */
+.price-range-section {
+    margin-top: 1rem;
+    text-align: center;
+  }
+  
+  .price-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  
+  .price-button {
+    padding: 0.5rem 1rem;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    background-color: var(--light-gray);
+    color: var(--primary);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .price-button:hover {
+    background-color: var(--secondary);
+    color: var(--background);
+  }
+
+
+  .button-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 6 buttons per row */
+    gap: 0.5rem; /* Space between buttons */
+    justify-content: center; /* Center the button group */
+    width: 100%; /* Full width of container */
+  }
+
+.subheading {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem; /* Space between the heading and buttons */
+    color: var(--primary);
+    text-align: center; /* Center the heading */
+  }

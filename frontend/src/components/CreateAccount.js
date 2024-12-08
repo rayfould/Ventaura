@@ -1,13 +1,11 @@
-// CreateAccount.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 // Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
-import formsStyles from '../styles/modules/forms.module.css';
+import createAccountStyles from '../styles/modules/createaccount.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
-import postEventStyles from '../styles/modules/postevent.module.css';
 
 // **Preference & Dislike Mapping**
 const preferenceMapping = {
@@ -26,8 +24,10 @@ const uniqueOptions = [
   "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
   "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", "Charity", 
   "Science", "Basketball", "Pottery", "Tennis", "Soccer", "Football", 
-  "Fishing", "Hiking"
+  "Fishing", "Hiking", "Other"
 ];
+
+const priceOptions = ["$", "$$", "$$$", "Irrelevant"]; // **Defined priceOptions**
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
@@ -39,8 +39,9 @@ const CreateAccount = () => {
     preferences: [],
     dislikes: [],
     priceRange: 50,
-    maxDistance: 10,
+    maxDistance: "",
     password: "",
+    confirmPassword: "", // New confirm password field
   });
 
   const [message, setMessage] = useState("");
@@ -90,17 +91,21 @@ const CreateAccount = () => {
     });
   };
 
-  const handleSliderChange = (e) => {
+  const handlePriceRangeSelect = (price) => {
     setFormData((prevData) => ({
       ...prevData,
-      [e.target.name]: e.target.value,
+      priceRange: price, // Set only one option at a time
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Map preferences and dislikes according to the preferenceMapping object
+    if (formData.password !== formData.confirmPassword) {
+      setMessage("Passwords do not match.");
+      return;
+    }
+
     const mappedPreferences = formData.preferences.map(preference => 
       preferenceMapping[preference] || preference
     );
@@ -109,7 +114,6 @@ const CreateAccount = () => {
       preferenceMapping[dislike] || dislike
     );
 
-    // Prepare the data to send
     const requestData = {
       ...formData,
       latitude: Number(formData.latitude),
@@ -141,16 +145,17 @@ const CreateAccount = () => {
   };
 
   return (
-    <div className={postEventStyles['post-event-container']}>
-      <h2 className={postEventStyles['post-event-heading']}>Create Account</h2>
-      <form onSubmit={handleSubmit} className={postEventStyles['post-event-form']}>
+    <div className={createAccountStyles['create-account-container']}>
+      <h2 className={createAccountStyles['create-account-heading']}>Create Account</h2>
+
+      <form onSubmit={handleSubmit} className={createAccountStyles['create-account-form']}>
         <input
           type="email"
           name="email"
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          className={postEventStyles['form-input']}
+          className={createAccountStyles['form-input']}
           required
         />
         <input
@@ -159,7 +164,7 @@ const CreateAccount = () => {
           placeholder="First Name"
           value={formData.firstName}
           onChange={handleChange}
-          className={postEventStyles['form-input']}
+          className={createAccountStyles['form-input']}
           required
         />
         <input
@@ -168,19 +173,19 @@ const CreateAccount = () => {
           placeholder="Last Name"
           value={formData.lastName}
           onChange={handleChange}
-          className={postEventStyles['form-input']}
+          className={createAccountStyles['form-input']}
           required
         />
 
-        <div className={postEventStyles['form-group']}>
-          <h3 className={formsStyles.subheading}>Select Preferences:</h3>
-          <div className={formsStyles['grid-container']}>
+        <div className={createAccountStyles['grid-container']}>
+          <h3 className={createAccountStyles['subheading']}>Select Preferences:</h3> 
+          <div className={createAccountStyles['button-grid']}>
             {uniqueOptions.map((preference) => (
               <button
                 type="button"
                 key={preference}
                 onClick={() => handlePreferenceToggle(preference)}
-                className={`${buttonStyles['preference-button']} ${formData.preferences.includes(preference) ? buttonStyles['selected'] : ''}`}
+                className={`${createAccountStyles['preference-button']} ${formData.preferences.includes(preference) ? createAccountStyles['selected'] : ''}`}
               >
                 {preference}
               </button>
@@ -188,15 +193,15 @@ const CreateAccount = () => {
           </div>
         </div>
 
-        <div className={postEventStyles['form-group']}>
-          <h3 className={formsStyles.subheading}>Select Dislikes:</h3>
-          <div className={formsStyles['grid-container']}>
+        <div className={createAccountStyles['grid-container']}>
+          <h3 className={createAccountStyles['subheading']}>Select Dislikes:</h3>
+          <div className={createAccountStyles['button-grid']}>
             {uniqueOptions.map((dislike) => (
               <button
                 type="button"
                 key={dislike}
                 onClick={() => handleDislikeToggle(dislike)}
-                className={`${buttonStyles['dislike-button']} ${formData.dislikes.includes(dislike) ? buttonStyles['selected'] : ''}`}
+                className={`${createAccountStyles['dislike-button']} ${formData.dislikes.includes(dislike) ? createAccountStyles['selected'] : ''}`}
               >
                 {dislike}
               </button>
@@ -204,41 +209,33 @@ const CreateAccount = () => {
           </div>
         </div>
 
-        <div className={formsStyles.priceRangeSection}>
-          <h3 className={formsStyles.subheading}>Select Price Range:</h3>
-          <label htmlFor="priceRange" className={formsStyles.rangeLabel}>
-            Average Price: ${formData.priceRange}
-          </label>
-          <input
-            type="range"
-            id="priceRange"
-            name="priceRange"
-            min="0"
-            max="100"
-            step="1"
-            value={formData.priceRange}
-            onChange={handleSliderChange}
-            className={formsStyles.slider}
-          />
+        <div className={createAccountStyles['price-range-section']}>
+          <h3>Select Price Range:</h3>
+          <div className={createAccountStyles['price-buttons-container']}>
+            {priceOptions.map((price) => (
+              <button
+                type="button"
+                key={price}
+                onClick={() => handlePriceRangeSelect(price)}
+                className={`${createAccountStyles['price-button']} ${formData.priceRange === price ? createAccountStyles['selected'] : ''}`}
+              >
+                {price}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className={formsStyles.priceRangeSection}>
-          <h3 className={formsStyles.subheading}>Select Max Distance:</h3>
-          <label htmlFor="maxDistance" className={formsStyles.rangeLabel}>
-            Max Distance: ${formData.maxDistance}
-          </label>
-          <input
-            type="range"
-            id="maxDistance"
-            name="maxDistance"
-            min="0"
-            max="100"
-            step="1"
-            value={formData.maxDistance}
-            onChange={handleSliderChange}
-            className={formsStyles.slider}
-          />
-        </div>
+        <input
+          type="number"  // <-- Use type="number" instead of type="integer"
+          name="maxDistance"  // <-- Corrected the typo (was MaxDistanct)
+          placeholder="Max Distance (km)"  // Optional: Placeholder to guide user input
+          value={formData.maxDistance}
+          onChange={handleChange}
+          className={createAccountStyles['form-input']}
+          min="1"  // <-- Set a minimum distance
+          max="100" // <-- Set a maximum distance
+          required
+        />
 
         <input
           type="password"
@@ -246,19 +243,28 @@ const CreateAccount = () => {
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}
-          className={postEventStyles['form-input']}
+          className={createAccountStyles['form-input']}
           required
         />
-        <button type="submit" className={buttonStyles.formButton}>
+
+        <input
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          className={createAccountStyles['form-input']}
+          required
+        />
+
+        <button type="submit" className={createAccountStyles['create-account-button']}>
           Create Account
         </button>
       </form>
-      {message && <p className={formsStyles.message}>{message}</p>}
+
+      {message && <p className={createAccountStyles['message']}>{message}</p>}
     </div>
   );
 };
 
 export default CreateAccount;
-
-
-
