@@ -53,16 +53,32 @@ const GlobalPage = () => {
   };
 
   const handleManualLogout = async () => {
+    if (!userId) {
+      alert("No user ID found in local storage.");
+      return;
+    }
+  
     try {
-      await axios.post(
+      const response = await axios.post(
         `http://localhost:5152/api/combined-events/logout?userId=${userId}`
       );
-
+  
+      // Check if response.data is defined and has a Message property
+      if (response.data && response.data.Message) {
+        alert(response.data.Message);
+      } else {
+        alert("Logout successful");
+      }
+  
+      // Remove userId from localStorage
       localStorage.removeItem("userId");
-      alert("Logged out successfully.");
       navigate("/login");
     } catch (error) {
-      alert("An error occurred while logging out.");
+      if (error.response) {
+        alert(error.response.data.Message || "Error logging out.");
+      } else {
+        alert("An error occurred while logging out.");
+      }
     }
   };
 

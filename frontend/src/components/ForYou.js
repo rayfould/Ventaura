@@ -17,7 +17,7 @@ import logoFull from '../assets/ventaura-logo-semi-full.png';
 const ForYou = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userId } = location.state || {};
+  const [userId, setUserId] = useState(localStorage.getItem("userId"));
   const [events, setEvents] = useState([]);
   const [message, setMessage] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -111,22 +111,25 @@ const ForYou = () => {
   }, [userId, navigate]);
 
   const handleManualLogout = async () => {
-    const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
-
     if (!userId) {
       alert("No user ID found in local storage.");
       return;
     }
-
+  
     try {
       const response = await axios.post(
         `http://localhost:5152/api/combined-events/logout?userId=${userId}`
       );
-
-      // Remove the userId from localStorage
+  
+      // Check if response.data is defined and has a Message property
+      if (response.data && response.data.Message) {
+        alert(response.data.Message);
+      } else {
+        alert("Logout successful");
+      }
+  
+      // Remove userId from localStorage
       localStorage.removeItem("userId");
-
-      alert(response.data.Message);
       navigate("/login");
     } catch (error) {
       if (error.response) {
@@ -136,6 +139,7 @@ const ForYou = () => {
       }
     }
   };
+  
 
   const handlePreferenceToggle = (preference) => {
     setFormData((prevData) => {
