@@ -11,7 +11,8 @@ import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
-import logo from '../assets/ventaura-logo-white.png'; // Adjust the path as necessary
+import logo from '../assets/ventaura-logo-white.png'; 
+import logoFull from '../assets/ventaura-logo-full.png'; 
 
 const ForYou = () => {
   const location = useLocation();
@@ -236,6 +237,9 @@ const ForYou = () => {
           aria-label="Toggle Sidebar"
         >
         </button>
+        <div className={navigationStyles['logo-container']}>
+              <img src={logoFull} alt="Logo" className={navigationStyles['logo']} />
+            </div>
         <div className={layoutStyles['center-buttons-container']}>
           <button 
             onClick={() => navigate('/for-you')} 
