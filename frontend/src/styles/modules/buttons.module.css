@@ -89,7 +89,7 @@
   font-size: 18px;
   width: 75%; /* Adjust as needed */
   margin: 50px auto 0 auto;
-    padding: var(--space-lg);
+  padding: var(--space-lg);
   background-color: var(--secondary);
   color: var(--background);
   border: none; /* Remove default border */

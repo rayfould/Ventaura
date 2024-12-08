@@ -76,11 +76,12 @@ const AboutUs = () => {
         <Link to="/post-event-page" className={navigationStyles['sidebar-link']}>
           Post An Event
         </Link>
+        {/* Bottom Section: Logout Button */}
         <button 
-          onClick={handleManualLogout} 
-          className={navigationStyles['sidebar-link']}
-        >
-          Logout
+            onClick={handleManualLogout} 
+            className={buttonStyles['logout-button']}
+          >
+            Logout
         </button>
       </div>
 

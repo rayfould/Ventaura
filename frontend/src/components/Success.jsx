@@ -5,8 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 // Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
-import formsStyles from '../styles/modules/forms.module.css';
-import buttonStyles from '../styles/modules/buttons.module.css';
+import postEventStyles from '../styles//modules/postevent.module.css'; // New PostEvent-specific styles
 
 // Expanded list of event types
 const eventTypes = [
@@ -30,7 +29,7 @@ const Success = () => {
   });
 
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // Initialize navigate hook
+  const navigate = useNavigate();
 
   // Get the session ID from the URL query parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -38,11 +37,44 @@ const Success = () => {
 
   useEffect(() => {
     if (sessionId) {
-      setMessage("Payment Successful! Please fill out the event details below.");
+      setMessage("Payment Successful! Please add event details.");
     } else {
       setMessage("Payment Unsuccessful.");
     }
   }, [sessionId]);
+
+  // Load Google Places API for Autocomplete
+  useEffect(() => {
+    if (!window.google) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAMyuR3lvyF98orSC-z8SyIEdekVsguXWs&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+      script.onload = () => initializeAutocomplete();
+    } else {
+      initializeAutocomplete();
+    }
+  }, []);
+
+  const initializeAutocomplete = () => {
+    const input = document.querySelector('input[name="eventLocation"]');
+    if (input) {
+      const autocomplete = new window.google.maps.places.Autocomplete(input, {
+        types: ['geocode'] // Restrict the suggestions to addresses only
+      });
+
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (place && place.formatted_address) {
+          setFormData((prevData) => ({
+            ...prevData,
+            eventLocation: place.formatted_address
+          }));
+        }
+      });
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,88 +86,86 @@ const Success = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission (e.g., POST to your backend)
     navigate("/for-you");
   };
 
   return (
-    <div className={layoutStyles.pageContainer}>
+    <div className={layoutStyles['page-container']}>
       {sessionId ? (
         <>
           <header className={layoutStyles.header}>
-            <h2 className={layoutStyles.pageTitle}>
-              Payment Successful! Add Event Details:
-            </h2>
+            <h1 className={layoutStyles['header-title']}>
+              Event Details:
+            </h1>
           </header>
 
-          <form onSubmit={handleSubmit} className={formsStyles.eventForm}>
-            <div className={formsStyles.formGroup}>
-              <label className={formsStyles.label}>Event Title:</label>
+          <form onSubmit={handleSubmit} className={postEventStyles['post-event-form']}>
+            <div className={postEventStyles['form-group']}>
+              <label className={postEventStyles['label']}>Event Title:</label>
               <input
                 type="text"
                 name="eventTitle"
                 value={formData.eventTitle}
                 onChange={handleChange}
-                className={formsStyles.formInput}
+                className={postEventStyles['form-input']}
                 required
               />
             </div>
 
-            <div className={formsStyles.formGroup}>
-              <label className={formsStyles.label}>Event Description:</label>
+            <div className={postEventStyles['form-group']}>
+              <label className={postEventStyles['label']}>Event Description:</label>
               <textarea
                 name="eventDescription"
                 value={formData.eventDescription}
                 onChange={handleChange}
-                className={formsStyles.formInput}
+                className={postEventStyles['form-input']}
                 required
               />
             </div>
 
-            <div className={formsStyles.formGroup}>
-              <label className={formsStyles.label}>Location:</label>
+            <div className={postEventStyles['form-group']}>
+              <label className={postEventStyles['label']}>Location:</label>
               <input
                 type="text"
                 name="eventLocation"
                 value={formData.eventLocation}
                 onChange={handleChange}
-                className={formsStyles.formInput}
+                className={postEventStyles['form-input']}
                 required
               />
             </div>
 
-            <div className={formsStyles.formGroup}>
-              <label className={formsStyles.label}>Date:</label>
+            <div className={postEventStyles['form-group']}>
+              <label className={postEventStyles['label']}>Date:</label>
               <input
                 type="date"
                 name="eventDate"
                 value={formData.eventDate}
                 onChange={handleChange}
-                className={formsStyles.formInput}
+                className={postEventStyles['form-input']}
                 required
               />
             </div>
 
-            <div className={formsStyles.formGroup}>
-              <label className={formsStyles.label}>Time:</label>
+            <div className={postEventStyles['form-group']}>
+              <label className={postEventStyles['label']}>Time:</label>
               <input
                 type="time"
                 name="eventTime"
                 value={formData.eventTime}
                 onChange={handleChange}
-                className={formsStyles.formInput}
+                className={postEventStyles['form-input']}
                 required
               />
             </div>
 
-            {/* Replace the hardcoded options with a map over eventTypes */}
-            <div className={formsStyles.formGroup}>
-              <label className={formsStyles.label}>Event Type:</label>
+            <div className={postEventStyles['form-group']}>
+              <label className={postEventStyles['label']}>Event Type:</label>
               <select
                 name="eventType"
                 value={formData.eventType}
                 onChange={handleChange}
-                className={formsStyles.formSelect}
+                className={postEventStyles['form-select']}
                 required
               >
                 <option value="">Select event type</option>
@@ -145,41 +175,40 @@ const Success = () => {
               </select>
             </div>
 
-            <div className={formsStyles.formGroup}>
-              <label className={formsStyles.label}>Price (USD):</label>
+            <div className={postEventStyles['form-group']}>
+              <label className={postEventStyles['label']}>Price (USD):</label>
               <input
                 type="number"
                 name="price"
                 value={formData.price}
                 onChange={handleChange}
-                className={formsStyles.formInput}
+                className={postEventStyles['form-input']}
                 required
               />
             </div>
 
-            <div className={formsStyles.formGroup}>
-              <label className={formsStyles.label}>Contact Info (Phone number):</label>
+            <div className={postEventStyles['form-group']}>
+              <label className={postEventStyles['label']}>Contact Info (Phone number):</label>
               <input
                 type="text"
                 name="contactInfo"
                 value={formData.contactInfo}
                 onChange={handleChange}
-                className={formsStyles.formInput}
+                className={postEventStyles['form-input']}
                 required
               />
             </div>
 
-            <button type="submit" className={buttonStyles.formButton}>
+            <button type="submit" className={postEventStyles['submit-button']}>
               Submit Event
             </button>
           </form>
         </>
       ) : (
-        <p className={formsStyles.message}>{message}</p>
+        <p className={postEventStyles['message']}>{message}</p>
       )}
     </div>
   );
 };
 
 export default Success;
-
