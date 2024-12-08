@@ -1,8 +1,8 @@
 /* EventCard.module.css */
 .eventCard {
   width: 100%;
-  max-width: 300px; /* Ensure responsiveness */
-  height: 300px; /* Adjust height as needed */
+  max-width: 250px; /* Ensure responsiveness */
+  height: 250px; /* Adjust height as needed */
   perspective: 1000px; /* Enable 3D space for children */
   cursor: pointer;
   position: relative;

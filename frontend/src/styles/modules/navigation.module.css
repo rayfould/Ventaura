@@ -4,8 +4,8 @@
 .logo {
     display: block;
     margin: 0 auto;
-    width: 300px;   
-    height: 300px;
+    width: 220px;   
+    height: auto;
 }
 
 .logo-header {
@@ -42,7 +42,7 @@
     margin: 10px auto;     /* Center the link */
     color: var(--background);
     padding: var(--space-xl);
-    font-size: 24px;
+    font-size: 18px;
     text-decoration: none;
     cursor: pointer;
     transition: background-color var(--transition-normal), color var(--transition-normal);

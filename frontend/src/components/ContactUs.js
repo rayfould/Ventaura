@@ -8,6 +8,8 @@ import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import contactStyles from '../styles/modules/contactus.module.css'; // Import contact-specific styles
+import logo from '../assets/ventaura-logo-white.png'; 
+
 
 const ContactUs = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -48,12 +50,13 @@ const ContactUs = () => {
   return (
     <div className={layoutStyles['page-container']}>
       {/* Header */}
-      <header className={layoutStyles.header}>
+      <header className={layoutStyles['header-side']}>
         <button 
           className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
           aria-label="Toggle Sidebar"
         >
+          
         </button>
         <h1 className={layoutStyles['header-title']}>Contact Us</h1>
         <div className={layoutStyles['header-right']}>
@@ -65,31 +68,29 @@ const ContactUs = () => {
 
       {/* Sidebar */}
       <div className={`${layoutStyles.sidebar} ${isSidebarOpen ? layoutStyles.open : ''}`}>
+        <div className={navigationStyles['top-section']}>
+          <div className={navigationStyles['logo-container']}>
+            <img src={logo} alt="Logo" className={navigationStyles['logo']} />
+          </div>
+          <button 
+            className={buttonStyles['close-sidebar']} 
+            onClick={() => setIsSidebarOpen(false)}
+            aria-label="Close Sidebar"
+          />
+          <div className={navigationStyles['links-container']}>
+            <Link to="/for-you" className={navigationStyles['sidebar-link']}>For You</Link>
+            <Link to="/about-us" className={navigationStyles['sidebar-link']}>About Us</Link>
+            <Link to="/contact-us" className={navigationStyles['sidebar-link']}>Contact Us</Link>
+          </div>
+        </div>
         <button 
-          className={buttonStyles['close-sidebar']} 
-          onClick={() => setIsSidebarOpen(false)} 
-          aria-label="Close Sidebar"
-        />
-        <Link to="/for-you" className={navigationStyles['sidebar-link']}>
-          For You
-        </Link>
-        <Link to="/about-us" className={navigationStyles['sidebar-link']}>
-          About Us
-        </Link>
-        <Link to="/contact-us" className={navigationStyles['sidebar-link']}>
-          Contact Us
-        </Link>
-        <Link to="/post-event-page" className={navigationStyles['sidebar-link']}>
-          Post An Event
-        </Link>
-        {/* Bottom Section: Logout Button */}
-        <button 
-            onClick={handleManualLogout} 
-            className={buttonStyles['logout-button']}
-          >
-            Logout
+          onClick={handleManualLogout} 
+          className={buttonStyles['logout-button']}
+        >
+          Logout
         </button>
       </div>
+
 
       {/* Main Content */}
       <main className={contactStyles['contact-container']}>

@@ -66,8 +66,7 @@ const Login = () => {
 
   return (
     <div className={layoutStyles['page-container']}>
-      {/* Header */}
-        
+      
       <div className={formsStyles['login-container']}>
         <h2 className={formsStyles['heading']}>Login</h2>
 
