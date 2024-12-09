@@ -260,6 +260,39 @@ namespace ventaura_backend.Controllers
                 return StatusCode(500, "An error occurred while updating user preferences.");
             }
         }
+
+        // GET endpoint: Fetches a user's preferences and dislikes by their unique ID.
+        [HttpGet("{id}/preferences")]
+        public async Task<IActionResult> GetUserPreferences(int id)
+        {
+            try
+            {
+                // Query to retrieve the user's preferences and dislikes
+                var user = await _dbContext.Users
+                    .Where(u => u.UserId == id)
+                    .Select(u => new { u.Preferences, u.Dislikes })
+                    .FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    // Return 404 if no user is found
+                    return NotFound(new { Message = "User not found." });
+                }
+
+                // Return preferences and dislikes in the response
+                return Ok(new 
+                { 
+                    Preferences = user.Preferences, 
+                    Dislikes = user.Dislikes 
+                });
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors and log them
+                Console.WriteLine($"Error fetching preferences and dislikes for user {id}: {ex.Message}");
+                return StatusCode(500, new { Message = "An error occurred while fetching user preferences and dislikes." });
+            }
+        }
     }
 
     // DTO for handling login requests, including optional location updates.
