@@ -23,24 +23,6 @@ const Settings = () => {
   useEffect(() => {
     // Fetch the user's existing data when the component mounts
     const fetchUserData = async () => {
-      try {
-        if (userId) {
-          const response = await axios.get(
-            `http://localhost:5152/api/users/get-user-data?userId=${userId}`
-          );
-          setUserData({
-            email: response.data.email || "",
-            firstName: response.data.firstName || "",
-            lastName: response.data.lastName || "",
-          });
-        } else {
-          setMessage("User not found. Please log in again.");
-          navigate("/login"); // Redirect to login if userId is not found
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setMessage("Error fetching user data. Please try again later.");
-      }
     };
 
     fetchUserData();
