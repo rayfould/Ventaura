@@ -13,6 +13,8 @@ import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css'; // Reuse formsStyles from For You Page
 import EventCard from './EventCard.js'; 
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
+import logo from '../assets/ventaura-logo-white.png'; 
+
 
 const eventTypes = [
   "Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
@@ -156,6 +158,12 @@ const handleSearch = async (e) => {
       <header 
         className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
       >
+        {/* Sidebar Toggle Button */}
+        <button 
+          className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+          aria-label="Toggle Sidebar"
+        ></button>
 
         {/* Logo */}
         <div className={layoutStyles['logo-container']}>
@@ -218,11 +226,16 @@ const handleSearch = async (e) => {
           <div className={navigationStyles['top-section']}>
             {/* Logo Container */}
             <div className={navigationStyles['logo-container']}>
-              <img src={logoFull} alt="Logo" className={navigationStyles['logo']} />
+              <img src={logo} alt="Logo" className={navigationStyles['logo']} />
             </div>
 
+            {/* Close Sidebar Button */}
+            <button 
+              className={buttonStyles['close-sidebar']} 
+              onClick={() => setIsSidebarOpen(false)}
+              aria-label="Close Sidebar"
+            />
             
-
             {/* Navigation Links Container */}
             <div className={navigationStyles['links-container']}>
               <Link to="/for-you" className={navigationStyles['sidebar-link']} onClick={() => setIsSidebarOpen(false)}>
@@ -342,25 +355,6 @@ const handleSearch = async (e) => {
             ))}
           </div>
         </main>
-
-        {/* Right Preferences Sidebar */}
-        <div className={`${layoutStyles['sidebar-right']} ${isSidebarOpen ? layoutStyles.open : ''}`}>
-          {/* Close Sidebar Button */}
-          <button 
-              className={buttonStyles['close-sidebar-right']} 
-              onClick={() => setIsSidebarOpen(false)}
-              aria-label="Close Sidebar"
-          >
-            ×
-          </button>
-          
-          {/* Preferences Content */}
-          <div className={formsStyles.preferencesSection}>
-            <p className={formsStyles.sectionTitle}>Preferences:</p>
-            {/* Preferences Controls (e.g., toggles, sliders) */}
-            {/* Implement your preferences controls here */}
-          </div>
-        </div>
       </div>
     </div>
   );
