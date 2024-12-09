@@ -184,7 +184,7 @@ namespace ventaura_backend.Controllers
                     Console.WriteLine("No events to process.");
                     return Ok(new { Message = "No events available to process.", TotalEvents = 0 });
                 }
-                
+
                 foreach (var e in combinedEvents)
                 {
                     double latitude, longitude;
@@ -231,6 +231,7 @@ namespace ventaura_backend.Controllers
             }
         }
 
+        // Function to clean the CSV formatting so it works as expected in the ranking algorithm
         private string CleanField(string field)
         {
             if (string.IsNullOrEmpty(field)) return "";
@@ -240,6 +241,7 @@ namespace ventaura_backend.Controllers
             return field;
         }
 
+        // Parse location to calculate distance
         private bool TryParseLocation(string location, out double latitude, out double longitude)
         {
             latitude = 0;
@@ -250,7 +252,7 @@ namespace ventaura_backend.Controllers
             return double.TryParse(parts[0].Trim(), out latitude) && double.TryParse(parts[1].Trim(), out longitude);
         }
 
-        // Endpoint for the frontend to access th csv file - TO BE MODIFIEF
+        // Endpoint for the frontend to access th csv file 
         [HttpGet("get-csv")]
         public IActionResult GetCsv([FromQuery] int userId)
         {

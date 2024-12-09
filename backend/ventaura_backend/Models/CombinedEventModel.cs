@@ -1,3 +1,5 @@
+// Model that establishes the fields of a DTO for use by the combined
+// events controller
 namespace ventaura_backend.Models
 {
     public class CombinedEvent

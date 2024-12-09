@@ -15,6 +15,7 @@ namespace ventaura_backend.Services
             _client = clientFactory.CreateClient("RankingAPI");
         }
 
+        // Method to rank the events after fetch endpoint to data is made
         public async Task<RankingResponse> RankEventsForUser(int userId)
         {
             try
