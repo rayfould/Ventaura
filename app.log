@@ -1,0 +1,1 @@
+2024-12-09 18:11:48,256 - INFO - HTTP Request: POST http://testserver/rank-events/ "HTTP/1.1 404 Not Found"

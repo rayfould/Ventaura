@@ -1,5 +1,9 @@
 import numpy as np
 import pandas as pd
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
 import random
 from collections import deque
 import matplotlib.pyplot as plt
@@ -12,27 +16,90 @@ import os
 from functools import lru_cache
 import traceback
 from pathlib import Path
+from networkx.classes import non_edges
+from sklearn.manifold import TSNE
+from torch.fx.traceback import get_current_meta
+from tqdm import tqdm
+import seaborn as sns
+#from torchviz import make_dot
+import time
+from pathlib import Path
 from decimal import Decimal, getcontext
+import pytz
+import psutil
 from contextlib import contextmanager
 from collections import defaultdict
 from fastapi import FastAPI, HTTPException
 import uvicorn
 
+
 # Constants
 DEBUG_MODE = False
 DEEP_DEBUG = False
 
-# Define base directories (ensure these are defined appropriately)
-BASE_DIR = Path(__file__).resolve().parent
-TEST_DATA_DIR = BASE_DIR / 'Testing' / 'data'
-ANALYTICS_DIR = BASE_DIR / 'Analytics'
-MODELS_DIR = BASE_DIR / 'Models'
+# Training/Testing flags
+TRAIN_MODEL = True  # Set to False to skip training
+TEST_MODEL = False   # Set to False to skip testing
+LOAD_MODEL_PATH = "Training/models/Model_11/recommender/final_model_20241114_195704.pth"  # Specific model path
+
+
+# Hyperparameters
+GAMMA = 0.99
+LEARNING_RATE = 8e-3
+BATCH_SIZE = 64
+BUFFER_SIZE = 10000
+NUM_EPISODES = 100
+INITIAL_EPSILON = 1.0
+FINAL_EPSILON = 0.01
+TRAINING_PROGRESS = 0.8
+DIVERSITY_WEIGHT = 0.3  # Weight for diversity bonus in reward
+TARGET_UPDATE_FREQUENCY = 10
+YOUR_MODEL_SIZE = 1000
+TEMPERATURE = 0.5  # Controls exploration randomness
+# Calculate DECAY_EPISODES before using it
+DECAY_EPISODES = int(NUM_EPISODES * TRAINING_PROGRESS)
+
+# Now calculate EPSILON_DECAY
+# if DECAY_EPISODES > 0:
+#     EPSILON_DECAY = float(Decimal('1.0') - (Decimal('1.0') - Decimal(str(FINAL_EPSILON))) ** (Decimal('1.0') / Decimal(str(DECAY_EPISODES))))
+# else:
+#     # Fallback value if DECAY_EPISODES is 0
+#     EPSILON_DECAY = 0.995
+
+
+EPSILON_DECAY = 0.999
+# Base directory (project root)
+BASE_DIR = Path(__file__).parent
+
+# Main directories
+TEST_DIR = BASE_DIR / 'Testing'
+TRAIN_DIR = BASE_DIR / 'Training'
+
+# Testing subdirectories
+TEST_DATA_DIR = TEST_DIR / 'data'
+
+# Training subdirectories
+ANALYTICS_DIR = TRAIN_DIR / 'Analytics'
+MODELS_DIR = TRAIN_DIR / 'Models'
+LOGS_DIR = BASE_DIR / 'Logs'
+
+# Create base directories
+TEST_DIR.mkdir(parents=True, exist_ok=True)
+TEST_DATA_DIR.mkdir(parents=True, exist_ok=True)
+TRAIN_DIR.mkdir(parents=True, exist_ok=True)
+ANALYTICS_DIR.mkdir(parents=True, exist_ok=True)
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
 
 def create_model_directories(model_num):
     """Create directory structure for a specific model number."""
+
+    # Define base paths using Path objects
     analytics_base = ANALYTICS_DIR / f'Model_{model_num}'
     models_base = MODELS_DIR / f'Model_{model_num}'
 
+    # Define directory structure
     directories = {
         'analytics': {
             'component_analysis': analytics_base / 'component_analysis',
@@ -49,6 +116,7 @@ def create_model_directories(model_num):
         }
     }
 
+    # Create all directories
     for category in directories.values():
         if isinstance(category, dict):
             for dir_path in category.values():
@@ -57,9 +125,34 @@ def create_model_directories(model_num):
 
     return directories
 
+
+
 # Data file paths
 EVENTS_CSV_PATH = TEST_DATA_DIR / '100_generated_events.csv'
 USERS_CSV_PATH = TEST_DATA_DIR / 'diverse_users.csv'
+
+
+def get_next_model_number():
+    """Get the next available model number."""
+    if not ANALYTICS_DIR.exists():
+        return 1
+
+    existing_models = [
+        int(d.name.split('_')[1])
+        for d in ANALYTICS_DIR.glob('Model_*')
+        if d.name.split('_')[1].isdigit()
+    ]
+    return max(existing_models, default=0) + 1
+
+
+# Create base directories
+TEST_DIR.mkdir(parents=True, exist_ok=True)
+TEST_DATA_DIR.mkdir(parents=True, exist_ok=True)
+TRAIN_DIR.mkdir(parents=True, exist_ok=True)
+ANALYTICS_DIR.mkdir(parents=True, exist_ok=True)
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
+
 
 PRICE_RANGES = {
     '$': {'min': 0, 'max': 30},
@@ -74,6 +167,7 @@ POPULARITY_RANGES = {
     'Large': {'min': 501, 'max': float('inf')},   # Major events, large festivals
     'irrelevant': {'min': 0, 'max': float('inf')}
 }
+
 
 PRICE_SCORING_CONFIG = {
     'free_event_score': .50,          # Score for free events
@@ -94,6 +188,7 @@ RBS_PRICE_SCORING = {
     'tolerance_percentage': 0.3        # 30% tolerance for "close" scores
 }
 
+
 TIME_SCORING_CONFIG = {
     'max_preferred_hours': 336,  # 14 days
     'past_event_penalty': -100,
@@ -109,18 +204,21 @@ TIME_PREFERENCES = {
     'irrelevant': {'start': 0, 'end': 24}
 }
 
+
+
 DISTANCE_SCORING_CONFIG = {
     'over_max_penalty_factor': 100
 }
 
 DISTANCE_RANGES = {
-    "Very Local": 5,      # 0-5 km
-    "Local": 15,          # 5-15 km
-    "City-wide": 30,      # 15-30 km
-    "Regional": 100,      # 30-100 km
-    "Any Distance": 500   # No real limit
-}
+        "Very Local": 5,      # 0-5 km
+        "Local": 15,          # 5-15 km
+        "City-wide": 30,      # 15-30 km
+        "Regional": 100,      # 30-100 km
+        "Any Distance": 500   # No real limit
+    }
 
+# Add center-targeting config for other features
 CENTER_TARGETING_CONFIG = {
     'popularity': {
         'deviation_penalty': 0.5,    # Changed from previous value to ensure scores stay in [-1, 1]
@@ -136,13 +234,14 @@ CENTER_TARGETING_CONFIG = {
     }
 }
 
+
+
 # Load common data
 events_df = pd.read_csv(EVENTS_CSV_PATH)
 users = pd.read_csv(USERS_CSV_PATH)
-
 class TimeHandler:
     def __init__(self):
-        self._timezone = timezone.utc
+        self._timezone = pytz.UTC
         self._current_time = None
 
     def set_current_time(self, time=None):
@@ -158,6 +257,7 @@ class TimeHandler:
     def get_timestamp(self):
         """Get current timestamp in seconds"""
         return self.get_current_time().timestamp()
+
 
 # Create singleton instance
 time_handler = TimeHandler()
@@ -204,18 +304,21 @@ def count_nan_events(df):
     nan_rows = df.isna().any(axis=1)
     return nan_rows.sum()
 
+
 # Add helper function for case-insensitive lookup
 def get_popularity_range(crowd_size):
     """Get popularity range with case-insensitive lookup."""
     if pd.isna(crowd_size):
-        return POPULARITY_RANGES['irrelevant']
-    return POPULARITY_RANGES[crowd_size.capitalize()]  # Ensure proper case
+        return POPULARITY_RANGES['IRRELEVANT']
+    return POPULARITY_RANGES[crowd_size.upper()]
+
+
 
 def monitor_memory():
     """Monitor memory usage in MB"""
-    import psutil
     process = psutil.Process(os.getpid())
     return process.memory_info().rss / 1024 / 1024
+
 
 @contextmanager
 def plot_context(figsize=(10, 6), subplots=False, *subplot_args, **subplot_kwargs):
@@ -228,6 +331,8 @@ def plot_context(figsize=(10, 6), subplots=False, *subplot_args, **subplot_kwarg
             yield
     finally:
         plt.close('all')
+
+
 
 # Existing configurations like PENALTY_CONFIG
 PENALTY_CONFIG = {
@@ -250,6 +355,7 @@ PENALTY_CONFIG = {
     }
 }
 
+
 # Helper function to get price range
 def get_price_range(price_pref):
     return PRICE_RANGES.get(price_pref, PRICE_RANGES['irrelevant'])
@@ -261,6 +367,7 @@ def normalize_event_type(event_type):
         return np.nan
     return event_type.strip().lower().rstrip('s')  # Normalize case and remove trailing 's'
 
+
 # Centralized penalty function
 def apply_penalty(final_score, event, user):
     """
@@ -270,37 +377,28 @@ def apply_penalty(final_score, event, user):
     # Determine Max Distance
     user_max_distance = user.get('Max Distance', 'Any Distance')
 
-    if isinstance(user_max_distance, (int, float)):
-        max_distance = user_max_distance
-    elif user_max_distance == 'Any Distance':
-        max_distance = float('inf')
-    else:
-        max_distance = DISTANCE_RANGES.get(user_max_distance, float('inf'))
-
+    
     penalty_multiplier = 1.0  # No penalty by default
-
     # Price penalty
     event_price = event['amount']
     if event_price > 0:  # Ensure event price is valid
-        user_price_pref = user.get('Price Range', 'irrelevant')
-        if user_price_pref != 'irrelevant':
-            price_range = get_price_range(user_price_pref)
-            max_price = price_range['max']
-            tolerance_limit = max_price * PENALTY_CONFIG["price"]["tolerance_multiplier"]
+        user_price_pref = get_price_range(user['Price Range'])
+        max_price = user_price_pref['max']
+        tolerance_limit = max_price * PENALTY_CONFIG["price"]["tolerance_multiplier"]
 
-            if event_price > tolerance_limit:  # Severe deviation from budget
-                penalty_multiplier *= PENALTY_CONFIG["price"]["severe_penalty"]
-        # If 'irrelevant', no penalty is applied for price
+        if event_price > tolerance_limit:  # Severe deviation from budget
+            penalty_multiplier *= PENALTY_CONFIG["price"]["severe_penalty"]
 
     # Distance penalty
     event_distance = event['distance']
+    max_distance = user_max_distance
     tolerance_limit = max_distance * PENALTY_CONFIG["distance"]["tolerance_multiplier"]
 
     if event_distance > tolerance_limit:  # Severe deviation from max distance
         penalty_multiplier *= PENALTY_CONFIG["distance"]["severe_penalty"]
 
     # Event type penalty (Disliked category)
-    event_type = normalize_event_type(event['type'])  # Changed from 'title' to 'type'
+    event_type = normalize_event_type(event['title'])
     if event_type in user['Disliked']:
         penalty_multiplier *= PENALTY_CONFIG["event_type"]["disliked_penalty"]
 
