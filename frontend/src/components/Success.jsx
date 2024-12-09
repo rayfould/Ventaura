@@ -85,8 +85,64 @@ const Success = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    navigate("/for-you");
+    e.preventDefault(); // Prevent default form submission
+
+    // Extract date and time from form data
+    const date = formData.eventDate; // "2024-12-08"
+    const time = formData.eventTime; // "00:49"
+
+    // Combine into an ISO 8601 string
+    // Append 'T' to separate date and time, and 'Z' for UTC if necessary
+    formData.start = `${date}T${time}:00.000Z`;
+
+    try {
+      // Prepare the payload
+      const payload = {
+        Title: formData.eventTitle,
+        Description: formData.eventDescription,
+        Location: formData.eventLocation,
+        Start: new Date(formData.start).toISOString(),
+        Source: "Host",
+        Type: formData.eventType,
+        CurrencyCode: "USD", // or as needed
+        Amount: parseFloat(formData.price),
+        URL: formData.contactInfo, // Verify if this is the intended use
+        HostUserId: 1 // Add logic to set the HostUserId
+      };
+      
+
+      // Send the POST request
+      const response = await fetch('http://localhost:5152/api/combined-events/create-host-event', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      // Check for response status
+      if (!response.ok) {
+        if (response.status === 409) {
+          console.error("Conflict error: An event with this title already exists for this host.");
+          alert("An event with this title already exists for this host.");
+        } else if (response.status === 400) {
+          console.error("Bad request: Validation failed.");
+          alert("Validation failed. Please check your input.");
+        } else {
+          console.error("Unexpected error occurred.");
+          alert("An unexpected error occurred. Please try again later.");
+        }
+        return;
+      }
+
+      const result = await response.json();
+      console.log("Host event created successfully:", result);
+      alert("Host event created successfully!");
+    } catch (error) {
+      console.error("An error occurred while creating the event:", error);
+      alert("An error occurred while creating the event.");
+    }
+    navigate("/for-you"); // Redirect to the /for-you page
   };
 
   return (
