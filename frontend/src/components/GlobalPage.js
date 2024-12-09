@@ -118,7 +118,7 @@ const handleSearch = async (e) => {
     console.log(`Number of events fetched: ${eventCount}`);
     
     // Update the message to include the number of events
-    setMessage(response.data.Message || `Events fetched successfully. Number of events: ${eventCount}`);
+    // setMessage(response.data.Message || `Events fetched successfully. Number of events: ${eventCount}`);
   } catch (error) {
     console.error("Error fetching events:", error);
     setMessage("An error occurred while fetching events.");

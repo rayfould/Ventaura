@@ -39,7 +39,7 @@ namespace ventaura_backend.Services
                 
                 if (data == null || data.Results == null || !data.Results.Any())
                 {
-                    Console.WriteLine($"No results found for coordinates: {latitude}, {longitude}");
+                    // Console.WriteLine($"No results found for coordinates: {latitude}, {longitude}");
                     return "Unknown Address";
                 }
 
@@ -48,18 +48,18 @@ namespace ventaura_backend.Services
 
                 if (!string.IsNullOrEmpty(formattedAddress))
                 {
-                    Console.WriteLine($"Formatted Address: {formattedAddress}");
+                    // Console.WriteLine($"Formatted Address: {formattedAddress}");
                     return formattedAddress;
                 }
                 else
                 {
-                    Console.WriteLine($"No address found for coordinates: {latitude}, {longitude}");
+                    // Console.WriteLine($"No address found for coordinates: {latitude}, {longitude}");
                     return "Unknown Address";
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred while fetching address from coordinates: {ex.Message}");
+                // Console.WriteLine($"Error occurred while fetching address from coordinates: {ex.Message}");
                 return "Unknown Address";
             }
         }

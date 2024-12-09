@@ -69,7 +69,7 @@ const ForYou = () => {
         }, MIN_DISPLAY_TIME);
 
         // === Step 1: Fetch Events ===
-        const fetchEventsResponse = await axios.get(
+        /* const fetchEventsResponse = await axios.get(
           `http://localhost:5152/api/combined-events/fetch?userId=${userId}`,
           {
             onDownloadProgress: (progressEvent) => {
@@ -86,7 +86,7 @@ const ForYou = () => {
           }
         );
         setMessage(fetchEventsResponse.data.Message || "");
-        setEvents(fetchEventsResponse.data.insertedEvents || []);
+        setEvents(fetchEventsResponse.data.insertedEvents || []); */
 
         // === Step 2: Fetch CSV Data ===
         const fetchCSVResponse = await axios.get(
