@@ -1,3 +1,9 @@
+// Services/RankingService.cs
+using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using ventaura_backend.Models;
+
 namespace ventaura_backend.Services
 {
     public class RankingService
@@ -9,18 +15,25 @@ namespace ventaura_backend.Services
             _client = clientFactory.CreateClient("RankingAPI");
         }
 
-        public async Task<bool> RankEventsForUser(int userId)
+        public async Task<RankingResponse> RankEventsForUser(int userId)
         {
             try
             {
                 var response = await _client.PostAsync($"rank-events/{userId}", null);
                 response.EnsureSuccessStatusCode();
-                return true;
+                var content = await response.Content.ReadAsStringAsync();
+                var rankingResponse = JsonConvert.DeserializeObject<RankingResponse>(content);
+                return rankingResponse;
             }
             catch (Exception ex)
             {
-                // Log error
-                return false;
+                // Log the exception (consider using a logging framework)
+                Console.Error.WriteLine($"RankingService Error: {ex.Message}");
+                return new RankingResponse
+                {
+                    Success = false,
+                    Message = "An error occurred while ranking events."
+                };
             }
         }
     }

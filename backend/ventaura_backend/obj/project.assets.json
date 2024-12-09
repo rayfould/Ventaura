@@ -9186,11 +9186,16 @@
     ]
   },
   "packageFolders": {
+<<<<<<< Updated upstream
     "/Users/isabellateixeira/.nuget/packages/": {}
+=======
+    "C:\\Users\\rrisl\\.nuget\\packages\\": {}
+>>>>>>> Stashed changes
   },
   "project": {
     "version": "1.0.0",
     "restore": {
+<<<<<<< Updated upstream
       "projectUniqueName": "/Users/isabellateixeira/Downloads/Ventaura/backend/ventaura_backend/ventaura_backend.csproj",
       "projectName": "ventaura_backend",
       "projectPath": "/Users/isabellateixeira/Downloads/Ventaura/backend/ventaura_backend/ventaura_backend.csproj",
@@ -9199,6 +9204,16 @@
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/isabellateixeira/.nuget/NuGet/NuGet.Config"
+=======
+      "projectUniqueName": "S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
+      "projectName": "ventaura_backend",
+      "projectPath": "S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
+      "packagesPath": "C:\\Users\\rrisl\\.nuget\\packages\\",
+      "outputPath": "S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\rrisl\\AppData\\Roaming\\NuGet\\NuGet.Config"
+>>>>>>> Stashed changes
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -9305,7 +9320,11 @@
             "privateAssets": "all"
           }
         },
+<<<<<<< Updated upstream
         "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.403/PortableRuntimeIdentifierGraph.json"
+=======
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.404/PortableRuntimeIdentifierGraph.json"
+>>>>>>> Stashed changes
       }
     }
   },
@@ -9314,7 +9333,11 @@
       "code": "Undefined",
       "level": "Warning",
       "warningLevel": 1,
+<<<<<<< Updated upstream
       "message": "Problem reading the cache file /Users/isabellateixeira/Downloads/Ventaura/backend/ventaura_backend/obj/project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+=======
+      "message": "Problem reading the cache file S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+>>>>>>> Stashed changes
     }
   ]
 }

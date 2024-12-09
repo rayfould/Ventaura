@@ -9,14 +9,16 @@ Once everything is configured, it runs the application.
 
 using Microsoft.EntityFrameworkCore;
 using ventaura_backend.Data; // For DatabaseContext 
-using ventaura_backend.Services; // For TicketmasterService, AmadeusService, and CombinedAPIService
+using ventaura_backend.Services; // For TicketmasterService, AmadeusService, CombinedAPIService, RankingService
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
 using System.IO;
+using ventaura_backend.Models; // For RankingResponse
+using Newtonsoft.Json; // For JSON serialization/deserialization
 
-// Loads environment variables from .env (used for Stripe keys, etc.)
+// Load environment variables from .env (used for Stripe keys, etc.)
 DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -45,55 +47,57 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 // Register application services for dependency injection:
 // - TicketmasterService and AmadeusService handle external event data retrieval.
 // - CombinedAPIService merges various event sources into a unified view.
+// - RankingService handles event ranking by communicating with the Python FastAPI service.
 builder.Services.AddScoped<TicketmasterService>();
 builder.Services.AddScoped<CombinedAPIService>();
-
-// Add a general CORS policy allowing any origin, method, and header.
-// This broad policy is useful for development and may be restricted in production.
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
-
-// Register HttpClient and named HttpClients to facilitate external API calls.
-// This includes GoogleGeocodingService and YelpFusionService for geocoding and Yelp data retrieval.
-builder.Services.AddHttpClient();
-builder.Services.AddHttpClient<GoogleGeocodingService>();
-builder.Services.AddHttpClient<YelpFusionService>();
-
-// Enable Swagger for API documentation and interactive testing of endpoints.
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Register a named HttpClient for the RankingAPI with a specified base address.
-builder.Services.AddHttpClient("RankingAPI", client =>
-{
-    client.BaseAddress = new Uri("http://localhost:8000");
-});
-
-// Register the RankingService for event ranking logic.
 builder.Services.AddScoped<RankingService>();
 
-// Add another CORS policy specifically for the React frontend (e.g., http://localhost:3000).
+// Configure CORS policies
 builder.Services.AddCors(options =>
 {
+    // Policy to allow requests from the React frontend
     options.AddPolicy("AllowReactApp", builder =>
     {
-        builder.WithOrigins("http://localhost:3000")
+        builder.WithOrigins("http://localhost:3000") // Replace with your React app's origin
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+
+    // General policy to allow all origins (useful for development)
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
                .AllowAnyMethod()
                .AllowAnyHeader();
     });
 });
 
+// Register HttpClient and named HttpClients to facilitate external API calls.
+// This includes GoogleGeocodingService, YelpFusionService, and RankingAPI for the ranking service.
+builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<GoogleGeocodingService>();
+builder.Services.AddHttpClient<YelpFusionService>();
+builder.Services.AddHttpClient("RankingAPI", client =>
+{
+    client.BaseAddress = new Uri("http://127.0.0.1:8000/"); // Python FastAPI base URL
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
+
+// Enable Swagger for API documentation and interactive testing of endpoints.
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Add Newtonsoft.Json for JSON serialization/deserialization if not already added
+builder.Services.AddControllers().AddNewtonsoftJson();
+
+// Optional: Add logging (recommended for production)
+builder.Services.AddLogging();
+
 var app = builder.Build();
 
-// Use the general "AllowAll" CORS policy defined earlier.
-app.UseCors("AllowAll");
+// Use CORS policies
+// Order matters: more restrictive policies should be applied first if multiple are used.
+app.UseCors("AllowReactApp"); // Apply the React-specific policy first
 
 // Configure Stripe with the secret key from environment variables.
 StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
@@ -101,21 +105,15 @@ StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_K
 // Retrieve the price from environment variables for use in Stripe sessions.
 var price = Environment.GetEnvironmentVariable("PRICE");
 
-// In development, show detailed error pages.
+// In development, show detailed error pages and use Swagger UI.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-}
-
-// Also in development, use Swagger and its UI for testing API endpoints.
-if (app.Environment.IsDevelopment())
-{
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// The following code handles Stripe integration and static file serving.
-// It serves static files from a directory specified by the STATIC_DIR environment variable.
+// Configure middleware to serve static files from the specified directory.
 app.UseStaticFiles(new StaticFileOptions()
 {
     FileProvider = new PhysicalFileProvider(
@@ -159,9 +157,6 @@ app.MapPost("/api/create-checkout-session", async (IOptions<StripeOptions> optio
     context.Response.Headers.Add("Location", session.Url);
     return Results.StatusCode(303); // Redirect to the Stripe hosted checkout page.
 });
-
-// Use the React-specific CORS policy if needed.
-app.UseCors("AllowReactApp");
 
 // Enable endpoint routing and authorization middleware.
 app.UseRouting();
