@@ -149,7 +149,7 @@ const Success = () => {
     <div className={layoutStyles['page-container']}>
       {sessionId ? (
         <>
-          <header className={layoutStyles.header}>
+          <header className={layoutStyles['header-side']}>
             <h1 className={layoutStyles['header-title']}>
               Event Details:
             </h1>
