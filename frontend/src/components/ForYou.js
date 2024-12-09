@@ -33,7 +33,7 @@ const ForYou = () => {
   const [coordinates, setCoordinates] = useState(null);
   const [progress, setProgress] = useState(0);
   const isLoading = progress < 100;
-  const MIN_DISPLAY_TIME = 10000; // 10 seconds
+  const MIN_DISPLAY_TIME = 1000; // 10 seconds
   const [timerDone, setTimerDone] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [formData, setFormData] = useState({
