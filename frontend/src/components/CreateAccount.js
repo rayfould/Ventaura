@@ -20,6 +20,9 @@ const preferenceMapping = {
   "Music": "music",
   "Film": "film",
   "Nightlife": "nightlife",
+  "Lectures": "lectures-books",
+  "Fashion": "fashion",
+  "Motorsports": "Motorsports/Racing",
   "Other": "other"
 };
 
@@ -28,7 +31,7 @@ const uniqueOptions = [
   "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
   "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", 
   "Science", "Basketball", "Baseball", "Pottery", "Tennis", "Soccer", "Football", 
-  "Fishing", "Hiking", "Food and Drink", "Other"
+  "Fishing", "Hiking", "Food and Drink", "Lectures", "Fashion", "Motorsports", "Dance", "Other"
 ];
 
 const priceOptions = ["$", "$$", "$$$", "Irrelevant"]; // **Defined priceOptions**

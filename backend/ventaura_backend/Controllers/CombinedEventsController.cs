@@ -71,6 +71,10 @@ namespace ventaura_backend.Controllers
                     { "Conferences", "Conferences" },
                     { "Hockey", "Hockey"},
                     { "Baseball", "Baseball"},
+                    { "lectures-books", "Lectures"},
+                    { "fashion", "Fashion"},
+                    { "Motorsports/Racing", "Motorsports"},
+                    { "Dance", "Dance"},
                     { "other", "Other" }
                 };
 

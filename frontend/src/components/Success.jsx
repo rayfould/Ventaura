@@ -11,9 +11,9 @@ import postEventStyles from '../styles//modules/postevent.module.css'; // New Po
 const eventTypes = [
   "Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
   "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
-  "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", "Charity", 
-  "Science", "Basketball", "Pottery", "Tennis", "Soccer", "Football", 
-  "Fishing", "Hiking"
+  "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", 
+  "Science", "Basketball", "Baseball", "Pottery", "Tennis", "Soccer", "Football", 
+  "Fishing", "Hiking", "Food and Drink", "Lectures", "Fashion", "Motorsports", "Dance", "Other"
 ];
 
 const Success = () => {
