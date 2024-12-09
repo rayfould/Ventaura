@@ -1,9 +1,3 @@
-// This file defines a controller responsible for handling the global events search functionality.
-// Given a city name and a user ID, it uses a geocoding service to obtain coordinates for the city,
-// then fetches events from various APIs via a combined service. It enriches these events by assigning
-// unique IDs, associating them with the given user, and calculating their distance from the user's 
-// stored location. The result is then returned to the client as a JSON response.
-
 using Microsoft.AspNetCore.Mvc;
 using ventaura_backend.Services;
 using ventaura_backend.Data;
@@ -30,13 +24,49 @@ public class GlobalEventsController : ControllerBase
     // It first geocodes the city to find its coordinates, then fetches events using those coordinates.
     // Each event is enriched with user-specific details and distance calculations.
     [HttpGet("search")]
-    public async Task<IActionResult> SearchEvents([FromQuery] string city, 
+    public async Task<IActionResult> SearchEvents(
+        [FromQuery] string city, 
         [FromQuery] int userId, 
         [FromQuery] string eventType = null, 
         [FromQuery] double? maxDistance = null, 
-        [FromQuery] decimal? maxPrice = null
+        [FromQuery] double? maxPrice = null
     )
     {
+
+        // **1. Type Mapping Implementation**
+        var typeMapping = new Dictionary<string, string>
+        {
+            { "festivals-fairs", "Festivals" },
+            { "sports-active-life", "Outdoors" },
+            { "visual-arts", "Exhibitions" },
+            { "charities", "Community" },
+            { "performing-arts", "Theater" },
+            { "kids-family", "Family" },
+            { "film", "Film" },
+            { "food-and-drink", "Food and Drink" },
+            { "music", "Music" },
+            { "Holiday", "Holiday" },
+            { "Networking", "Networking" },
+            { "Gaming", "Gaming" },
+            { "Pets", "Pets" },
+            { "Virtual", "Virtual" },
+            { "Science", "Science" },
+            { "Basketball", "Basketball" },
+            { "Pottery", "Pottery" },
+            { "Tennis", "Tennis" },
+            { "Soccer", "Soccer" },
+            { "Football", "Football" },
+            { "Fishing", "Fishing" },
+            { "Hiking", "Hiking" },
+            { "Wellness", "Wellness" },
+            { "nightlife", "Nightlife" },
+            { "Workshops", "Workshops" },
+            { "Conferences", "Conferences" },
+            { "Hockey", "Hockey" },
+            { "Baseball", "Baseball" },
+            { "other", "Other" }
+        };
+
         // Validate that a city name is provided.
         if (string.IsNullOrWhiteSpace(city))
         {
@@ -87,7 +117,18 @@ public class GlobalEventsController : ControllerBase
                     // If the location isn't parseable, assign a default distance value.
                     events[i].Distance = 0;
                 }
+
+                // **Apply type mapping for each event**
+                if (!string.IsNullOrEmpty(events[i].Type) && typeMapping.ContainsKey(events[i].Type.ToLower()))
+                {
+                    events[i].Type = typeMapping[events[i].Type.ToLower()];
             }
+        }
+
+            /* if (!string.IsNullOrEmpty(eventType) && typeMapping.ContainsKey(eventType.ToLower()))
+            {
+                eventType = typeMapping[eventType.ToLower()];
+            }*/
 
             // **Filter by Event Type**
             if (!string.IsNullOrEmpty(eventType))
@@ -98,13 +139,13 @@ public class GlobalEventsController : ControllerBase
             // **Filter by Max Distance**
             if (maxDistance.HasValue)
             {
-                events = events.Where(e => e.Distance >= 0 && e.Distance <= maxDistance).ToList();
+                events = events.Where(e => e.Distance >= 0 && e.Distance <= maxDistance.Value).ToList();
             }
 
             // **Filter by Max Price**
             if (maxPrice.HasValue)
             {
-                events = events.Where(e => e.Amount != null && e.Amount <= maxPrice).ToList();
+                events = events.Where(e => e.Amount.HasValue && e.Amount.Value <= maxPrice.Value).ToList();
             }
 
             Console.WriteLine($"✅ Events for {city} successfully fetched and filtered for user {userId}.");

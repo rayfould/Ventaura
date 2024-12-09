@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// Import shared CSS modules
-import styles from '../styles/modules/globalpage.module.css';
+// Import specific CSS modules
+import layoutStyles from '../styles/layout.module.css';
+import buttonStyles from '../styles/modules/buttons.module.css';
+import navigationStyles from '../styles/modules/navigation.module.css';
+import globalPageStyles from '../styles/modules/globalpage.module.css';
 import EventCard from './EventCard.js'; 
-import logo from '../assets/ventaura-logo-white.png'; 
 import logoFull from '../assets/ventaura-logo-semi-full.png'; 
 
 const eventTypes = [
@@ -13,24 +15,27 @@ const eventTypes = [
   "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
   "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", 
   "Science", "Basketball", "Baseball", "Pottery", "Tennis", "Soccer", "Football", 
-  "Fishing", "Hiking", "Food and Drink", "Other"
+  "Fishing", "Hiking", "Food and Drink", "Pottery", "Other"
 ];
 
 const GlobalPage = () => {
-  const userId = localStorage.getItem("userId");
+  const navigate = useNavigate();
+  const [userId, setUserId] = useState(localStorage.getItem("userId"));
   const [city, setCity] = useState("");
   const [events, setEvents] = useState([]);
   const [message, setMessage] = useState("");
-  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const [filters, setFilters] = useState({
     eventType: '',
     maxDistance: '',
     maxPrice: ''
   });
-  const navigate = useNavigate();
 
+  // Handle input changes for city name
   const handleCityChange = (e) => setCity(e.target.value);
 
+  // Handle filter changes
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({
@@ -39,19 +44,14 @@ const GlobalPage = () => {
     }));
   };
 
-  const handleEventTypeToggle = (type) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      eventType: prevFilters.eventType === type ? '' : type
-    }));
-  };
-
+  // Handle the search button click
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!city.trim()) {
       setMessage("Please enter a city name.");
       return;
     }
+
     try {
       const response = await axios.get(
         `http://localhost:5152/api/global-events/search`, 
@@ -72,133 +72,124 @@ const GlobalPage = () => {
     }
   };
 
-  const handleManualLogout = async () => {
-    if (!userId) {
-      alert("No user ID found in local storage.");
-      return;
-    }
-  
-    try {
-      const response = await axios.post(
-        `http://localhost:5152/api/combined-events/logout?userId=${userId}`
-      );
-      localStorage.removeItem("userId");
-      navigate("/login");
-    } catch (error) {
-      if (error.response) {
-        alert(error.response.data.Message || "Error logging out.");
-      } else {
-        alert("An error occurred while logging out.");
-      }
+  // Handle clear filters
+  const handleClearFilters = () => {
+    setFilters({
+      eventType: '',
+      maxDistance: '',
+      maxPrice: ''
+    });
+  };
+
+  // Handle scroll to hide/show header
+  const handleScroll = () => {
+    if (typeof window !== 'undefined') {
+      const currentScrollY = window.scrollY;
+      setShowHeader(currentScrollY <= lastScrollY || currentScrollY < 100);
+      setLastScrollY(currentScrollY);
     }
   };
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
+  }, [lastScrollY]);
+
   return (
-    <div className={styles['page-container']}>
+    <div className={globalPageStyles['page-container']}>
 
       {/* Header */}
-      <header className={styles.header}>
-        <div className={styles['location-container']}>
-          <img src={logoFull} alt="Logo" className={styles['logo-header']} />
+      <header 
+        className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
+      >
+        <div className={layoutStyles['logo-container']}>
+          <img src={logoFull} alt="Logo" className={navigationStyles['logo-header']} />
         </div>
 
-        <button 
-          className={styles['open-sidebar-right']} 
-          onClick={() => setIsRightSidebarOpen(true)} 
-          aria-label="Open Sidebar"
-        >
-          ☰
-        </button>
+        <div className={layoutStyles['center-buttons-container']}>
+          <button 
+            onClick={() => navigate('/for-you')} 
+            className={`${buttonStyles['button-56']}`}
+          >
+            For You
+          </button>
+          <button 
+            onClick={() => navigate('/global-page')} 
+            className={`${buttonStyles['button-56']}`}
+          >
+            Global
+          </button>
+        </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className={styles['main-content']}>
+      {/* Main layout container */}
+      <div className={globalPageStyles['page-container']}>
+        <main className={globalPageStyles['search-container']}>
 
-        {/* Search Form */}
-        <form 
-          onSubmit={handleSearch} 
-          className={`${styles.searchForm} ${styles.formMarginTop}`}
-        >
-          <input 
-            type="text" 
-            value={city} 
-            onChange={handleCityChange} 
-            placeholder="Search for a city" 
-            className={styles.formInput} 
-            required 
-          />
-          <button type="submit" className={styles.button}>
-            Search
-          </button>
-        </form>
+          <form onSubmit={handleSearch} className={globalPageStyles['search-form']}>
+            <input 
+              type="text" 
+              value={city} 
+              onChange={handleCityChange} 
+              placeholder="Search for a city" 
+              className={globalPageStyles['form-input']} 
+              required 
+            />
 
-        {/* Filter Section */}
-        <div className={styles['filter-section']}>
-          <h3>Filters</h3>
+            <select 
+              name="eventType" 
+              value={filters.eventType} 
+              onChange={handleFilterChange}
+              className={globalPageStyles['form-input']}
+            >
+              <option value="">Select Event Type</option>
+              {eventTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
 
-          <select 
-            name="eventType" 
-            value={filters.eventType} 
-            onChange={handleFilterChange}
-            className={styles.formInput}
-          >
-            <option value="">Select Event Type</option>
-            {eventTypes.map((type) => (
-              <option key={type} value={type}>{type}</option>
+            <input 
+              type="number" 
+              name="maxDistance" 
+              placeholder="Max Distance (km)" 
+              value={filters.maxDistance} 
+              onChange={handleFilterChange} 
+              className={globalPageStyles['form-input']} 
+            />
+
+            <input 
+              type="number" 
+              name="maxPrice" 
+              placeholder="Max Price ($)" 
+              value={filters.maxPrice} 
+              onChange={handleFilterChange} 
+              className={globalPageStyles['form-input']} 
+            />
+
+            <div className={globalPageStyles['button-container']}>
+              <button type="submit" className={`${buttonStyles.button}`}>
+                Search
+              </button>
+              <button 
+                type="button" 
+                onClick={handleClearFilters} 
+                className={`${buttonStyles.button} ${buttonStyles['clear-filters-button']}`}
+              >
+                Clear Filters
+              </button>
+            </div>
+          </form>
+
+          {message && <p className={layoutStyles.message}>{message}</p>}
+
+          <div className={layoutStyles['event-grid']}>
+            {events.map((event, index) => (
+              <EventCard key={index} event={event} />
             ))}
-          </select>
-
-          <input 
-            type="number" 
-            name="maxDistance" 
-            placeholder="Max Distance (km)" 
-            value={filters.maxDistance} 
-            onChange={handleFilterChange} 
-            className={styles.formInput}
-          />
-
-          <input 
-            type="number" 
-            name="maxPrice" 
-            placeholder="Max Price" 
-            value={filters.maxPrice} 
-            onChange={handleFilterChange} 
-            className={styles.formInput}
-          />
-        </div>
-
-        {message && <p className={styles.message}>{message}</p>}
-
-        {/* Event Grid */}
-        <div className={styles['event-grid']}>
-          {events.map((event, index) => (
-            <EventCard key={index} event={event} />
-          ))}
-        </div>
-      </main>
-
-      {/* Right Sidebar */}
-      <div className={`${styles['sidebar-right']} ${isRightSidebarOpen ? styles.open : ''}`}>
-        <button 
-          className={styles['close-sidebar-right']} 
-          onClick={() => setIsRightSidebarOpen(false)}
-        >
-          ×
-        </button>
-
-        <button 
-          onClick={handleManualLogout} 
-          className={styles['logout-button']}
-        >
-          Logout
-        </button>
-
-        <Link to="/for-you" className={styles['sidebar-link']}>
-          For You
-        </Link>
-        <Link to="/global-page" className={styles['sidebar-link']}>
-          Global
-        </Link>
+          </div>
+        </main>
       </div>
     </div>
   );
