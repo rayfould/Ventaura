@@ -18,12 +18,12 @@ const Settings = () => {
   });
   const [message, setMessage] = useState("");
   const navigate = useNavigate(); // Initialize navigate hook
+  const [userId, setUserId] = useState(localStorage.getItem("userId")); // Retrieve userId from localStorage
 
   useEffect(() => {
     // Fetch the user's existing data when the component mounts
     const fetchUserData = async () => {
       try {
-        const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
         if (userId) {
           const response = await axios.get(
             `http://localhost:5152/api/users/get-user-data?userId=${userId}`
@@ -44,7 +44,7 @@ const Settings = () => {
     };
 
     fetchUserData();
-  }, [navigate]);
+  }, [navigate, userId]);
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
@@ -55,9 +55,18 @@ const Settings = () => {
     try {
       const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
 
-      const response = await axios.post(
-        `http://localhost:5152/api/users/update-user-data?userId=${userId}`,
-        userData
+      // Prepare the request data
+      const updateData = {
+        userId: userId,
+        email: userData.email, // Include the updated email
+        firstName: userData.firstName, // Include the updated first name
+        lastName: userData.lastName, // Include the updated last name
+      };
+
+      // Make the PUT request to the server
+      const response = await axios.put(
+        `http://localhost:5152/api/users/updatePreferences`,
+        updateData
       );
 
       setMessage(response.data.Message || "User data updated successfully.");
