@@ -106,7 +106,7 @@ button[type="submit"]:disabled {
 }
 
 .settings-container {
-    width: 90%;
+    width: 75%;
     margin: 0 auto;
     margin-top: 15%;
 }

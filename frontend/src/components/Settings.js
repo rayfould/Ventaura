@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FaUserCircle, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa'; 
 
 // Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
@@ -23,24 +25,6 @@ const Settings = () => {
   useEffect(() => {
     // Fetch the user's existing data when the component mounts
     const fetchUserData = async () => {
-      try {
-        if (userId) {
-          const response = await axios.get(
-            `http://localhost:5152/api/users/get-user-data?userId=${userId}`
-          );
-          setUserData({
-            email: response.data.email || "",
-            firstName: response.data.firstName || "",
-            lastName: response.data.lastName || "",
-          });
-        } else {
-          setMessage("User not found. Please log in again.");
-          navigate("/login"); // Redirect to login if userId is not found
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setMessage("Error fetching user data. Please try again later.");
-      }
     };
 
     fetchUserData();
@@ -48,6 +32,35 @@ const Settings = () => {
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
+  };
+  const handleManualLogout = async () => {
+    if (!userId) {
+      alert("No user ID found in local storage.");
+      return;
+    }
+  
+    try {
+      const response = await axios.post(
+        `http://localhost:5152/api/combined-events/logout?userId=${userId}`
+      );
+  
+      // Check if response.data is defined and has a Message property
+      if (response.data && response.data.Message) {
+        alert(response.data.Message);
+      } else {
+        alert("Logout successful");
+      }
+  
+      // Remove userId from localStorage
+      localStorage.removeItem("userId");
+      navigate("/login");
+    } catch (error) {
+      if (error.response) {
+        alert(error.response.data.Message || "Error logging out.");
+      } else {
+        alert("An error occurred while logging out.");
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -91,6 +104,29 @@ const Settings = () => {
         >
           Back
         </button>
+        {/* User Profile Dropdown */}
+        <div className={layoutStyles['header-right']}>
+          <Dropdown drop="down">
+            <Dropdown.Toggle 
+              variant="none" 
+              id="dropdown-basic" 
+              className={buttonStyles['profile-dropdown-toggle']}
+              aria-label="User Profile Menu"
+            >
+              <FaUserCircle size={28} />
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu className={layoutStyles['dropdown-menu']}>
+              <Dropdown.Item onClick={() => navigate("/settings")}>
+                <FaUser className={layoutStyles['dropdown-icon']} /> Profile
+              </Dropdown.Item>
+              <Dropdown.Divider className={layoutStyles['dropdown-divider']} />
+              <Dropdown.Item onClick={handleManualLogout}>
+                <FaSignOutAlt className={layoutStyles['dropdown-icon']} /> Logout
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
       </header>
 
       <div className={formsStyles['settings-container']}>

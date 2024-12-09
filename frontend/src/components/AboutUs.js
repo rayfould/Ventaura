@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FaUserCircle, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa'; 
 
 // Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
@@ -57,10 +59,28 @@ const AboutUs = () => {
         >
         </button>
         <h1 className={layoutStyles['header-title']}>About Us</h1>
+        {/* User Profile Dropdown */}
         <div className={layoutStyles['header-right']}>
-          <button className={buttonStyles['settings-button']} onClick={() => navigate("/settings")}>
-            ⚙️
-          </button>
+          <Dropdown drop="down">
+            <Dropdown.Toggle 
+              variant="none" 
+              id="dropdown-basic" 
+              className={buttonStyles['profile-dropdown-toggle']}
+              aria-label="User Profile Menu"
+            >
+              <FaUserCircle size={28} />
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu className={layoutStyles['dropdown-menu']}>
+              <Dropdown.Item onClick={() => navigate("/settings")}>
+                <FaUser className={layoutStyles['dropdown-icon']} /> Profile
+              </Dropdown.Item>
+              <Dropdown.Divider className={layoutStyles['dropdown-divider']} />
+              <Dropdown.Item onClick={handleManualLogout}>
+                <FaSignOutAlt className={layoutStyles['dropdown-icon']} /> Logout
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </div>
       </header>
 
