@@ -5,12 +5,11 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    margin: 120px;
 }
 
 .main-layout {
     display: flex;
-    margin-top: 120px; /* Matches the header height */
+    margin-top: 180px; /* Matches the header height */
     width: 100%; /* Ensure it takes full width */
 }
 
@@ -59,7 +58,7 @@
 }
 
 /* Sidebars */
-.sidebar, .sidebar-right {
+.sidebar {
     position: fixed;
     top: 0;
     height: 100vh;
@@ -77,6 +76,27 @@
     justify-content: flex-start; /* Space between top and bottom sections */
 }
 
+.sidebar-right {
+    position: fixed;
+    top: 0;
+    height: 100vh;
+    width: 350px;
+    background-color: var(--primary);
+    color: var(--background);
+    overflow-y: auto;
+    transition: 0.3s;
+    z-index: var(--z-sidebar);
+    padding: var(--space-lg);
+    padding-left: 3rem;
+
+    /* Flexbox properties */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Space between top and bottom sections */
+
+}
+
+
 /* Adjust for responsive design if needed */
 @media (max-width: 768px) {
     .sidebar, 
@@ -91,7 +111,7 @@
 }
 
 .sidebar-right {
-    right: -385px;
+    right: -425px;
 }
 
 .sidebar.open {
@@ -126,7 +146,7 @@
     display: grid;
     gap: 1rem;
     padding: 1rem;
-    width: 95%;
+    width: 80%;
     margin: 0 auto;
 }
 
@@ -185,6 +205,17 @@
     position: absolute;
     left: 50%;
     top: 35%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.logo-container-side {
+    position: absolute;
+    left: 50%;
+    top: 50%;
     transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
@@ -597,4 +628,125 @@
     border-right-color: white;
     border-bottom-color: white;
     opacity: 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Dropdown Menu Styling */
+/* Dropdown Menu Styling */
+/* layout.module.css */
+
+/* Dropdown Menu Styling */
+:global(.dropdown-menu) {
+    min-width: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 1rem; 
+    background-color: var(--background);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    transition: opacity var(--transition-normal), transform var(--transition-normal);
+    opacity: 0;
+    transform: translateY(-10px);
+    z-index: 1001; 
+    color: var(--text); 
+    box-sizing: border-box; 
+}
+
+:global(.dropdown.show .dropdown-menu) {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* Dropdown Item Styling */
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: var(--text);
+    font-size: 2rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--primary-light);
+    color: var(--background);
+}
+
+/* Dropdown Icon Styling */
+.dropdown-icon {
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+    color: var(--primary);
+}
+
+/* Divider Styling */
+.dropdown-divider {
+    height: 1px;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Active Dropdown Item */
+.dropdown-item.active {
+    background-color: var(--primary);
+    color: var(--background);
+}
+
+.dropdown-item.active .dropdown-icon {
+    color: var(--background);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .dropdown-menu {
+        min-width: 150px;
+    }
+
+    .dropdown-item {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .dropdown-icon {
+        font-size: 1rem;
+    }
+}
+
+
+
+.header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; 
+    position: absolute; 
+    top: 80%; 
+    right: 5%; 
+    transform: translateY(-50%);
+    width: auto; 
+}
+
+/* Z-Index Variables */
+:root {
+    --z-header: 1000;
+    --z-sidebar: 1001; /* Set higher for sidebar-right to overlay FAB */
+    --z-sidebar-right: 1002;
+}
+
+.sidebar-right {
+    z-index: var(--z-sidebar-right); /* Ensures it overlays the FAB */
 }

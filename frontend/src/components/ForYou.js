@@ -5,6 +5,8 @@ import Papa from 'papaparse';
 import { usePapaParse } from 'react-papaparse';
 import EventCard from './EventCard.js';  
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import { Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FaUserCircle, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa'; 
 
 // Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
@@ -12,7 +14,7 @@ import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 import logo from '../assets/ventaura-logo-white.png'; 
-import logoFull from '../assets/ventaura-logo-semi-full.png'; 
+import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
 
 const ForYou = () => {
   const location = useLocation();
@@ -20,8 +22,8 @@ const ForYou = () => {
   const [userId, setUserId] = useState(localStorage.getItem("userId"));
   const [events, setEvents] = useState([]);
   const [message, setMessage] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false); 
   const { readString } = usePapaParse();
   const [csvData, setCsvData] = useState([]);
   const [showHeader, setShowHeader] = useState(true);
@@ -29,7 +31,6 @@ const ForYou = () => {
   const [userLocation, setUserLocation] = useState('Loading...');
   const [coordinates, setCoordinates] = useState(null);
    
-
   // Form data state for handling form input
   const [formData, setFormData] = useState({
     email: "",
@@ -232,32 +233,32 @@ const ForYou = () => {
   };
 
   // Add this useEffect to get location
-useEffect(() => {
-  if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        setCoordinates({ latitude, longitude });
-        
-        // Optional: Convert coordinates to city name using reverse geocoding
-        try {
-          const response = await fetch(
-            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=YOUR_API_KEY`
-          );
-          const data = await response.json();
-          if (data.results[0]) {
-            setUserLocation(data.results[0].components.city);
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          setCoordinates({ latitude, longitude });
+          
+          // Optional: Convert coordinates to city name using reverse geocoding
+          try {
+            const response = await fetch(
+              `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=YOUR_API_KEY`
+            );
+            const data = await response.json();
+            if (data.results[0]) {
+              setUserLocation(data.results[0].components.city);
+            }
+          } catch (error) {
+            setUserLocation('Location unavailable');
           }
-        } catch (error) {
+        },
+        () => {
           setUserLocation('Location unavailable');
         }
-      },
-      () => {
-        setUserLocation('Location unavailable');
-      }
-    );
-  }
-}, []);
+      );
+    }
+  }, []);
 
   const testEvent = {
     title: "Test Event",
@@ -306,61 +307,68 @@ useEffect(() => {
     <div className={layoutStyles['page-container']}>
       {/* Header */}
       <header 
-      className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
-    >
+        className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
+      >
+        {/* Sidebar Toggle Button */}
+        <button 
+          className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+          aria-label="Toggle Sidebar"
+        ></button>
 
-      {/* Sidebar Toggle Button */}
-      <button 
-        className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-        aria-label="Toggle Sidebar"
-      ></button>
+        {/* Logo */}
+        <div className={layoutStyles['logo-container']}>
+          <img src={logoFull} alt="Logo" className={navigationStyles['logo-header']} />
+        </div>
 
-      {/* Logo */}
-      <div className={layoutStyles['logo-container']}>
-        <img src={logoFull} alt="Logo" className={navigationStyles['logo-header']} />
-      </div>
+        {/* Center Buttons */}
+        <div className={layoutStyles['center-buttons-container']}>
+          <button 
+            onClick={() => navigate('/global-page')} 
+            className={`${buttonStyles['button-56']}`}
+          >
+            Global
+          </button>
+          <button 
+            onClick={() => navigate('/for-you')} 
+            className={`${buttonStyles['button-56']}`}
+          >
+            For You
+          </button>
+          <button 
+            onClick={() => navigate('/post-event-page')} 
+            className={`${buttonStyles['button-56']}`}
+          >
+            Post Event
+          </button>
+        </div>
 
-      {/* Center Buttons */}
-      <div className={layoutStyles['center-buttons-container']}>
-        <button 
-          onClick={() => navigate('/for-you')} 
-          className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
-        >
-          For You
-        </button>
-        <button 
-          onClick={() => navigate('/global-page')} 
-          className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
-        >
-          Global
-        </button>
-        <button 
-          onClick={() => navigate('/post-event-page')} 
-          className={`${buttonStyles['button-56']} ${buttonStyles['button-56']}`}
-        >
-          Post Event
-        </button>
-      </div>
+        {/* User Profile Dropdown */}
+        <div className={layoutStyles['header-right']}>
+        <Dropdown drop="down">
+          <Dropdown.Toggle 
+            variant="none" 
+            id="dropdown-basic" 
+            className={buttonStyles['profile-dropdown-toggle']}
+            aria-label="User Profile Menu"
+          >
+            <FaUserCircle size={28} />
+          </Dropdown.Toggle>
 
-      {/* Right Buttons */}
-      <div className={layoutStyles['header-right']}>
-        <button 
-          className={buttonStyles['settings-button']} 
-          onClick={() => navigate("/settings")}
-          aria-label="Settings"
-        >  
-          👤
-        </button>
-        <button 
-          className={buttonStyles['open-sidebar-right']} 
-          onClick={() => setIsRightSidebarOpen(true)}
-          aria-label="Preferences"
-        >
-          ☰ Preferences
-        </button>
-      </div>
-    </header>
+          <Dropdown.Menu className={layoutStyles['dropdown-menu']}>
+            <Dropdown.Item onClick={() => navigate("/settings")}>
+              <FaUser className={layoutStyles['dropdown-icon']} /> Profile
+            </Dropdown.Item>
+            <Dropdown.Divider className={layoutStyles['dropdown-divider']} />
+            <Dropdown.Item onClick={handleManualLogout}>
+              <FaSignOutAlt className={layoutStyles['dropdown-icon']} /> Logout
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+
+        </div>
+
+      </header>
 
       {/* Main layout container */}
       <div className={layoutStyles['main-layout']}>
@@ -380,7 +388,6 @@ useEffect(() => {
               onClick={() => setIsSidebarOpen(false)}
               aria-label="Close Sidebar"
             />
-
 
             {/* Navigation Links Container */}
             <div className={navigationStyles['links-container']}>
@@ -417,10 +424,13 @@ useEffect(() => {
 
         {/* Right Preferences Sidebar */}
         <div className={`${layoutStyles['sidebar-right']} ${isRightSidebarOpen ? layoutStyles.open : ''}`}>
-          <button className={navigationStyles['close-sidebar-right']} onClick={() => setIsRightSidebarOpen(false)}>
-            ×
+          {/* Close Sidebar Button */}
+          <button 
+              className={buttonStyles['close-sidebar-right']} 
+              onClick={() => setIsRightSidebarOpen(false)}
+              aria-label="Close Sidebar"
+          >
           </button>
-
           {/* Likes Section */}
           <div className={formsStyles.preferencesSection}>
             <p className={formsStyles.sectionTitle}>Likes:</p>
@@ -480,6 +490,20 @@ useEffect(() => {
           </button>
         </div>
       </div>
+
+      {/* Preferences FAB */}
+      <OverlayTrigger
+        placement="top"
+        overlay={<Tooltip id="fab-tooltip">Tune Your Feed</Tooltip>}
+      >
+        <button 
+          className={buttonStyles['preferences-fab']} 
+          onClick={() => setIsRightSidebarOpen(true)}
+          aria-label="Tune Your Feed"
+        >
+          ⚡
+        </button>
+      </OverlayTrigger>
     </div>
   );
 };

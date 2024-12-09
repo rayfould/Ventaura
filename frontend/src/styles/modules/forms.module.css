@@ -101,3 +101,9 @@ button[type="submit"]:disabled {
     text-decoration: underline;
 }
 
+.settings-container {
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 15%;
+}
+

@@ -7,7 +7,8 @@ import { useNavigate } from "react-router-dom";
 import layoutStyles from '../styles/layout.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
-
+import navigationStyles from '../styles/modules/navigation.module.css';
+import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
 
 const Settings = () => {
   const [userData, setUserData] = useState({
@@ -70,17 +71,20 @@ const Settings = () => {
   };
 
   return (
-    <div className={layoutStyles.pageContainer}>
-      <header className={layoutStyles.header}>
+    <div className={layoutStyles['page-container']}>
+      <header className={layoutStyles['header-side']}>
+        <div className={layoutStyles['logo-container-side']}>
+          <img src={logoFull} alt="Logo" className={navigationStyles['logo-header']} />
+        </div>
         <button
-          className={buttonStyles.backButton}
+          className={buttonStyles.button}
           onClick={() => navigate("/for-you")}
         >
           Back
         </button>
       </header>
 
-      <div className={formsStyles.settingsContainer}>
+      <div className={formsStyles['settings-container']}>
         <h2 className={formsStyles.heading}>Settings</h2>
         <form onSubmit={handleSubmit} className={formsStyles.form}>
           <input

@@ -36,3 +36,26 @@
     transform: rotate(360deg);
   }
 }
+
+/* Tooltip Customization */
+.tooltip-inner {
+  background-color: var(--primary);
+  color: var(--background);
+  font-size: 0.9rem;
+  border-radius: 4px;
+  padding: 8px 12px;
+  /* Remove opacity and transform to let Bootstrap handle visibility */
+  opacity: 1;
+  transform: translateY(0);
+  transition: none; /* Remove custom transitions to prevent conflicts */
+}
+
+.tooltip.bs-tooltip-left.show .tooltip-inner {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Optionally, adjust the arrow */
+.tooltip-arrow::before {
+  border-top-color: var(--primary);
+}

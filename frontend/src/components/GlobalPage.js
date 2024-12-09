@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FaUserCircle, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa';
 
 // Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
@@ -8,7 +10,8 @@ import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import globalPageStyles from '../styles/modules/globalpage.module.css';
 import EventCard from './EventCard.js'; 
-import logoFull from '../assets/ventaura-logo-semi-full.png'; 
+import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
+
 
 const eventTypes = [
   "Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
@@ -26,6 +29,7 @@ const GlobalPage = () => {
   const [message, setMessage] = useState("");
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const [filters, setFilters] = useState({
     eventType: '',
     maxDistance: '',
@@ -42,6 +46,36 @@ const GlobalPage = () => {
       ...prevFilters,
       [name]: value
     }));
+  };
+
+  const handleManualLogout = async () => {
+    if (!userId) {
+      alert("No user ID found in local storage.");
+      return;
+    }
+  
+    try {
+      const response = await axios.post(
+        `http://localhost:5152/api/combined-events/logout?userId=${userId}`
+      );
+  
+      // Check if response.data is defined and has a Message property
+      if (response.data && response.data.Message) {
+        alert(response.data.Message);
+      } else {
+        alert("Logout successful");
+      }
+  
+      // Remove userId from localStorage
+      localStorage.removeItem("userId");
+      navigate("/login");
+    } catch (error) {
+      if (error.response) {
+        alert(error.response.data.Message || "Error logging out.");
+      } else {
+        alert("An error occurred while logging out.");
+      }
+    }
   };
 
   // Handle the search button click
@@ -104,11 +138,26 @@ const GlobalPage = () => {
       <header 
         className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
       >
+        {/* Sidebar Toggle Button */}
+        <button 
+          className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+          aria-label="Toggle Sidebar"
+        ></button>
+
+        {/* Logo */}
         <div className={layoutStyles['logo-container']}>
           <img src={logoFull} alt="Logo" className={navigationStyles['logo-header']} />
         </div>
 
+        {/* Center Buttons */}
         <div className={layoutStyles['center-buttons-container']}>
+          <button 
+            onClick={() => navigate('/global-page')} 
+            className={`${buttonStyles['button-56']}`}
+          >
+            Global
+          </button>
           <button 
             onClick={() => navigate('/for-you')} 
             className={`${buttonStyles['button-56']}`}
@@ -116,12 +165,38 @@ const GlobalPage = () => {
             For You
           </button>
           <button 
-            onClick={() => navigate('/global-page')} 
+            onClick={() => navigate('/post-event-page')} 
             className={`${buttonStyles['button-56']}`}
           >
-            Global
+            Post Event
           </button>
         </div>
+
+        {/* User Profile Dropdown */}
+        <div className={layoutStyles['header-right']}>
+        <Dropdown drop="down">
+          <Dropdown.Toggle 
+            variant="none" 
+            id="dropdown-basic" 
+            className={buttonStyles['profile-dropdown-toggle']}
+            aria-label="User Profile Menu"
+          >
+            <FaUserCircle size={28} />
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu className={layoutStyles['dropdown-menu']}>
+            <Dropdown.Item onClick={() => navigate("/settings")}>
+              <FaUser className={layoutStyles['dropdown-icon']} /> Profile
+            </Dropdown.Item>
+            <Dropdown.Divider className={layoutStyles['dropdown-divider']} />
+            <Dropdown.Item onClick={handleManualLogout}>
+              <FaSignOutAlt className={layoutStyles['dropdown-icon']} /> Logout
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+
+        </div>
+
       </header>
 
       {/* Main layout container */}

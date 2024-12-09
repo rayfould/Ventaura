@@ -52,7 +52,7 @@ const eventIcons = {
   'Nightlife': Nightlife,
   'Other': Other,
   'Outdoors': Outdoors,
-  'Performing Arts': PerformingArts,
+  'Performance Art': PerformingArts,
   'Pets': Pets,
   'Pottery': Pottery,
   'Science': Science,
