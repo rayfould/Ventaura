@@ -11,6 +11,7 @@ using ventaura_backend.Data;
 using Microsoft.EntityFrameworkCore;
 using ventaura_backend.Utils;
 using ventaura_backend.Models;
+using ventaura_backend.Services;
 using System.IO;
 using System.Text;
 
@@ -25,12 +26,14 @@ namespace ventaura_backend.Controllers
         // Service for fetching events from combined APIs and the database context for accessing the database.
         private readonly CombinedAPIService _combinedApiService;
         private readonly DatabaseContext _dbContext;
+        private readonly GoogleGeocodingService _googleGeocodingService;
 
         // Constructor to inject dependencies for the API service and database context.
-        public CombinedEventsController(CombinedAPIService combinedApiService, DatabaseContext dbContext)
+        public CombinedEventsController(CombinedAPIService combinedApiService, DatabaseContext dbContext, GoogleGeocodingService googleGeocodingService)
         {
             _combinedApiService = combinedApiService;
             _dbContext = dbContext;
+            _googleGeocodingService = googleGeocodingService;
         }
 
         // Endpoint to fetch and store user-specific event data in a temporary table.
@@ -101,19 +104,50 @@ namespace ventaura_backend.Controllers
                 var hostEvents = await _dbContext.HostEvents.ToListAsync();
 
                 // **5. Process API Events**
-                var apiEventObjects = apiEvents.Select(e => new CombinedEvent
+
+                var apiEventObjects = new List<CombinedEvent>(); // Declare the list before the loop
+
+                foreach (var e in apiEvents)
                 {
-                    Title = e.Title ?? "Unknown Title",
-                    Description = e.Description ?? "No description",
-                    Location = e.Location ?? "Unknown Location",
-                    Start = e.Start,
-                    Source = e.Source ?? "API",
-                    Type = typeMapping.ContainsKey(e.Type.ToLower()) ? typeMapping[e.Type.ToLower()] : e.Type,
-                    CurrencyCode = e.CurrencyCode ?? "N/A",
-                    Amount = (decimal?)e.Amount ?? 0,
-                    URL = e.URL ?? "N/A",
-                    Distance = e.Distance ?? 0
-                }).ToList();
+                    string location = e.Location ?? "Unknown Location";
+                    double latitude = 0, longitude = 0;
+
+                    // Check if the location is in the format of "latitude,longitude"
+                    if (TryParseLocation(location, out latitude, out longitude))
+                    {
+                        // Call the geocoding service to get the address from the coordinates
+                        location = await _googleGeocodingService.GetAddressFromCoordinates(latitude, longitude);
+                    }
+                    else
+                    {
+                        // If location is not coordinates, geocode it to get latitude, longitude
+                        var coordinates = await _googleGeocodingService.GetCoordinatesAsync(location);
+                        if (coordinates.HasValue)
+                        {
+                            latitude = coordinates.Value.latitude;
+                            longitude = coordinates.Value.longitude;
+                        }
+                    }
+
+                    // ✅ Calculate the distance using user's location and the event location
+                    var distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, latitude, longitude);
+
+                    var combinedEvent = new CombinedEvent
+                    {
+                        Title = e.Title ?? "Unknown Title",
+                        Description = e.Description ?? "No description",
+                        Location = location, // Use the formatted address
+                        Start = e.Start,
+                        Source = e.Source ?? "API",
+                        Type = typeMapping.ContainsKey(e.Type.ToLower()) ? typeMapping[e.Type.ToLower()] : e.Type,
+                        CurrencyCode = e.CurrencyCode ?? "N/A",
+                        Amount = (decimal?)e.Amount ?? 0,
+                        URL = e.URL ?? "N/A",
+                        Distance = distance
+                    };
+
+                    apiEventObjects.Add(combinedEvent);
+                }
 
                  // **6. Process Host Events**
                 var processedHostEvents = hostEvents.Select(he => 
@@ -149,6 +183,15 @@ namespace ventaura_backend.Controllers
                 {
                     Console.WriteLine("No events to process.");
                     return Ok(new { Message = "No events available to process.", TotalEvents = 0 });
+                }
+                
+                foreach (var e in combinedEvents)
+                {
+                    double latitude, longitude;
+                    if (TryParseLocation(e.Location, out latitude, out longitude))
+                    {
+                        e.Distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, latitude, longitude);
+                    }
                 }
 
                 // **8. Write CSV File**
@@ -202,6 +245,7 @@ namespace ventaura_backend.Controllers
             latitude = 0;
             longitude = 0;
             if (string.IsNullOrEmpty(location) || !location.Contains(",")) return false;
+
             var parts = location.Split(',');
             return double.TryParse(parts[0].Trim(), out latitude) && double.TryParse(parts[1].Trim(), out longitude);
         }

@@ -7,36 +7,78 @@
 // Each Result contains Geometry information, which in turn includes a Location 
 // with latitude and longitude values.
 
+using System.Text.Json.Serialization;
 public class GeocodeResponse
 {
     // A list of results returned by the geocoding service.
     // Each result represents a possible geographic match for the queried address.
+    [JsonPropertyName("results")]
     public List<Result> Results { get; set; }
 
     // The status of the geocoding request (e.g., "OK", "ZERO_RESULTS").
+    [JsonPropertyName("status")]
     public string Status { get; set; }
 
     // Represents a single geocoding result.
     public class Result
     {
-        // The geometry of the result, which contains location coordinates.
+        [JsonPropertyName("formatted_address")]
+        public string FormattedAddress { get; set; }
+
+        [JsonPropertyName("geometry")]
         public Geometry Geometry { get; set; }
+
+        [JsonPropertyName("place_id")]
+        public string PlaceId { get; set; }
+
+        [JsonPropertyName("types")]
+        public List<string> Types { get; set; }
+
+        [JsonPropertyName("address_components")]
+        public List<AddressComponent> AddressComponents { get; set; }
     }
 
     // Contains geometric information about the result, including location coordinates.
     public class Geometry
     {
-        // The actual latitude and longitude of the matched location.
+        [JsonPropertyName("location")]
         public Location Location { get; set; }
+
+        [JsonPropertyName("location_type")]
+        public string LocationType { get; set; }
+
+        [JsonPropertyName("viewport")]
+        public Viewport Viewport { get; set; }
     }
 
     // Holds the latitude (Lat) and longitude (Lng) coordinates of the found location.
     public class Location
     {
-        // The latitude of the matched location.
+        [JsonPropertyName("lat")]
         public double Lat { get; set; }
 
-        // The longitude of the matched location.
+        [JsonPropertyName("lng")]
         public double Lng { get; set; }
+    }
+
+    public class Viewport
+    {
+        [JsonPropertyName("northeast")]
+        public Location Northeast { get; set; }
+
+        [JsonPropertyName("southwest")]
+        public Location Southwest { get; set; }
+    }
+
+    public class AddressComponent
+    {
+        [JsonPropertyName("long_name")]
+        public string LongName { get; set; }
+
+        [JsonPropertyName("short_name")]
+        public string ShortName { get; set; }
+
+        [JsonPropertyName("types")]
+        public List<string> Types { get; set; }
     }
 }
