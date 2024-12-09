@@ -28,15 +28,12 @@ namespace ventaura_backend.Controllers
         [HttpPost("rank/{userId}")]
         public async Task<IActionResult> RankEvents(int userId)
         {
-            // Invokes the RankingService to rank events for the given user.
-            var success = await _rankingService.RankEventsForUser(userId);
+            var rankingResponse = await _rankingService.RankEventsForUser(userId);
 
-            // If the ranking operation fails for any reason, return a BadRequest response.
-            if (!success)
-                return BadRequest("Failed to rank events");
+            if (!rankingResponse.Success)
+                return BadRequest(rankingResponse); // Returns the JSON object with success: false
 
-            // If successful, return a 200 OK status with a success message.
-            return Ok("Events ranked successfully");
+            return Ok(rankingResponse); // Returns the JSON object with success: true
         }
     }
 }
