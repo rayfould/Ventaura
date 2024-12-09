@@ -31,6 +31,7 @@ namespace ventaura_backend.Services
 
                 var events = yelpData["events"]?.Select(eventItem => new UserContent
                 {
+
                     UserId = userId,
                     Title = eventItem["name"]?.ToString() ?? "Unnamed Event",
                     Description = eventItem["description"]?.ToString() ?? "No description available.",
@@ -47,6 +48,7 @@ namespace ventaura_backend.Services
                         : null,
                     CurrencyCode = "USD", // Yelp API doesn't specify currency.
                     URL = eventItem["event_site_url"]?.ToString() ?? "No URL available"
+                    
                 }).ToList() ?? new List<UserContent>();
 
                 Console.WriteLine($"Fetched {events.Count} events from Yelp.");

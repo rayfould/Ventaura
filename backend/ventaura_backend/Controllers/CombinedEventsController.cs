@@ -41,7 +41,7 @@ namespace ventaura_backend.Controllers
             {
 
                 // **1. Type Mapping Implementation**
-                var typeMapping = new Dictionary<string, string>
+                var typeMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "festivals-fairs", "Festivals" },
                     { "sports-active-life", "Outdoors" },
