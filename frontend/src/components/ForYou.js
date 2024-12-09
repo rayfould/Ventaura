@@ -1,10 +1,11 @@
-// ForYou.js
+// src/pages/ForYou.js
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Papa from 'papaparse';
 import { usePapaParse } from 'react-papaparse';
 import EventCard from './EventCard.js';  
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FaUserCircle, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa'; 
 
@@ -15,9 +16,9 @@ import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 import logo from '../assets/ventaura-logo-white.png'; 
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const ForYou = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const [userId, setUserId] = useState(localStorage.getItem("userId"));
   const [events, setEvents] = useState([]);
@@ -30,8 +31,11 @@ const ForYou = () => {
   const [lastScrollY, setLastScrollY] = useState(0); 
   const [userLocation, setUserLocation] = useState('Loading...');
   const [coordinates, setCoordinates] = useState(null);
-   
-  // Form data state for handling form input
+  const [progress, setProgress] = useState(0);
+  const isLoading = progress < 100;
+  const MIN_DISPLAY_TIME = 10000; // 10 seconds
+  const [timerDone, setTimerDone] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     firstName: "",
@@ -50,28 +54,92 @@ const ForYou = () => {
   useEffect(() => {
     if (!userId) {
       setMessage("No user ID found. Please log in first.");
+      navigate("/login");
       return;
     }
 
-    const fetchEvents = async () => {
+    let timer = null;
+
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5152/api/combined-events/fetch?userId=${userId}`
+        // === Start Minimum Display Timer ===
+        timer = setTimeout(() => {
+          setTimerDone(true);
+          console.log("Timer done");
+        }, MIN_DISPLAY_TIME);
+
+        // === Step 1: Fetch Events ===
+        const fetchEventsResponse = await axios.get(
+          `http://localhost:5152/api/combined-events/fetch?userId=${userId}`,
+          {
+            onDownloadProgress: (progressEvent) => {
+              const { loaded, total } = progressEvent;
+              if (total) {
+                // Assuming this call represents 50% of the total progress
+                const percentCompleted = Math.round((loaded / total) * 50);
+                setProgress((prevProgress) => {
+                  // Ensure we don't decrease progress
+                  return Math.max(prevProgress, percentCompleted);
+                });
+              }
+            }
+          }
         );
-        setMessage(response.data.Message);
-        setEvents(response.data.insertedEvents || []);
+        setMessage(fetchEventsResponse.data.Message || "");
+        setEvents(fetchEventsResponse.data.insertedEvents || []);
+
+        // === Step 2: Fetch CSV Data ===
+        const fetchCSVResponse = await axios.get(
+          `http://localhost:5152/api/combined-events/get-csv?userId=${userId}`,
+          {
+            responseType: 'blob', // To handle CSV as binary data
+            onDownloadProgress: (progressEvent) => {
+              const { loaded, total } = progressEvent;
+              if (total) {
+                // This call represents the remaining 50% of the total progress
+                const percentCompleted = Math.round((loaded / total) * 50) + 50;
+                setProgress((prevProgress) => {
+                  return Math.max(prevProgress, percentCompleted);
+                });
+              }
+            }
+          }
+        );
+
+        // === Step 3: Parse CSV Data ===
+        const reader = new FileReader();
+        reader.onload = () => {
+          const csvString = reader.result;
+          Papa.parse(csvString, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+              setEvents(results.data);
+              setDataLoaded(true); // Data loading complete
+              console.log("Data loaded");
+            },
+            error: (error) => {
+              console.error("CSV Parsing Error:", error);
+              setProgress(100); // Even on error, hide the overlay
+            }
+          });
+        };
+        reader.onerror = () => {
+          console.error("FileReader Error:", reader.error);
+          setProgress(100); // Hide the overlay on error
+        };
+        reader.readAsText(fetchCSVResponse.data);
+
       } catch (error) {
-        if (error.response) {
-          setMessage(error.response.data || "Error fetching events.");
-        } else {
-          setMessage("An error occurred while fetching events.");
-        }
+        console.error("Data Fetching Error:", error);
+        setMessage(error.response?.data?.message || "An error occurred while fetching data.");
+        setProgress(100); // Hide the overlay even if there's an error
       }
     };
 
-    fetchEvents();
+    fetchData();
 
-    // Setup inactivity logout
+    // === Setup Inactivity Logout ===
     let timeout;
 
     const resetTimeout = () => {
@@ -103,13 +171,23 @@ const ForYou = () => {
 
     resetTimeout();
 
+    // Cleanup function
     return () => {
+      if (timer) clearTimeout(timer);
       clearTimeout(timeout);
       window.removeEventListener("mousemove", handleActivity);
       window.removeEventListener("keypress", handleActivity);
       window.removeEventListener("click", handleActivity);
     };
   }, [userId, navigate]);
+
+  // New useEffect to watch both dataLoaded and timerDone
+  useEffect(() => {
+    if (dataLoaded && timerDone) {
+      setProgress(100); // Hide the overlay
+      console.log("Both dataLoaded and timerDone are true. Hiding overlay.");
+    }
+  }, [dataLoaded, timerDone]);
 
   const handleManualLogout = async () => {
     if (!userId) {
@@ -140,7 +218,6 @@ const ForYou = () => {
       }
     }
   };
-  
 
   const handlePreferenceToggle = (preference) => {
     setFormData((prevData) => {
@@ -167,135 +244,34 @@ const ForYou = () => {
     }));
   };
 
-  useEffect(() => {
-    const actualUserId = localStorage.getItem("userId");
-      if (!actualUserId) {
-        console.log("USER ID NOT FOUND. RETURNING TO LOGIN");
-        navigate("/login");
-        return;
-      }
-    console.log("========= FILLING OUT MAIN PAGE =========");
-    console.log("Using userId:", actualUserId);
-  
-    const fetchCSVData = async () => {
-      try {
-        console.log("🚀 Starting CSV fetch");
-        
-        // First API call with hardcoded userId
-        console.log("Making first API call to /fetch");
-        const fetchResponse = await axios.get(`http://localhost:5152/api/combined-events/fetch?userId=${actualUserId}`);
-        console.log("📥 Fetch Response:", fetchResponse.data);
-        
-        // Second API call with hardcoded userId
-        console.log("Making second API call to /get-csv");
-        const csvResponse = await axios.get(`http://localhost:5152/api/combined-events/get-csv?userId=${actualUserId}`);
-        console.log("📄 Got CSV data");
-        
-        Papa.parse(csvResponse.data, {
-          header: true,
-          complete: (results) => {
-            console.log("✅ Parse complete!");
-            console.log("📊 Number of events:", results.data.length);
-            console.log("📝 First event:", results.data[0]);
-            setEvents(results.data);
-          },
-          error: (error) => {
-            console.log("❌ Parse error:", error);
-          }
-        });
-  
-      } catch (error) {
-        console.log("❌ ERROR:", error);
-        if (error.response) {
-          console.log("❌ Error Response:", error.response.data);
-        }
-      }
-    };
-  
-    // Call fetchCSVData directly without userId check
-    fetchCSVData();
-    
-  }, [navigate, TIMEOUT_DURATION]); // Remove userId from dependencies since we're hardcoding it
-  
-  const handleCSVData = (csvString) => {
-    readString(csvString, {
-      worker: true,
-      complete: (results) => {
-        // Filter out empty rows and set the data
-        const filteredData = results.data.filter(row => 
-          Object.values(row).some(value => value !== '')
-        );
-        setCsvData(filteredData);
-        setEvents(filteredData); // Update your existing events state
-      },
-      header: true, // This assumes your CSV has headers matching your event properties
-    });
+  // Handle scroll to show/hide header based on scroll position
+  const handleScroll = () => {
+    if (typeof window !== 'undefined') {
+      const currentScrollY = window.scrollY;
+      const threshold = 100; // Adjust this value as needed
+      setShowHeader(currentScrollY < threshold);
+    }
   };
 
-  // Add this useEffect to get location
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          setCoordinates({ latitude, longitude });
-          
-          // Optional: Convert coordinates to city name using reverse geocoding
-          try {
-            const response = await fetch(
-              `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=YOUR_API_KEY`
-            );
-            const data = await response.json();
-            if (data.results[0]) {
-              setUserLocation(data.results[0].components.city);
-            }
-          } catch (error) {
-            setUserLocation('Location unavailable');
-          }
-        },
-        () => {
-          setUserLocation('Location unavailable');
-        }
-      );
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', handleScroll);
+      // Initialize header visibility based on initial scroll position
+      handleScroll();
+      return () => window.removeEventListener('scroll', handleScroll);
     }
   }, []);
-
-  const testEvent = {
-    title: "Test Event",
-    type: "Concert",
-    start: "2024-12-06T19:00:00",
-    distance: 2.5,
-    amount: 25.00,
-    currencyCode: "USD",
-    url: "#"
-  };
-
- // Handle scroll to show/hide header based on scroll position
- const handleScroll = () => {
-  if (typeof window !== 'undefined') {
-    const currentScrollY = window.scrollY;
-    const threshold = 100; // Adjust this value as needed
-    setShowHeader(currentScrollY < threshold);
-  }
-};
-
-useEffect(() => {
-  if (typeof window !== 'undefined') {
-    window.addEventListener('scroll', handleScroll);
-    // Initialize header visibility based on initial scroll position
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }
-}, []);
 
   // Determine active page
   const isActive = (path) => {
     return navigate.location && navigate.location.pathname === path;
   };
 
-
   return (
     <div className={layoutStyles['page-container']}>
+      {/* Loading Overlay */}
+      <LoadingOverlay isVisible={isLoading} progress={progress} />
+
       {/* Header */}
       <header 
         className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
@@ -336,29 +312,27 @@ useEffect(() => {
 
         {/* User Profile Dropdown */}
         <div className={layoutStyles['header-right']}>
-        <Dropdown drop="down">
-          <Dropdown.Toggle 
-            variant="none" 
-            id="dropdown-basic" 
-            className={buttonStyles['profile-dropdown-toggle']}
-            aria-label="User Profile Menu"
-          >
-            <FaUserCircle size={28} />
-          </Dropdown.Toggle>
+          <Dropdown drop="down">
+            <Dropdown.Toggle 
+              variant="none" 
+              id="dropdown-basic" 
+              className={buttonStyles['profile-dropdown-toggle']}
+              aria-label="User Profile Menu"
+            >
+              <FaUserCircle size={28} />
+            </Dropdown.Toggle>
 
-          <Dropdown.Menu className={layoutStyles['dropdown-menu']}>
-            <Dropdown.Item onClick={() => navigate("/settings")}>
-              <FaUser className={layoutStyles['dropdown-icon']} /> Profile
-            </Dropdown.Item>
-            <Dropdown.Divider className={layoutStyles['dropdown-divider']} />
-            <Dropdown.Item onClick={handleManualLogout}>
-              <FaSignOutAlt className={layoutStyles['dropdown-icon']} /> Logout
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-
+            <Dropdown.Menu className={layoutStyles['dropdown-menu']}>
+              <Dropdown.Item onClick={() => navigate("/settings")}>
+                <FaUser className={layoutStyles['dropdown-icon']} /> Profile
+              </Dropdown.Item>
+              <Dropdown.Divider className={layoutStyles['dropdown-divider']} />
+              <Dropdown.Item onClick={handleManualLogout}>
+                <FaSignOutAlt className={layoutStyles['dropdown-icon']} /> Logout
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </div>
-
       </header>
 
       {/* Main layout container */}
@@ -379,7 +353,7 @@ useEffect(() => {
               onClick={() => setIsSidebarOpen(false)}
               aria-label="Close Sidebar"
             />
-
+            
             {/* Navigation Links Container */}
             <div className={navigationStyles['links-container']}>
               <Link to="/for-you" className={navigationStyles['sidebar-link']} onClick={() => setIsSidebarOpen(false)}>
@@ -407,9 +381,13 @@ useEffect(() => {
         <main className={layoutStyles['main-content']}>
           {message && <p className={layoutStyles.message}>{message}</p>}
           <div className={layoutStyles['event-grid']}>
-            {events && events.map((event, index) => (
-              <EventCard key={index} event={event} />
-            ))}
+            {events && events.length > 0 ? (
+              events.map((event) => (
+                <EventCard key={event.id || event.index} event={event} /> // Preferably use event.id
+              ))
+            ) : (
+              !isLoading && <p>No events found.</p>
+            )}
           </div>
         </main>
 

@@ -1,4 +1,5 @@
-// Login.js
+// src/pages/Login.js
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
@@ -16,7 +17,7 @@ const Login = () => {
     longitude: "",
   });
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // New: Tracks loading state
+  const [isLoading, setIsLoading] = useState(false); // Optionally remove if no overlay
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,7 +47,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(""); // Clear any previous messages
-    setIsLoading(true); // Set loading state
+    setIsLoading(true); // Optionally remove if no overlay
+
     try {
       const response = await axios.post(
         "http://localhost:5152/api/users/login",
@@ -56,17 +58,22 @@ const Login = () => {
       // Save the userId to localStorage
       localStorage.setItem("userId", response.data.userId);
       
-      setIsLoading(false); // Reset loading state
+      // Optional: Display a success message
+      setMessage("Login successful! Redirecting...");
+      
+      // Navigate to For You page immediately
       navigate("/for-you", { state: { userId: response.data.userId } });
+      
     } catch (error) {
-      setIsLoading(false); // Reset loading state
+      setIsLoading(false); // Hide the overlay if any
       setMessage(error.response?.data?.message || "Invalid email or password.");
     }
   };
 
   return (
     <div className={layoutStyles['page-container']}>
-      
+      {/* Removed LoadingOverlay from Login.js */}
+
       <div className={formsStyles['login-container']}>
         <h2 className={formsStyles['heading']}>Login</h2>
 
