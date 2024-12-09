@@ -327,3 +327,11 @@
   transform: scale(1.1);
   outline: none;
 }
+
+
+.clear-filters-button {
+  margin-left: 40%;
+  margin-top: 10px;
+  width: 20%;
+
+}

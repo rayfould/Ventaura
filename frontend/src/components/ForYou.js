@@ -270,32 +270,23 @@ const ForYou = () => {
     url: "#"
   };
 
- // Handle scroll to hide/show header
-  const handleScroll = () => {
-    if (typeof window !== 'undefined') {
-      const currentScrollY = window.scrollY;
+ // Handle scroll to show/hide header based on scroll position
+ const handleScroll = () => {
+  if (typeof window !== 'undefined') {
+    const currentScrollY = window.scrollY;
+    const threshold = 100; // Adjust this value as needed
+    setShowHeader(currentScrollY < threshold);
+  }
+};
 
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down
-        setShowHeader(false);
-      } else {
-        // Scrolling up
-        setShowHeader(true);
-      }
-
-      setLastScrollY(currentScrollY);
-    }
-  };
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', handleScroll);
-
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-      };
-    }
-  }, [lastScrollY]);
+useEffect(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', handleScroll);
+    // Initialize header visibility based on initial scroll position
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }
+}, []);
 
   // Determine active page
   const isActive = (path) => {
