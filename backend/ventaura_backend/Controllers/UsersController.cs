@@ -251,7 +251,7 @@ namespace ventaura_backend.Controllers
                 Console.WriteLine("User preferences updated successfully.");
 
                 // Return a success message.
-                return Ok(new { Message = "User preferences updated successfully." });
+                return Ok(new { Message = "User information updated successfully." });
             }
             catch (Exception ex)
             {
@@ -293,6 +293,63 @@ namespace ventaura_backend.Controllers
                 return StatusCode(500, new { Message = "An error occurred while fetching user preferences and dislikes." });
             }
         }
+
+        // Endpoint to update a user's password in account settings.
+        [HttpPut("changePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest changePasswordRequest)
+        {
+            try
+            {
+                // **1. Validate the request data**
+                if (changePasswordRequest == null ||
+                    changePasswordRequest.UserId <= 0 ||
+                    string.IsNullOrWhiteSpace(changePasswordRequest.CurrentPassword) ||
+                    string.IsNullOrWhiteSpace(changePasswordRequest.NewPassword))
+                {
+                    return BadRequest(new { Message = "Invalid request. Please provide userId, currentPassword, and newPassword." });
+                }
+
+                if (changePasswordRequest.NewPassword.Length < 8)
+                {
+                    return BadRequest(new { Message = "New password must be at least 8 characters long." });
+                }
+
+                // **2. Fetch the user from the database**
+                var user = await _dbContext.Users.FindAsync(changePasswordRequest.UserId);
+                if (user == null)
+                {
+                    return NotFound(new { Message = "User not found." });
+                }
+
+                // **3. Verify the current password using BCrypt**
+                if (!BCrypt.Net.BCrypt.Verify(changePasswordRequest.CurrentPassword, user.PasswordHash))
+                {
+                    return Unauthorized(new { Message = "Current password is incorrect." });
+                }
+
+                // **4. Prevent the user from reusing the same password**
+                if (BCrypt.Net.BCrypt.Verify(changePasswordRequest.NewPassword, user.PasswordHash))
+                {
+                    return BadRequest(new { Message = "New password cannot be the same as the current password." });
+                }
+
+                // **5. Hash the new password using BCrypt**
+                var hashedNewPassword = BCrypt.Net.BCrypt.HashPassword(changePasswordRequest.NewPassword);
+
+                // **6. Update the user's password in the database**
+                user.PasswordHash = hashedNewPassword;
+                await _dbContext.SaveChangesAsync();
+
+                Console.WriteLine($"User with ID {user.UserId} successfully changed their password.");
+
+                return Ok(new { Message = "Password updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred while changing password: {ex.Message}");
+                return StatusCode(500, new { Message = "An error occurred while changing the password.", Details = ex.Message });
+            }
+        }
     }
 
     // DTO for handling login requests, including optional location updates.
@@ -317,5 +374,13 @@ namespace ventaura_backend.Controllers
         public double? MaxDistance { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
+    }
+    
+    // DTO for updating the user's password. 
+    public class ChangePasswordRequest
+    {
+        public int UserId { get; set; }
+        public string CurrentPassword { get; set; }
+        public string NewPassword { get; set; }
     }
 }

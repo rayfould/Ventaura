@@ -19,21 +19,40 @@ const Settings = () => {
     firstName: "",
     lastName: "",
   });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  });
   const [message, setMessage] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
   const navigate = useNavigate(); // Initialize navigate hook
   const [userId, setUserId] = useState(localStorage.getItem("userId")); // Retrieve userId from localStorage
 
   useEffect(() => {
-    // Fetch the user's existing data when the component mounts
     const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5152/api/users/${userId}`);
+        setUserData({
+          email: response.data.email,
+          firstName: response.data.firstName,
+          lastName: response.data.lastName,
+        });
+      } catch (error) {
+        console.log("Error fetching user data:", error);
+      }
     };
-
     fetchUserData();
   }, [navigate, userId]);
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
+
+  const handlePasswordChange = (e) => {
+    setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
+  };
+
   const handleManualLogout = async () => {
     if (!userId) {
       alert("No user ID found in local storage.");
@@ -83,13 +102,47 @@ const Settings = () => {
         updateData
       );
 
-      setMessage(response.data.Message || "User data updated successfully.");
+      setMessage(response.data.Message || "User information updated successfully.");
     } catch (error) {
+      
       if (error.response) {
         setMessage(error.response.data.Message || "Error updating user data.");
       } else {
         setMessage("An error occurred while updating data. Please try again.");
       }
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+
+    // Simple validation
+    if (passwordData.newPassword !== passwordData.confirmNewPassword) {
+      setPasswordMessage("New passwords do not match.");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 8) {
+      setPasswordMessage("Password must be at least 8 characters long.");
+      return;
+    }
+
+    try {
+      const changePasswordData = {
+        userId: userId,
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      };
+
+      const response = await axios.put(
+        `http://localhost:5152/api/users/changePassword`,
+        changePasswordData
+      );
+
+      setPasswordMessage(response.data.Message || "Password updated successfully.");
+      setPasswordData({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
+    } catch (error) {
+      setPasswordMessage(error.response?.data?.Message || "Error changing password.");
     }
   };
 
@@ -131,7 +184,7 @@ const Settings = () => {
       </header>
 
       <div className={formsStyles['settings-container']}>
-        <h2 className={formsStyles.heading}>Settings</h2>
+        <h2 className={createAccountStyles['create-account-heading']}>Account Details</h2>
         <form onSubmit={handleSubmit} className={formsStyles['settings-form']}>
           <input
             type="email"
@@ -164,7 +217,45 @@ const Settings = () => {
             Update Settings
           </button>
         </form>
+
         {message && <p className={formsStyles.message}>{message}</p>}
+
+        <h2 className={createAccountStyles['create-account-heading2']}>Change Password</h2>
+        <form onSubmit={handleChangePassword} className={formsStyles['settings-form']}>
+          <input
+            type="password"
+            name="currentPassword"
+            placeholder="Current Password"
+            value={passwordData.currentPassword}
+            onChange={handlePasswordChange}
+            className={createAccountStyles['form-input']}
+            required
+          />
+          <input
+            type="password"
+            name="newPassword"
+            placeholder="New Password"
+            value={passwordData.newPassword}
+            onChange={handlePasswordChange}
+            className={createAccountStyles['form-input']}
+            required
+          />
+          <input
+            type="password"
+            name="confirmNewPassword"
+            placeholder="Confirm New Password"
+            value={passwordData.confirmNewPassword}
+            onChange={handlePasswordChange}
+            className={createAccountStyles['form-input']}
+            required
+          />
+          <button type="submit" className={createAccountStyles['create-account-button']}>
+            Update Password
+          </button>
+        </form>
+
+        {message && <p className={formsStyles.message}>{message}</p>}
+
       </div>
     </div>
   );
