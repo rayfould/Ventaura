@@ -340,7 +340,7 @@
 /* Left Side */
 .landing-left {
     position: fixed;
-    width: 50%;  /* Changed from 40% to 50% */
+    width: 50%;  
     height: 100vh;
     background-color: white;
     display: flex;
@@ -353,8 +353,8 @@
 
 /* Right Side */
 .landing-right {
-    margin-left: 50%;  /* Changed from 40% to 50% */
-    width: 50%;       /* Changed from 60% to 50% */
+    margin-left: 50%;  
+    width: 50%;       
     min-height: 100vh;
     background-color: var(--secondary);
     color: white;
@@ -362,7 +362,7 @@
 }
 
 .content-wrapper {
-    padding: 4rem;
+    padding: 2rem;
     max-width: 800px;
     margin: 0 auto;
 }
@@ -373,25 +373,81 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content:center;
 }
 
 .hero-section h1 {
     font-size: 2.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 4rem;
     line-height: 1.2;
+    text-align: center;
 }
 
 .hero-section p {
     font-size: 1.5rem;
     opacity: 0.9;
+    margin-bottom: 120px;
+    text-align: center;
 }
+
+/* How It Works Section */
+.how-it-works {
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.how-it-works h2 {
+    font-size: 2rem;
+    margin-bottom: 3rem;
+}
+
+.steps-container {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.steps-container h3 {
+    font-size: 18px;
+}
+.steps-container p {
+    font-size: 16px;
+}
+
+.step-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    min-width: 0;
+}
+
+.step-number {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Feature Cards*/
 
 .feature-cards {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* 2x2 grid */
     gap: 2rem;
-    margin: 4rem 0;
+    margin: 2rem 0;
     padding: 0 2rem;
 }
 
@@ -433,14 +489,14 @@
 }
 
 .feature-card h3 {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     margin-bottom: 1rem;
     color: white;
     position: relative;
 }
 
 .feature-card p {
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.9);
     position: relative;
@@ -458,56 +514,6 @@
     opacity: 0.9;
 }
 
-/* How It Works Section */
-.how-it-works {
-    padding: 4rem 0;
-    text-align: center;
-}
-
-.how-it-works h2 {
-    font-size: 2rem;
-    margin-bottom: 3rem;
-}
-
-.steps-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    padding: 0 1rem
-}
-
-.steps-container h3 {
-    font-size: 20px;
-}
-.steps-container p {
-    font-size: 16px;
-}
-
-.step-card {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 2.5rem;
-    border-radius: 20px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.step-number {
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--primary);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    font-weight: bold;
-}
 
 /* Call to Action Section */
 .cta-section {
@@ -525,12 +531,12 @@
 }
 
 .cta-section h2 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     margin-bottom: 1rem;
 }
 
 .cta-section p {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     margin-bottom: 2rem;
     opacity: 0.9;
 }
