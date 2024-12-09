@@ -26,6 +26,15 @@ namespace ventaura_backend.Models
         public Dates Dates { get; set; } // Event start date and time.
         public VenueEmbedded _embedded { get; set; } // Contains venue information for the event.
         public List<Classification> Classifications { get; set; } // List of event classifications.
+        public List<PriceRange> PriceRanges { get; set; } // Price range information.
+
+    }
+
+    public class PriceRange
+    {
+        public decimal Min { get; set; }
+        public decimal Max { get; set; }
+        public string Currency { get; set; }
     }
 
     // Represents the start date and time of an event.

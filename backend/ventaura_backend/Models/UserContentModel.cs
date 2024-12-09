@@ -14,7 +14,7 @@ namespace ventaura_backend.Models
         public string Source { get; set; } // Maps to "source" column (nullable)
         public string Type { get; set; } // Maps to "type" column (nullable)
         public string CurrencyCode { get; set; } // Maps to "currency_code" column (nullable)
-        public double? Amount { get; set; } // Maps to "amount" column (nullable)
+        public decimal? Amount { get; set; } // Maps to "amount" column (nullable)
         public string URL { get; set; } // Maps to "url" column (nullable)
         public DateTime CreatedAt { get; set; } = DateTime.Now; // Maps to "created_at" column with default value
         public double? Distance { get; set; } // Maps to "distance" column (nullable)

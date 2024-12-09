@@ -75,7 +75,13 @@ namespace ventaura_backend.Services
                         Start = startDate,
                         Source = "Ticketmaster",
                         Type = eventItem.Classifications?.FirstOrDefault()?.Genre?.Name,
-                        URL = eventItem.URL
+                        URL = eventItem.URL,
+                        Amount = eventItem.PriceRanges != null && eventItem.PriceRanges.Any()
+                            ? (decimal?)eventItem.PriceRanges.First().Min
+                            : 0, // Extract minimum price from priceRanges, set to 0 if not available
+                        CurrencyCode = eventItem.PriceRanges != null && eventItem.PriceRanges.Any()
+                            ? eventItem.PriceRanges.First().Currency
+                            : "N/A" // Extract currency from priceRanges, set to "N/A" if not available
                     };
                 }).ToList() ?? new List<UserContent>();
 

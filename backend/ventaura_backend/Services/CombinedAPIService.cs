@@ -9,15 +9,13 @@ using ventaura_backend.Services;
 public class CombinedAPIService
 {
     // Services for interacting with Amadeus, Yelp and Ticketmaster APIs.
-    private readonly AmadeusService _amadeusService;
     private readonly TicketmasterService _ticketmasterService;
     private readonly YelpFusionService _yelpFusionService;
 
 
     // Constructor to inject the Amadeus and Ticketmaster services.
-    public CombinedAPIService(AmadeusService amadeusService, TicketmasterService ticketmasterService, YelpFusionService yelpFusionService)
+    public CombinedAPIService(TicketmasterService ticketmasterService, YelpFusionService yelpFusionService)
     {
-        _amadeusService = amadeusService;
         _ticketmasterService = ticketmasterService;
         _yelpFusionService = yelpFusionService;
     }

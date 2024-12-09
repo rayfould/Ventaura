@@ -46,7 +46,6 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 // - TicketmasterService and AmadeusService handle external event data retrieval.
 // - CombinedAPIService merges various event sources into a unified view.
 builder.Services.AddScoped<TicketmasterService>();
-builder.Services.AddScoped<AmadeusService>();
 builder.Services.AddScoped<CombinedAPIService>();
 
 // Add a general CORS policy allowing any origin, method, and header.

@@ -34,7 +34,7 @@ public class GlobalEventsController : ControllerBase
     {
 
         // **1. Type Mapping Implementation**
-        var typeMapping = new Dictionary<string, string>
+        var typeMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "festivals-fairs", "Festivals" },
             { "sports-active-life", "Outdoors" },
@@ -64,6 +64,14 @@ public class GlobalEventsController : ControllerBase
             { "Conferences", "Conferences" },
             { "Hockey", "Hockey" },
             { "Baseball", "Baseball" },
+            { "lectures-books", "Lectures"},
+            { "fashion", "Fashion"},
+            { "Motorsports/Racing", "Motorsports"},
+            { "Dance", "Dance"},
+            { "Comedy", "Comedy"},
+            { "Pop", "Music"},
+            { "Country", "Music"},
+            { "Hip-Hop/Rap", "Music"},
             { "other", "Other" }
         };
 
@@ -119,16 +127,15 @@ public class GlobalEventsController : ControllerBase
                 }
 
                 // **Apply type mapping for each event**
-                if (!string.IsNullOrEmpty(events[i].Type) && typeMapping.ContainsKey(events[i].Type.ToLower()))
+                if (!string.IsNullOrEmpty(events[i].Type))
                 {
-                    events[i].Type = typeMapping[events[i].Type.ToLower()];
+                    if (typeMapping.ContainsKey(events[i].Type))
+                    {
+                        events[i].Type = typeMapping[events[i].Type];
+                    }
+                }
             }
-        }
 
-            /* if (!string.IsNullOrEmpty(eventType) && typeMapping.ContainsKey(eventType.ToLower()))
-            {
-                eventType = typeMapping[eventType.ToLower()];
-            }*/
 
             // **Filter by Event Type**
             if (!string.IsNullOrEmpty(eventType))
@@ -145,7 +152,7 @@ public class GlobalEventsController : ControllerBase
             // **Filter by Max Price**
             if (maxPrice.HasValue)
             {
-                events = events.Where(e => e.Amount.HasValue && e.Amount.Value <= maxPrice.Value).ToList();
+                events = events.Where(e => e.Amount.HasValue && e.Amount.Value <= (decimal)maxPrice.Value).ToList();
             }
 
             Console.WriteLine($"✅ Events for {city} successfully fetched and filtered for user {userId}.");

@@ -75,6 +75,10 @@ namespace ventaura_backend.Controllers
                     { "fashion", "Fashion"},
                     { "Motorsports/Racing", "Motorsports"},
                     { "Dance", "Dance"},
+                    { "Comedy", "Comedy"},
+                    { "Pop", "Music"},
+                    { "Country", "Music"},
+                    { "Hip-Hop/Rap", "Music"},
                     { "other", "Other" }
                 };
 

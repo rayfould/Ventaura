@@ -13,7 +13,7 @@ const eventTypes = [
   "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
   "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", 
   "Science", "Basketball", "Baseball", "Pottery", "Tennis", "Soccer", "Football", 
-  "Fishing", "Hiking", "Food and Drink", "Lectures", "Fashion", "Motorsports", "Dance", "Other"
+  "Fishing", "Hiking", "Food and Drink", "Lectures", "Fashion", "Motorsports", "Dance", "Comedy", "Other"
 ];
 
 const Success = () => {
