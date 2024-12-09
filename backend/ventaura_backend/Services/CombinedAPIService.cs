@@ -30,10 +30,12 @@ public class CombinedAPIService
         var ticketmasterEvents = await _ticketmasterService.FetchTicketmasterEventsAsync(latitude, longitude, userId);
 
         // Fetch events from the Yelp API.
-        var yelpEvents = await _yelpFusionService.FetchYelpEventsAsync(latitude, longitude, userId);
+        // var yelpEvents = await _yelpFusionService.FetchYelpEventsAsync(latitude, longitude, userId);
 
         // Combine the results of the API calls.
-        var events = ticketmasterEvents.Concat(yelpEvents).ToList();
+        // var events = ticketmasterEvents.Concat(yelpEvents).ToList();
+
+        var events = ticketmasterEvents.ToList();
 
         /* // Log each event's details for debugging.
         foreach (var e in events)

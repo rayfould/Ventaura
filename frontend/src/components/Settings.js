@@ -9,6 +9,7 @@ import { FaUserCircle, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa';
 import layoutStyles from '../styles/layout.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
+import createAccountStyles from '../styles/modules/createaccount.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
 
@@ -131,14 +132,14 @@ const Settings = () => {
 
       <div className={formsStyles['settings-container']}>
         <h2 className={formsStyles.heading}>Settings</h2>
-        <form onSubmit={handleSubmit} className={formsStyles.form}>
+        <form onSubmit={handleSubmit} className={formsStyles['settings-form']}>
           <input
             type="email"
             name="email"
             placeholder="Email"
             value={userData.email}
             onChange={handleChange}
-            className={formsStyles.formInput}
+            className={createAccountStyles['form-input']}
             required
           />
           <input
@@ -147,7 +148,7 @@ const Settings = () => {
             placeholder="First Name"
             value={userData.firstName}
             onChange={handleChange}
-            className={formsStyles.formInput}
+            className={createAccountStyles['form-input']}
             required
           />
           <input
@@ -156,10 +157,10 @@ const Settings = () => {
             placeholder="Last Name"
             value={userData.lastName}
             onChange={handleChange}
-            className={formsStyles.formInput}
+            className={createAccountStyles['form-input']}
             required
           />
-          <button type="submit" className={buttonStyles.formButton}>
+          <button type="submit" className={createAccountStyles['create-account-button']}>
             Update Settings
           </button>
         </form>

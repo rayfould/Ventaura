@@ -106,9 +106,25 @@ button[type="submit"]:disabled {
 }
 
 .settings-container {
-    width: 75%;
-    margin: 0 auto;
-    margin-top: 15%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 2rem auto;
+    text-align: center;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    width: 100%; 
+    max-width: 800px; /* Ensure alignment with preferences and dislikes */
+    margin-top: 2rem;
 }
 
 .filters-container {
