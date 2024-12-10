@@ -750,6 +750,92 @@
     --z-sidebar-right: 1002;
 }
 
+
+
+
+
+
+
+/*additional css needed to make preferences sidebar function*/
 .sidebar-right {
     z-index: var(--z-sidebar-right); /* Ensures it overlays the FAB */
+}
+
+.price-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.price-button {
+    padding: 0.5rem 1rem;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    background-color: #e9e8e8;
+    color: #000000;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+
+.price-button.selected {
+    background-color: var(--secondary) !important; /* Blue color for selected price button */
+    color: var(--background) !important;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 6 buttons per row */
+    gap: 0.5rem; /* Space between buttons */
+    justify-content: center; /* Center the button group */
+    width: 100%; /* Full width of container */
+}
+
+.dislike-button {
+    background-color: var(--accent);
+    color: var(--background);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-align: center; 
+  }
+  
+  .dislike-button.selected {
+    background-color: #dc3545 !important; /* Use !important to guarantee this style */
+    color: var(--background) !important;  /* Ensure this color is applied */
+}
+
+.preference-button,
+.dislike-button {
+  padding: var(--space-md);
+  margin: var(--space-xs);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  background-color: #e9e8e8;
+  color: #000000;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.preference-button:hover,
+.dislike-button:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.preference-button.selected,
+.dislike-button.selected {
+  background-color: var(--secondary);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--background) !important;  /* Ensure this color is applied */
+}
+
+.preference-button.selected {
+    background-color: #28a745 !important; /* Use !important to guarantee this style */
+    color: var(--background) !important;  /* Ensure this color is applied */
+}
+
+.sectionTitle {
+    margin-top: 20px;
 }

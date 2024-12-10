@@ -33,7 +33,7 @@ const ForYou = () => {
   const [coordinates, setCoordinates] = useState(null);
   const [progress, setProgress] = useState(0);
   const isLoading = progress < 100;
-  const MIN_DISPLAY_TIME = 1000; // 10 seconds
+  const MIN_DISPLAY_TIME = 10000; // 10 seconds
   const [timerDone, setTimerDone] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [formData, setFormData] = useState({
@@ -47,6 +47,27 @@ const ForYou = () => {
     priceRange: 50, // Default value for the slider
     password: "",
   });
+
+  const uniqueOptions = [
+    "Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
+    "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
+    "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", 
+    "Science", "Basketball", "Baseball", "Pottery", "Tennis", "Soccer", "Football", 
+    "Fishing", "Hiking", "Food and Drink", "Lectures", "Fashion", "Motorsports", "Dance", "Comedy", "Other"
+  ];
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handlePriceRangeSelect = (price) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      priceRange: price, // Set only one option at a time
+    }));
+  };
+
+  const priceOptions = ["$", "$$", "$$$", "Irrelevant"]; // **Defined priceOptions**
 
   // Timeout duration in milliseconds (30 minutes)
   const TIMEOUT_DURATION = 30 * 60 * 1000;
@@ -69,7 +90,7 @@ const ForYou = () => {
         }, MIN_DISPLAY_TIME);
 
         // === Step 1: Fetch Events ===
-         const fetchEventsResponse = await axios.get(
+        const fetchEventsResponse = await axios.get(
           `http://localhost:5152/api/combined-events/fetch?userId=${userId}`,
           {
             onDownloadProgress: (progressEvent) => {
@@ -86,43 +107,9 @@ const ForYou = () => {
           }
         );
         setMessage(fetchEventsResponse.data.Message || "");
-        setEvents(fetchEventsResponse.data.insertedEvents || []); 
-        
+        setEvents(fetchEventsResponse.data.insertedEvents || []);
 
-      // === Step 2: Call Ranking API ===
-      try {
-        console.log("Calling Ranking API...");
-        const rankingResponse = await axios.post(
-          `http://localhost:5152/api/events/rank/${userId}`, // C# backend endpoint
-          null, // No body needed as per your C# controller
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              // Include authentication headers if required
-            }
-          }
-        );
-
-        console.log("Ranking API Response:", rankingResponse.data);
-
-        if (rankingResponse.data.success) {
-          console.log("Ranking successful:", rankingResponse.data.message);
-          // Optionally, you can update the state or notify the user
-        } else {
-          console.error("Ranking failed:", rankingResponse.data.message);
-          setMessage("Ranking failed: " + (rankingResponse.data.message || "Unknown error."));
-          // Decide whether to proceed or halt
-          // For this example, we'll proceed to fetch CSV data
-        }
-      } catch (rankingError) {
-        console.error("Error calling Ranking API:", rankingError);
-        setMessage("An error occurred while ranking events.");
-        // Decide whether to proceed or halt
-        // For this example, we'll proceed to fetch CSV data
-      }
-
-
-        // === Step 3: Fetch CSV Data ===
+        // === Step 2: Fetch CSV Data ===
         const fetchCSVResponse = await axios.get(
           `http://localhost:5152/api/combined-events/get-csv?userId=${userId}`,
           {
@@ -140,7 +127,7 @@ const ForYou = () => {
           }
         );
 
-        // === Step 4: Parse CSV Data ===
+        // === Step 3: Parse CSV Data ===
         const reader = new FileReader();
         reader.onload = () => {
           const csvString = reader.result;
@@ -436,61 +423,69 @@ const ForYou = () => {
           </button>
           {/* Likes Section */}
           <div className={formsStyles.preferencesSection}>
-            <p className={formsStyles.sectionTitle}>Likes:</p>
-            {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((preference) => (
+          <p>Select Preferences:</p> 
+            {uniqueOptions.map((preference) => (
               <button
                 type="button"
                 key={preference}
                 onClick={() => handlePreferenceToggle(preference)}
-                className={`${buttonStyles['preference-button']} ${
-                  formData.preferences.includes(preference) ? buttonStyles.selected : ''
-                }`}
+                className={`${layoutStyles['preference-button']} ${formData.preferences.includes(preference) ? layoutStyles['selected'] : ''}`}
               >
                 {preference}
               </button>
             ))}
-          </div>
+        </div>
 
-          {/* Dislikes Section */}
           <div className={formsStyles.preferencesSection}>
-            <p className={formsStyles.sectionTitle}>Dislikes:</p>
-            {["Festivals-Fairs", "Music", "Performing-Arts", "Visual-Arts", "Sports-active-life", "Nightlife", "Film", "Charities", "Kids-Family", "Food-and-Drink", "Other"].map((dislike) => (
+          <p className={layoutStyles.sectionTitle}>Select Dislikes:</p>
+            {uniqueOptions.map((dislike) => (
               <button
                 type="button"
                 key={dislike}
                 onClick={() => handleDislikeToggle(dislike)}
-                className={`${buttonStyles['dislike-button']} ${
-                  formData.dislikes.includes(dislike) ? buttonStyles.selected : ''
-                }`}
+                className={`${layoutStyles['dislike-button']} ${formData.dislikes.includes(dislike) ? layoutStyles['selected'] : ''}`}
               >
                 {dislike}
               </button>
             ))}
-          </div>
+        </div>
 
           {/* Price Range Section */}
-          <div className={formsStyles.priceRangeSection}>
-            <h3 className={formsStyles.subheading}>Select Price Range:</h3>
-            <label htmlFor="priceRange" className={formsStyles.rangeLabel}>
-              Average Price: ${formData.priceRange}
-            </label>
-            <input
-              type="range"
-              id="priceRange"
-              name="priceRange"
-              min="0"
-              max="100"
-              step="1"
-              value={formData.priceRange}
-              onChange={handleSliderChange}
-              className={formsStyles.slider}
-            />
+          <div className={formsStyles.preferencesSection}>
+          <p className={layoutStyles.sectionTitle}>Select Price Range:</p>
+          <div className={layoutStyles['price-buttons-container']}>
+            {priceOptions.map((price) => (
+              <button
+                type="button"
+                key={price}
+                onClick={() => handlePriceRangeSelect(price)}
+                className={`${layoutStyles['price-button']} ${formData.priceRange === price ? layoutStyles['selected'] : ''}`}
+              >
+                {price}
+              </button>
+            ))}
           </div>
+        </div>
+
+        <p className={layoutStyles.sectionTitle}>Select Distance(km):</p>
+          <input
+          type="number"  // <-- Use type="number" instead of type="integer"
+          name="maxDistance"  // <-- Corrected the typo (was MaxDistanct)
+          placeholder="Max Distance (km)"  // Optional: Placeholder to guide user input
+          value={formData.maxDistance}
+          onChange={handleChange}
+          className={formsStyles.slider}
+          min="1"  // <-- Set a minimum distance
+          max="100" // <-- Set a maximum distance
+          required
+        />
 
           {/* Update Information Button */}
-          <button type="submit" className={buttonStyles.button}>
+          <button type="submit" className={buttonStyles['logout-button']}>
             Update information
           </button>
+
+          <p>. </p>
         </div>
       </div>
 
