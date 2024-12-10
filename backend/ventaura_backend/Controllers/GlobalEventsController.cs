@@ -72,6 +72,7 @@ public class GlobalEventsController : ControllerBase
             { "Pop", "Music"},
             { "Country", "Music"},
             { "Hip-Hop/Rap", "Music"},
+            { "Rock", "Music"},
             { "other", "Other" }
         };
 

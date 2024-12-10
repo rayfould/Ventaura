@@ -82,6 +82,7 @@ namespace ventaura_backend.Controllers
                     { "Pop", "Music"},
                     { "Country", "Music"},
                     { "Hip-Hop/Rap", "Music"},
+                    { "Rock", "Music"},
                     { "other", "Other" }
                 };
 
@@ -149,19 +150,36 @@ namespace ventaura_backend.Controllers
                     apiEventObjects.Add(combinedEvent);
                 }
 
-                 // **6. Process Host Events**
-                var processedHostEvents = hostEvents.Select(he => 
+                // **6. Process Host Events**
+
+                var processedHostEvents = new List<CombinedEvent>();
+
+                foreach (var he in hostEvents)
                 {
                     double latitude, longitude;
+
+                    // Try parsing the location as coordinates
                     if (!TryParseLocation(he.Location, out latitude, out longitude))
                     {
-                        latitude = user.Latitude.Value;
-                        longitude = user.Longitude.Value;
+                        // If parsing fails, geocode the location to get latitude and longitude
+                        var coordinates = await _googleGeocodingService.GetCoordinatesAsync(he.Location);
+                        if (coordinates.HasValue)
+                        {
+                            latitude = coordinates.Value.latitude;
+                            longitude = coordinates.Value.longitude;
+                        }
+                        else
+                        {
+                            // Use user's location if geocoding fails
+                            latitude = user.Latitude.Value;
+                            longitude = user.Longitude.Value;
+                        }
                     }
 
+                    // Calculate distance
                     var distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, latitude, longitude);
 
-                    return new CombinedEvent
+                    processedHostEvents.Add(new CombinedEvent
                     {
                         Title = he.Title ?? "Unknown Title",
                         Description = he.Description ?? "No description",
@@ -172,10 +190,9 @@ namespace ventaura_backend.Controllers
                         CurrencyCode = he.CurrencyCode ?? "N/A",
                         Amount = he.Amount ?? 0,
                         URL = he.URL ?? "N/A",
-                        Distance = distance
-                    };
-                }).ToList();
-
+                        Distance = distance // Assign calculated distance
+                    });
+                }
                 // **7. Combine Events**
                 var combinedEvents = apiEventObjects.Concat(processedHostEvents).ToList();
 
