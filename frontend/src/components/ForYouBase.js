@@ -21,17 +21,6 @@ import Footer from '../components/footer';
 
 
 const ForYou = () => {
-  const [userData, setUserData] = useState({
-    preferences: [],
-    dislikes: [],
-    priceRange: "",
-    maxDistance: ""
-  });
-  
-  let preferenceSet = new Set(userData.preferences);
-  let dislikeSet = new Set(userData.dislikes);
-
-
   const navigate = useNavigate();
   const [userId, setUserId] = useState(localStorage.getItem("userId"));
   const [events, setEvents] = useState([]);
@@ -70,11 +59,11 @@ const ForYou = () => {
   ];
 
   const handleChange = (e) => {
-    setUserData({ ...userData, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handlePriceRangeSelect = (price) => {
-    setUserData((prevData) => ({
+    setFormData((prevData) => ({
       ...prevData,
       priceRange: price, // Set only one option at a time
     }));
@@ -255,30 +244,6 @@ const ForYou = () => {
     }
   }, [dataLoaded, timerDone]);
 
-  //a UseEffect JUST to get the users data for preferences bar
-  useEffect(() => {
-    //get the users data
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5152/api/users/${userId}`);
-        setUserData({
-          preferences: response.data.preferences,
-          dislikes: response.data.dislikes,
-          priceRange: response.data.priceRange,
-          maxDistance: response.data.maxDistance
-        });
-      } catch (error) {
-        console.log("Error fetching form data:", error);
-      }
-    };
-    fetchUserData();
-
-    const preferenceSet = new Set(userData.preferences);
-    dislikeSet = new Set(userData.dislikes);
-
-  }, [dataLoaded, timerDone]);
-
-
   const handleManualLogout = async () => {
     if (!userId) {
       alert("No user ID found in local storage.");
@@ -310,74 +275,29 @@ const ForYou = () => {
   };
 
   const handlePreferenceToggle = (preference) => {
-    setUserData((prevData) => {
-      // Create a copy of the Preference from the previous data
-      const newPreferenceSet = new Set(prevData.preferences);
-  
-      // Toggle the dislike
-      if (newPreferenceSet.has(preference)) {
-        newPreferenceSet.delete(preference);
-      } else {
-        newPreferenceSet.add(preference);
-      }
-  
-      // Return the updated userData
-      return { ...prevData, preferences: newPreferenceSet };
+    setFormData((prevData) => {
+      const newPreferences = prevData.preferences.includes(preference)
+        ? prevData.preferences.filter((item) => item !== preference)
+        : [...prevData.preferences, preference];
+      return { ...prevData, preferences: newPreferences };
     });
-  };
-
-  const handleSubmit = async (e) => {
-    try {
-      const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
-
-
-      // Prepare the request data
-      const updateData = {
-        userId: userId,
-        preferences: Array.from(preferenceSet).join(", "),
-        dislikes: Array.from(dislikeSet).join(", "), 
-        priceRange: userData.priceRange.toString(), 
-        maxDistance: Number(userData.maxDistance) 
-      };
-
-      // Make the PUT request to the server
-      const response = await axios.put(
-        `http://localhost:5152/api/users/updatePreferences`,
-        updateData
-      );
-
-      setMessage(response.data.Message || "User information updated successfully.");
-    } catch (error) {
-      
-      if (error.response) {
-        setMessage(error.response.data.Message || userData.preferences );
-      } else {
-        setMessage(error.response.data.Message || userData.dislikes);
-      }
-    }
-
-    const timeoutId = setTimeout(() => {
-      setMessage('Updated Message');
-    }, 10000);
   };
 
   const handleDislikeToggle = (dislike) => {
-    setUserData((prevData) => {
-      // Create a copy of the dislikeSet from the previous data
-      const newDislikeSet = new Set(prevData.dislikes);
-  
-      // Toggle the dislike
-      if (newDislikeSet.has(dislike)) {
-        newDislikeSet.delete(dislike);
-      } else {
-        newDislikeSet.add(dislike);
-      }
-  
-      // Return the updated userData
-      return { ...prevData, dislikes: newDislikeSet };
+    setFormData((prevData) => {
+      const newDislikes = prevData.dislikes.includes(dislike)
+        ? prevData.dislikes.filter((item) => item !== dislike)
+        : [...prevData.dislikes, dislike];
+      return { ...prevData, dislikes: newDislikes }
     });
+  }
+
+  const handleSliderChange = (e) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      priceRange: e.target.value,
+    }));
   };
-  
 
   // Handle scroll to show/hide header based on scroll position
   const handleScroll = () => {
@@ -552,7 +472,7 @@ const ForYou = () => {
                 type="button"
                 key={preference}
                 onClick={() => handlePreferenceToggle(preference)}
-                className={`${layoutStyles['preference-button']} ${preferenceSet.has(preference) ? layoutStyles['selected'] : ''}`}
+                className={`${layoutStyles['preference-button']} ${formData.preferences.includes(preference) ? layoutStyles['selected'] : ''}`}
               >
                 {preference}
               </button>
@@ -566,7 +486,7 @@ const ForYou = () => {
                 type="button"
                 key={dislike}
                 onClick={() => handleDislikeToggle(dislike)}
-                className={`${layoutStyles['dislike-button']} ${dislikeSet.has(dislike) ? layoutStyles['selected'] : ''}`}
+                className={`${layoutStyles['dislike-button']} ${formData.dislikes.includes(dislike) ? layoutStyles['selected'] : ''}`}
               >
                 {dislike}
               </button>
@@ -582,7 +502,7 @@ const ForYou = () => {
                 type="button"
                 key={price}
                 onClick={() => handlePriceRangeSelect(price)}
-                className={`${layoutStyles['price-button']} ${userData.priceRange === price ? layoutStyles['selected'] : ''}`}
+                className={`${layoutStyles['price-button']} ${formData.priceRange === price ? layoutStyles['selected'] : ''}`}
               >
                 {price}
               </button>
@@ -595,7 +515,7 @@ const ForYou = () => {
           type="number"  // <-- Use type="number" instead of type="integer"
           name="maxDistance"  // <-- Corrected the typo (was MaxDistanct)
           placeholder="Max Distance (km)"  // Optional: Placeholder to guide user input
-          value={userData.maxDistance}
+          value={formData.maxDistance}
           onChange={handleChange}
           className={formsStyles.slider}
           min="1"  // <-- Set a minimum distance
@@ -604,11 +524,10 @@ const ForYou = () => {
         />
 
           {/* Update Information Button */}
-          <form onSubmit={handleSubmit}>
           <button type="submit" className={buttonStyles['update-preferences-button']}>
             Update information
           </button>
-          </form>
+
           <p>. </p>
         </div>
       </div>
