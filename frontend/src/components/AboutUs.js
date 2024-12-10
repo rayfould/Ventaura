@@ -10,6 +10,7 @@ import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import logo from '../assets/ventaura-logo-white.png'; 
+import Footer from '../components/footer';
 
 
 const AboutUs = () => {
@@ -133,6 +134,7 @@ const AboutUs = () => {
           Join us on this journey to turn ordinary moments into extraordinary memories. Start exploring with Ventaura today—your adventure awaits!
         </p>
       </main>
+      <Footer />
     </div>
   );
 };

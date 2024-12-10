@@ -5,7 +5,7 @@ import axios from "axios";
 import Papa from 'papaparse';
 import { usePapaParse } from 'react-papaparse';
 import EventCard from './EventCard.js';  
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, NavLink } from "react-router-dom";
 import { Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FaUserCircle, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa'; 
 
@@ -17,6 +17,8 @@ import formsStyles from '../styles/modules/forms.module.css';
 import logo from '../assets/ventaura-logo-white.png'; 
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
 import LoadingOverlay from '../components/LoadingOverlay';
+import Footer from '../components/footer';
+
 
 const ForYou = () => {
   const navigate = useNavigate();
@@ -311,24 +313,33 @@ const ForYou = () => {
 
         {/* Center Buttons */}
         <div className={layoutStyles['center-buttons-container']}>
-          <button 
-            onClick={() => navigate('/global-page')} 
-            className={`${buttonStyles['button-56']}`}
+          <NavLink 
+            to="/global-page" 
+            className={({ isActive }) => 
+              isActive ? `${buttonStyles['button-56']} ${buttonStyles.active}` : buttonStyles['button-56']
+            }
+            end
           >
             Global
-          </button>
-          <button 
-            onClick={() => navigate('/for-you')} 
-            className={`${buttonStyles['button-56']}`}
+          </NavLink>
+          <NavLink 
+            to="/for-you" 
+            className={({ isActive }) => 
+              isActive ? `${buttonStyles['button-56']} ${buttonStyles.active}` : buttonStyles['button-56']
+            }
+            end
           >
             For You
-          </button>
-          <button 
-            onClick={() => navigate('/post-event-page')} 
-            className={`${buttonStyles['button-56']}`}
+          </NavLink>
+          <NavLink 
+            to="/post-event-page" 
+            className={({ isActive }) => 
+              isActive ? `${buttonStyles['button-56']} ${buttonStyles.active}` : buttonStyles['button-56']
+            }
+            end
           >
             Post Event
-          </button>
+          </NavLink>
         </div>
 
         {/* User Profile Dropdown */}
@@ -502,7 +513,9 @@ const ForYou = () => {
           ⚡
         </button>
       </OverlayTrigger>
+      <Footer />
     </div>
+    
   );
 };
 

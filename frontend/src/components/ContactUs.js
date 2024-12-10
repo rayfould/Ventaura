@@ -11,6 +11,7 @@ import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import contactStyles from '../styles/modules/contactus.module.css'; // Import contact-specific styles
 import logo from '../assets/ventaura-logo-white.png'; 
+import Footer from '../components/footer';
 
 
 const ContactUs = () => {
@@ -136,6 +137,7 @@ const ContactUs = () => {
           Boston, MA
         </p>
       </main>
+      <Footer />
     </div>
   );
 };

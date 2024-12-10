@@ -12,6 +12,7 @@ import buttonStyles from '../styles/modules/buttons.module.css';
 import createAccountStyles from '../styles/modules/createaccount.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
+import Footer from '../components/footer';
 
 const Settings = () => {
   const [userData, setUserData] = useState({
@@ -257,6 +258,7 @@ const Settings = () => {
         {message && <p className={formsStyles.message}>{message}</p>}
 
       </div>
+      <Footer />
     </div>
   );
 };

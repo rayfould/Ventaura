@@ -4,9 +4,9 @@
 .page-container {
     display: flex;
     justify-content: center; 
+    flex-direction: column;
     align-items: center;    
-    min-height: 100vh;      
-    padding: 2rem;          
+    min-height: 100vh;                
     background-color: var(--background); 
 }
 
@@ -14,6 +14,10 @@
     display: flex;
     margin-top: 180px; /* Matches the header height */
     width: 100%; /* Ensure it takes full width */
+}
+
+.gap {
+    padding: 1rem;
 }
 
 /* Header */
@@ -144,6 +148,77 @@
     text-align: center;
     margin-top: 5rem;
 }
+
+.side-container{
+    margin-top: 25%;
+    margin-bottom: 25%;
+    max-width: 600px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    
+}
+
+
+.container-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.container-title h1 {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.title-underline {
+    height: 4px;
+    width: 100px;
+    background: linear-gradient(
+        to right,
+        var(--primary),
+        rgba(178, 61, 71, 0.2)
+    );
+    margin: 0 auto;
+    border-radius: 2px;
+    margin-top: 0.5rem;
+}
+
+/* Optional: Add animation */
+.container-title h1 {
+    animation: fadeInDown 0.5s ease-out;
+}
+
+.title-underline {
+    animation: widthGrow 0.8s ease-out forwards;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes widthGrow {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100px;
+    }
+}
+
+
 
 .event-grid {
     display: grid;

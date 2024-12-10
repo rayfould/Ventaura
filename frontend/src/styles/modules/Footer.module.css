@@ -1,0 +1,152 @@
+/* src/styles/modules/Footer.module.css */
+
+.footer {
+    background-color: #ffffff; /* Solid white background */
+    border-top: 2px solid var(--primary); /* Red top border for accent */
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Subtle top shadow */
+    margin-top: auto;
+    width: 100%;
+  }
+  
+  .footerContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .logoSection {
+    flex: 1 1 200px;
+    margin-bottom: 20px;
+  }
+  
+  .logo {
+    position: absolute;
+    width: 250px;
+    height: auto;
+  }
+  
+  .navSection,
+  .legalSection,
+  .socialSection,
+  .newsletterSection {
+    flex: 1 1 150px;
+    margin-bottom: 20px;
+  }
+  
+  .sectionTitle {
+    font-size: 1.2rem;
+    color: var(--primary); /* Red color for section titles */
+    margin-bottom: 10px;
+  }
+  
+  .navList,
+  .legalList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .navList li,
+  .legalList li {
+    margin-bottom: 8px;
+  }
+  
+  .navLink {
+    text-decoration: none;
+    color: #333333; /* Dark text color */
+    transition: color 0.3s ease;
+  }
+  
+  .navLink:hover {
+    color: var(--primary) /* Red on hover */
+  }
+  
+  .socialIcons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .socialLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    background-color: var(--primary); /* Red background */
+    color: #ffffff; /* White icon color */
+    border-radius: 50%;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  }
+  
+  .socialLink:hover {
+    background-color: var(--secondary); /* Darker red on hover */
+    transform: translateY(-2px) scale(1.1); /* Slightly enlarge and move up */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow on hover */
+  }
+  
+  .newsletterSection {
+    flex: 1 1 200px;
+    margin-bottom: 20px;
+  }
+  
+  .newsletterForm {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .newsletterInput {
+    padding: 8px 10px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+  
+  .subscribeButton {
+    background-color: var(--primary); /* Red buttons */
+    color: #ffffff;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .subscribeButton:hover {
+    background-color: var(--secondary); /* Darker red on hover */
+    transform: translateY(-2px);
+  }
+  
+  .footerBottom {
+    text-align: center;
+    border-top: 1px solid #dddddd;
+    padding-bottom: 10px;
+    font-size: 0.9rem;
+    color: #777777; /* Lighter text color */
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .footerContainer {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .logoSection,
+    .navSection,
+    .legalSection,
+    .socialSection,
+    .newsletterSection {
+      flex: 1 1 100%;
+      max-width: 300px;
+      text-align: center;
+    }
+  
+    .socialIcons {
+      justify-content: center;
+    }
+  }
+  

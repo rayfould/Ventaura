@@ -62,16 +62,29 @@ class EventRanking:
         self.events_df['start'] = pd.to_datetime(self.events_df['start'], errors='coerce').dt.tz_localize(None)
 
     def filter_events(self):
+        # Define the hard cutoff distance in km
+        DISTANCE_CUTOFF = 100
+
+        # Existing mask conditions
         mask = (
             self.events_df['start'].notna() &
             (pd.to_datetime(self.events_df['start']) >= self.CURRENT_TIME) &
             (self.events_df[['type', 'distance', 'start']].isna().sum(axis=1) <= 2) &
             (self.events_df.isna().sum(axis=1) <= 4)
         )
+
+        # New distance cutoff condition:
+        # Exclude events with distance > 100 km and exclude events with missing distance
+        distance_mask = self.events_df['distance'].notna() & (self.events_df['distance'] <= DISTANCE_CUTOFF)
+
+        # Combine existing mask with distance_mask
+        combined_mask = mask & distance_mask
+
         original_input = len(self.events_df)
-        self.events_df = self.events_df[mask].reset_index(drop=True)
+        self.events_df = self.events_df[combined_mask].reset_index(drop=True)
         events_removed = original_input - len(self.events_df)
-        self.debug_print(f"Filtered events: Removed {events_removed} invalid events")
+
+        self.debug_print(f"Filtered events: Removed {events_removed} invalid or too far events")
         return events_removed
 
     def preprocess_users(self):
@@ -178,6 +191,7 @@ class EventRanking:
                 user['Disliked'],
                 event_type
             )  # 0.0, 0.5, or 1.0
+
         # Distance Score (fraction)
         event_distance = event['distance']
         user_max_distance = user.get('Max Distance', 'Any Distance')
@@ -210,15 +224,15 @@ class EventRanking:
         penalized_score = apply_penalty(final_score, event, user)
 
         if self.DEBUG_MODE:
-            # Show each dimension as actual points out of their weight
-            breakdown['Type Score'] = f"{round(type_fraction * self.normalized_weights['type'], 2)}/{self.normalized_weights['type']}"
-            breakdown['Distance Score'] = f"{round(distance_fraction * self.normalized_weights['Distance'], 2)}/{self.normalized_weights['Distance']}"
-            breakdown['Time Score'] = f"{round(time_fraction * self.normalized_weights['Time'], 2)}/{self.normalized_weights['Time']}"
-            breakdown['Price Score'] = f"{round(price_fraction * self.normalized_weights['Price'], 2)}/{self.normalized_weights['Price']}"
+            # Show each dimension as actual points out of their weight, including field values
+            breakdown['Type Score'] = f"{round(type_fraction * self.normalized_weights['type'], 2)}/{self.normalized_weights['type']} | Type: {event['type']}"
+            breakdown['Distance Score'] = f"{round(distance_fraction * self.normalized_weights['Distance'], 2)}/{self.normalized_weights['Distance']} | Distance: {event['distance']} km"
+            breakdown['Time Score'] = f"{round(time_fraction * self.normalized_weights['Time'], 2)}/{self.normalized_weights['Time']} | Hours Until Event: {time_in_hours:.1f} hours"
+            breakdown['Price Score'] = f"{round(price_fraction * self.normalized_weights['Price'], 2)}/{self.normalized_weights['Price']} | Price: {event['amount']}"
 
-            breakdown['Hours Until Event'] = f"{time_in_hours:.1f} hours"
             breakdown['Raw Score'] = f"{final_score}/100"
             breakdown['Penalized Score'] = f"{penalized_score}/100"
+
             event_info = f"Event ID: {event['contentId']} | Final Score: {penalized_score}/100"
             self.debug_print(event_info)
             for key, value in breakdown.items():
@@ -324,36 +338,47 @@ class EventRanking:
         self.debug_print(f"Saving detailed scores to file: {csv_path}")
         detailed_df.to_csv(csv_path, index=False)
 
-
 if __name__ == "__main__":
+    # Initialize the ranking system
     ranker = EventRanking(debug_mode=True)
+
+    # Load events from a CSV file
     events_df = pd.read_csv("API/content/17.csv")  # Replace with your test file path
     ranker.load_events(events_df)
 
+    # Filter out invalid events
     events_removed = ranker.filter_events()
     print(f"Removed {events_removed} invalid events")
 
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.width', None)
-    pd.set_option('display.max_colwidth', None)
+    pd.set_option('display.max_columns', None)  # Show all columns
+    pd.set_option('display.width', None)        # Width of the display in characters
+    pd.set_option('display.max_colwidth', None) # Show full content of each column
 
+    # Create a test user with updated preferences
     test_user = {
         'Preferences': frozenset(['hockey', 'music', 'hiking']),
         'Disliked': frozenset(['baseball', 'film', 'lectures']),
         'Price Range': '$$',
-        'Max Distance': 20
+        'Max Distance': 20  # Numerical value in kilometers
     }
 
+    # Print user preferences
     print("\nUser Preferences:")
     print(f"Preferred Events: {', '.join(sorted(test_user['Preferences']))}")
     print(f"Disliked Events: {', '.join(sorted(test_user['Disliked']))}")
     print(f"Price Range: {test_user['Price Range']}")
     print(f"Max Distance: {test_user['Max Distance']} km")
-    print("\n" + "=" * 80)
+    print("\n" + "=" * 80)  # Separator line
 
+    # Rank events for the user
     ranked_df, detailed_scores = ranker.rank_events(test_user)
+
+    # Print results with scores included
     print("\nTop 10 Ranked Events:")
     print(ranked_df[['contentId', 'type', 'amount', 'distance']].head(10).to_string(index=False))
 
+    # Save results (without scores)
     ranker.save_ranked_events(17, ranked_df)
+
+    # Save detailed scores (optional)
     ranker.save_detailed_scores(17, detailed_scores)

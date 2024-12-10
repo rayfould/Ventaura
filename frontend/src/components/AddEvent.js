@@ -1,7 +1,9 @@
 // AddEvent.js
 import React, { useState } from 'react';
 import axios from "axios";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, NavLink } from 'react-router-dom';
+import { Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FaUserCircle, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa';
 
 // Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
@@ -9,11 +11,18 @@ import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 import logo from '../assets/ventaura-logo-white.png'; 
+import Footer from '../components/footer';
+import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
+
 
 const AddEvent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const [userId, setUserId] = useState(localStorage.getItem("userId"));
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+
 
   const handleManualLogout = async () => {
     if (!userId) {
@@ -44,28 +53,87 @@ const AddEvent = () => {
       }
     }
   };
+  // Handle scroll to hide/show header
+  const handleScroll = () => {
+    if (typeof window !== 'undefined') {
+      const currentScrollY = window.scrollY;
+      setShowHeader(currentScrollY <= lastScrollY || currentScrollY < 100);
+      setLastScrollY(currentScrollY);
+    }
+  };
   
 
   return (
     <div className={layoutStyles['page-container']}>
       {/* Header */}
-      <header className={layoutStyles['header-side']}>
-        <button
-          className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`}
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      <header 
+        className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
+      >
+        {/* Sidebar Toggle Button */}
+        <button 
+          className={`${buttonStyles['sidebar-handle']} ${isSidebarOpen ? buttonStyles.open : ''}`} 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
           aria-label="Toggle Sidebar"
-        >
-          {/* This button is styled to show/hide the sidebar, no icon text needed as styling might handle it */}
-        </button>
-        <h1 className={layoutStyles['header-title']}>Add Your Own Event</h1>
-        <div className={layoutStyles['header-right']}>
-          <button 
-            className={buttonStyles['settings-button']} 
-            onClick={() => navigate("/settings")}
-            aria-label="Go to Settings"
+        ></button>
+
+        {/* Logo */}
+        <div className={layoutStyles['logo-container']}>
+          <img src={logoFull} alt="Logo" className={navigationStyles['logo-header']} />
+        </div>
+
+        {/* Center Buttons */}
+        <div className={layoutStyles['center-buttons-container']}>
+          <NavLink 
+            to="/global-page" 
+            className={({ isActive }) => 
+              isActive ? `${buttonStyles['button-56']} ${buttonStyles.active}` : buttonStyles['button-56']
+            }
+            end
           >
-            ⚙️
-          </button>
+            Global
+          </NavLink>
+          <NavLink 
+            to="/for-you" 
+            className={({ isActive }) => 
+              isActive ? `${buttonStyles['button-56']} ${buttonStyles.active}` : buttonStyles['button-56']
+            }
+            end
+          >
+            For You
+          </NavLink>
+          <NavLink 
+            to="/post-event-page" 
+            className={({ isActive }) => 
+              isActive ? `${buttonStyles['button-56']} ${buttonStyles.active}` : buttonStyles['button-56']
+            }
+            end
+          >
+            Post Event
+          </NavLink>
+        </div>
+
+        {/* User Profile Dropdown */}
+        <div className={layoutStyles['header-right']}>
+          <Dropdown drop="down">
+            <Dropdown.Toggle 
+              variant="none" 
+              id="dropdown-basic" 
+              className={buttonStyles['profile-dropdown-toggle']}
+              aria-label="User Profile Menu"
+            >
+              <FaUserCircle size={28} />
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu className={layoutStyles['dropdown-menu']}>
+              <Dropdown.Item onClick={() => navigate("/settings")}>
+                <FaUser className={layoutStyles['dropdown-icon']} /> Profile
+              </Dropdown.Item>
+              <Dropdown.Divider className={layoutStyles['dropdown-divider']} />
+              <Dropdown.Item onClick={handleManualLogout}>
+                <FaSignOutAlt className={layoutStyles['dropdown-icon']} /> Logout
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </div>
       </header>
 
@@ -95,7 +163,11 @@ const AddEvent = () => {
       </div>
 
       {/* Main Content */}
-      <main className={layoutStyles.container}>
+      <main className={layoutStyles['side-container']}>
+      <div className={layoutStyles['container-title']}>
+        <h1>Post Your Event</h1>
+        <div className={layoutStyles['title-underline']}></div>
+      </div>
         <p className={formsStyles.formDescription}>
           By posting your event here, you gain affordable, effective advertising 
           that reaches a wide audience. We’ll match your event with users whose 
@@ -108,6 +180,7 @@ const AddEvent = () => {
         <p className={formsStyles.formDescription}>
           Once the payment is completed, you’ll be redirected to fill out your event details.
         </p>
+        <div className={layoutStyles.gap}></div>
 
         <form
           className={formsStyles.form}
@@ -122,6 +195,7 @@ const AddEvent = () => {
           </button>
         </form>
       </main>
+      <Footer />
     </div>
   );
 };
