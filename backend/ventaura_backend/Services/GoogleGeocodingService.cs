@@ -33,7 +33,7 @@ namespace ventaura_backend.Services
                 }
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Google Geocoding API Response: {jsonResponse}");
+                // Console.WriteLine($"Google Geocoding API Response: {jsonResponse}");
 
                 var data = JsonSerializer.Deserialize<GeocodeResponse>(jsonResponse);
                 

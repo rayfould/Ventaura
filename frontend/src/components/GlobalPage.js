@@ -21,7 +21,7 @@ const eventTypes = [
   "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
   "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", 
   "Science", "Basketball", "Baseball", "Pottery", "Tennis", "Soccer", "Football", 
-  "Fishing", "Hiking", "Food and Drink", "Pottery", "Other"
+  "Fishing", "Hiking", "Food and Drink", "Lectures", "Fashion", "Motorsports", "Dance", "Comedy", "Other"
 ];
 
 const GlobalPage = () => {
@@ -35,9 +35,66 @@ const GlobalPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const [filters, setFilters] = useState({
     eventType: '',
-    maxDistance: '',
-    maxPrice: ''
+    // maxDistance: '',
+    maxPrice: '',
+    startDate: '',
+    startTime: '',
   });
+
+  useEffect(() => {
+    // Ensure the Google Places API script is loaded only once
+    if (!window.google) {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAMyuR3lvyF98orSC-z8SyIEdekVsguXWs&libraries=places`;
+      script.async = true;
+      script.defer = true;
+  
+      // Check if the script already exists in the document
+      if (!document.querySelector(`script[src="${script.src}"]`)) {
+        document.body.appendChild(script);
+      }
+  
+      script.onload = () => initializeAutocomplete(); // Initialize Autocomplete
+    } else {
+      initializeAutocomplete(); // Initialize directly if already loaded
+    }
+  }, []);
+  
+  const initializeAutocomplete = () => {
+    const input = document.getElementById("city");
+  
+    if (input && !input.hasAttribute("data-autocomplete-initialized")) {
+      // Mark input as initialized to prevent multiple listeners
+      input.setAttribute("data-autocomplete-initialized", "true");
+  
+      // Initialize Google Places Autocomplete
+      const autocomplete = new window.google.maps.places.Autocomplete(input, {
+        types: ["(cities)"], // Restrict suggestions to cities
+      });
+  
+      // Add event listener for when a place is selected
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+  
+        if (place && place.address_components) {
+          // Extract city name from address components
+          const cityComponent = place.address_components.find(component =>
+            component.types.includes("locality")
+          );
+  
+          if (cityComponent) {
+            setCity(cityComponent.long_name); // Set only the city name
+          } else {
+            console.error("City not found in address components.");
+          }
+        } else if (place && place.name) {
+          setCity(place.name); // Fallback to name
+        } else {
+          console.error("No place details found.");
+        }
+      });
+    }
+  };  
 
   // Handle input changes for city name
   const handleCityChange = (e) => setCity(e.target.value);
@@ -90,19 +147,25 @@ const handleSearch = async (e) => {
     return;
   }
 
+  // Combine date and time to create ISO format for startDateTime
+  let startDateTime = null;
+    if (filters.startDate && filters.startTime) {
+      const localDateTime = `${filters.startDate}T${filters.startTime}:00`;
+      const utcDateTime = new Date(localDateTime).toISOString(); // convert local time to UTC ISO string
+      startDateTime = utcDateTime;
+    }
+
   try {
-    const response = await axios.get(
-      `http://localhost:5152/api/global-events/search`, 
-      { 
-        params: { 
-          city, 
-          userId, 
-          eventType: filters.eventType, 
-          maxDistance: filters.maxDistance, 
-          maxPrice: filters.maxPrice 
-        } 
-      }
-    );
+    const response = await axios.get('http://localhost:5152/api/global-events/search', { 
+      params: { 
+        city, 
+        userId, 
+        eventType: filters.eventType, 
+        // maxDistance: filters.maxDistance, 
+        maxPrice: filters.maxPrice, 
+        startDateTime // Pass startDateTime in ISO 8601 format
+      } 
+    });
     
     // Log the entire response data for inspection
     console.log("API Response:", response.data);
@@ -129,8 +192,10 @@ const handleSearch = async (e) => {
   const handleClearFilters = () => {
     setFilters({
       eventType: '',
-      maxDistance: '',
-      maxPrice: ''
+      // maxDistance: '',
+      maxPrice: '',
+      startDate: '',
+      startTime: '',
     });
   };
 
@@ -300,7 +365,7 @@ const handleSearch = async (e) => {
               </div>
 
               {/* Max Distance Input */}
-              <div className={formsStyles['form-group']}>
+              {/* <div className={formsStyles['form-group']}>
                 <label htmlFor="maxDistance" className={formsStyles['form-label']}>Max Distance (km)</label>
                 <input 
                   type="number" 
@@ -312,7 +377,7 @@ const handleSearch = async (e) => {
                   className={formsStyles['form-input']} 
                   min="0"
                 />
-              </div>
+              </div>*/}
 
               {/* Max Price Input */}
               <div className={formsStyles['form-group']}>
@@ -326,6 +391,32 @@ const handleSearch = async (e) => {
                   onChange={handleFilterChange} 
                   className={formsStyles['form-input']} 
                   min="0"
+                />
+              </div>
+              
+              {/* Date Input */}
+              <div className={formsStyles['form-group']}>
+                <label htmlFor="startDate" className={formsStyles['form-label']}>Start Date</label>
+                <input
+                  type="date"
+                  id="startDate"
+                  name="startDate"
+                  value={filters.startDate}
+                  onChange={handleFilterChange}
+                  className={formsStyles['form-input']}
+                />
+              </div>
+
+              {/* Time Input */}
+              <div className={formsStyles['form-group']}>
+                <label htmlFor="startTime" className={formsStyles['form-label']}>Start Time</label>
+                <input
+                  type="time"
+                  id="startTime"
+                  name="startTime"
+                  value={filters.startTime}
+                  onChange={handleFilterChange}
+                  className={formsStyles['form-input']}
                 />
               </div>
 
