@@ -100,12 +100,15 @@ namespace ventaura_backend.Controllers
                 Console.WriteLine($"Fetching events from API for userId {userId}...");
                 var apiEvents = await _combinedApiService.FetchEventsAsync(user.Latitude.Value, user.Longitude.Value, userId);
 
+                Console.WriteLine($"Total API Events Fetched: {apiEvents.Count}");
+                var yelpEventsCount = apiEvents.Count(e => e.Source.Equals("Yelp", StringComparison.OrdinalIgnoreCase));
+                Console.WriteLine($"Total Yelp Events Fetched: {yelpEventsCount}");
+
                 // **4. Fetch Host Events**
                 Console.WriteLine($"Fetching host events for userId {userId}...");
                 var hostEvents = await _dbContext.HostEvents.ToListAsync();
 
                 // **5. Process API Events**
-
                 var apiEventObjects = new List<CombinedEvent>(); // Declare the list before the loop
 
                 foreach (var e in apiEvents)
@@ -151,7 +154,6 @@ namespace ventaura_backend.Controllers
                 }
 
                 // **6. Process Host Events**
-
                 var processedHostEvents = new List<CombinedEvent>();
 
                 foreach (var he in hostEvents)
@@ -193,8 +195,13 @@ namespace ventaura_backend.Controllers
                         Distance = distance // Assign calculated distance
                     });
                 }
+
                 // **7. Combine Events**
                 var combinedEvents = apiEventObjects.Concat(processedHostEvents).ToList();
+
+                Console.WriteLine($"Total Combined Events: {combinedEvents.Count}");
+                var yelpCombinedCount = combinedEvents.Count(e => e.Source.Equals("Yelp", StringComparison.OrdinalIgnoreCase));
+                Console.WriteLine($"Total Yelp Events in Combined: {yelpCombinedCount}");
 
                 if (!combinedEvents.Any())
                 {
@@ -215,13 +222,20 @@ namespace ventaura_backend.Controllers
                 var csvFilePath = Path.Combine("CsvFiles", $"{userId}.csv");
                 Directory.CreateDirectory(Path.GetDirectoryName(csvFilePath));
 
+                foreach (var e in combinedEvents.Where(ev => ev.Source.Equals("Yelp", StringComparison.OrdinalIgnoreCase)))
+                {
+                    Console.WriteLine($"Yelp Event - Title: {e.Title}, Description: {e.Description}, Location: {e.Location}, Start: {e.Start}, URL: {e.URL}");
+                }
+
                 using (var writer = new StreamWriter(csvFilePath, false, Encoding.UTF8))
                 {
                     await writer.WriteLineAsync("contentId,title,description,location,start,source,type,currencyCode,amount,url,distance");
 
                     int contentIdCounter = 1;
+                    int eventsWritten = 0;
                     foreach (var e in combinedEvents)
                     {
+                        Console.WriteLine($"Writing Event to CSV - Title: {e.Title}, Source: {e.Source}, Start: {e.Start}");
                         await writer.WriteLineAsync(
                             $"{contentIdCounter}," +
                             $"{CleanField(e.Title)}," +
@@ -236,7 +250,9 @@ namespace ventaura_backend.Controllers
                             $"{e.Distance}"
                         );
                         contentIdCounter++;
+                        eventsWritten++;
                     }
+                    Console.WriteLine($"Total Events Written to CSV: {eventsWritten}");
                 }
 
                 return Ok(new { Message = "Events processed successfully and CSV created.", CsvPath = csvFilePath });

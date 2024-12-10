@@ -35,6 +35,9 @@ public class CombinedAPIService
         // Combine the results of the API calls.
         // var events = ticketmasterEvents.Concat(yelpEvents).ToList();
 
+        Console.WriteLine($"Fetched {ticketmasterEvents.Count} events from Ticketmaster.");
+        // Console.WriteLine($"Fetched {yelpEvents.Count} events from Yelp.");
+
         var events = ticketmasterEvents.ToList();
 
         /* // Log each event's details for debugging.
