@@ -585,18 +585,16 @@ const ForYou = () => {
           {/* Price Range Section */}
           <div className={formsStyles.preferencesSection}>
           <p className={layoutStyles.sectionTitle}>Select Price Range:</p>
-          <div className={layoutStyles['price-buttons-container']}>
             {priceOptions.map((price) => (
               <button
                 type="button"
                 key={price}
                 onClick={() => handlePriceRangeSelect(price)}
-                className={`${layoutStyles['price-button']} ${userData.priceRange === price ? layoutStyles['selected'] : ''}`}
+                className={`${layoutStyles['prices-button']} ${userData.priceRange === price ? layoutStyles['selected'] : ''}`}
               >
                 {price}
               </button>
             ))}
-          </div>
         </div>
 
         <p className={layoutStyles.sectionTitle}>Select Distance(km):</p>
