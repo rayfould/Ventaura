@@ -24,8 +24,8 @@ public class GlobalEventsController : ControllerBase
     public async Task<IActionResult> SearchEvents(
         [FromQuery] string city, 
         [FromQuery] int userId, 
-        [FromQuery] string eventType = null, 
-        [FromQuery] double? maxDistance = null, 
+        [FromQuery] string eventType = null,
+        [FromQuery] double? maxDistance = 100, // Default to 100 km
         [FromQuery] double? maxPrice = null,
         [FromQuery] DateTime? startDateTime = null
     )
@@ -87,10 +87,11 @@ public class GlobalEventsController : ControllerBase
                 return NotFound(new { Message = "Could not find coordinates for the specified city." });
             }
 
-            var latitude = coordinates.Value.latitude;
-            var longitude = coordinates.Value.longitude;
+            var searchLatitude = coordinates.Value.latitude;
+            var searchLongitude = coordinates.Value.longitude;
 
-            var apiEvents = await _combinedApiService.FetchEventsAsync(latitude, longitude, userId);
+            // **3. Fetch Events**
+            var apiEvents = await _combinedApiService.FetchEventsAsync(searchLatitude, searchLongitude, userId);
             var hostEvents = await _dbContext.HostEvents.ToListAsync();
 
             var processedApiEvents = new List<CombinedEvent>();
@@ -114,7 +115,13 @@ public class GlobalEventsController : ControllerBase
                     }
                 }
 
-                var distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, eventLatitude, eventLongitude);
+                var distance = DistanceCalculator.CalculateDistance(searchLatitude, searchLongitude, eventLatitude, eventLongitude);
+
+                // If distance is over 100km, don't include it
+                if (distance > (maxDistance ?? 100))
+                {
+                    continue; // Skip events beyond maxDistance
+                }
 
                 processedApiEvents.Add(new CombinedEvent
                 {
@@ -147,8 +154,14 @@ public class GlobalEventsController : ControllerBase
                     }
                 }
 
-                var distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, hostLatitude, hostLongitude);
+                var distance = DistanceCalculator.CalculateDistance(searchLatitude, searchLongitude, hostLatitude, hostLongitude);
 
+                // If distance is over 100km, don't include it
+                if (distance > (maxDistance ?? 100))
+                {
+                    continue; // Skip events beyond maxDistance
+                }
+                
                 processedHostEvents.Add(new CombinedEvent
                 {
                     Title = he.Title ?? "Unknown Title",
@@ -170,13 +183,6 @@ public class GlobalEventsController : ControllerBase
             {
                 combinedEvents = combinedEvents
                     .Where(e => e.Type.Equals(eventType, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-            }
-
-            if (maxDistance.HasValue)
-            {
-                combinedEvents = combinedEvents
-                    .Where(e => e.Distance >= 0 && e.Distance <= maxDistance.Value)
                     .ToList();
             }
 
