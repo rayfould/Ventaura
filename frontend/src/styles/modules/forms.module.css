@@ -133,3 +133,13 @@ button[type="submit"]:disabled {
     padding: 5rem;
 }
 
+.filter-note {
+    margin: 10px 0;            /* Adds vertical spacing */
+    font-size: 0.9rem;         /* Adjusts font size */
+    color: #555;               /* Sets text color */
+    text-align: center;        /* Centers text horizontally */
+  }
+  
+.filter-note strong {
+    color: #333; /* Bold text color */
+}

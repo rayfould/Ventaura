@@ -482,6 +482,18 @@ const handleSearch = async (e) => {
                 />
               </div>
 
+              {/* Informational Message - Conditional Rendering */}
+              {((filters.startDate && !filters.startTime) || 
+                (filters.startTime && !filters.startDate) ||
+                (filters.endDate && !filters.endTime) ||
+                (filters.endTime && !filters.endDate)) && (
+                <div className={formsStyles['filter-note']}>
+                  <span>
+                    Both date and time for either start or end filters are required for a successful filter search.
+                  </span>
+                </div>
+              )}
+
               {/* Buttons */}
               <div className={formsStyles['button-container']}>
                 <button type="submit" className={`${buttonStyles.button}`}>
