@@ -57,8 +57,8 @@ namespace ventaura_backend.Services
                         : DateTime.UtcNow,
                     Source = "Yelp",
                     Type = eventItem["category"]?.ToString() ?? "Other",
-                    Amount = eventItem["cost"] != null 
-                        ? (decimal?)Convert.ToDecimal(eventItem["cost"]) 
+                    Amount = decimal.TryParse(eventItem["cost"]?.ToString(), out var cost) 
+                        ? (decimal?)cost 
                         : null,
                     CurrencyCode = "USD", // Yelp API doesn't specify currency.
                     URL = eventItem["event_site_url"]?.ToString() ?? "No URL available"

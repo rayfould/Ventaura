@@ -5,17 +5,14 @@ using ventaura_backend.Models;
 using ventaura_backend.Utils; // Import DistanceCalculator
 using Microsoft.EntityFrameworkCore;
 
-
 [ApiController]
 [Route("api/global-events")]
 public class GlobalEventsController : ControllerBase
 {
-    // Services and database context needed for fetching and processing events.
     private readonly GoogleGeocodingService _googleGeocodingService;
     private readonly CombinedAPIService _combinedApiService;
     private readonly DatabaseContext _dbContext;
 
-    // Constructor that sets up the geocoding service, combined events service, and database context.
     public GlobalEventsController(GoogleGeocodingService googleGeocodingService, CombinedAPIService combinedApiService, DatabaseContext dbContext)
     {
         _googleGeocodingService = googleGeocodingService;
@@ -23,9 +20,6 @@ public class GlobalEventsController : ControllerBase
         _dbContext = dbContext;
     }
 
-    // GET endpoint that searches for events based on a given city and user ID.
-    // It first geocodes the city to find its coordinates, then fetches events using those coordinates.
-    // Each event is enriched with user-specific details and distance calculations.
     [HttpGet("search")]
     public async Task<IActionResult> SearchEvents(
         [FromQuery] string city, 
@@ -38,34 +32,67 @@ public class GlobalEventsController : ControllerBase
     {
         try
         {
-            // **1. Validate User**
+            // **1. Type Mapping Implementation**
+            var typeMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "festivals-fairs", "Festivals" },
+                { "sports-active-life", "Outdoors" },
+                { "visual-arts", "Exhibitions" },
+                { "charities", "Community" },
+                { "performing-arts", "Theater" },
+                { "kids-family", "Family" },
+                { "film", "Film" },
+                { "food-and-drink", "Food and Drink" },
+                { "music", "Music" },
+                { "Holiday", "Holiday" },
+                { "Networking", "Networking" },
+                { "Gaming", "Gaming" },
+                { "Pets", "Pets" },
+                { "Virtual", "Virtual" },
+                { "Science", "Science" },
+                { "Basketball", "Basketball" },
+                { "Pottery", "Pottery" },
+                { "Tennis", "Tennis" },
+                { "Soccer", "Soccer" },
+                { "Football", "Football" },
+                { "Fishing", "Fishing" },
+                { "Hiking", "Hiking" },
+                { "Wellness", "Wellness" },
+                { "nightlife", "Nightlife" },
+                { "Workshops", "Workshops" },
+                { "Conferences", "Conferences" },
+                { "Hockey", "Hockey"},
+                { "Baseball", "Baseball"},
+                { "lectures-books", "Lectures"},
+                { "fashion", "Fashion"},
+                { "Motorsports/Racing", "Motorsports"},
+                { "Dance", "Dance"},
+                { "Comedy", "Comedy"},
+                { "Pop", "Music"},
+                { "Country", "Music"},
+                { "Hip-Hop/Rap", "Music"},
+                { "Rock", "Music"},
+                { "other", "Other" }
+            };
+
             var user = await _dbContext.Users.FindAsync(userId);
             if (user == null || user.Latitude == null || user.Longitude == null)
             {
-                Console.WriteLine($"User with ID {userId} not found or location data is missing.");
                 return BadRequest("User not found or location is missing.");
             }
 
-            Console.WriteLine($"Location successfully extracted for userId: {userId}.");
-
-            // **2. Geocode City**
             var coordinates = await _googleGeocodingService.GetCoordinatesAsync(city);
             if (coordinates == null) 
             {
                 return NotFound(new { Message = "Could not find coordinates for the specified city." });
             }
+
             var latitude = coordinates.Value.latitude;
             var longitude = coordinates.Value.longitude;
 
-            // **3. Fetch API Events**
-            Console.WriteLine($"Fetching events from API for userId {userId}...");
             var apiEvents = await _combinedApiService.FetchEventsAsync(latitude, longitude, userId);
-
-            // **4. Fetch Host Events**
-            Console.WriteLine($"Fetching host events for city {city}...");
             var hostEvents = await _dbContext.HostEvents.ToListAsync();
 
-            // **5. Process API Events**
             var processedApiEvents = new List<CombinedEvent>();
 
             foreach (var e in apiEvents)
@@ -96,7 +123,7 @@ public class GlobalEventsController : ControllerBase
                     Location = location,
                     Start = e.Start,
                     Source = e.Source ?? "API",
-                    Type = e.Type ?? "Other",
+                    Type = typeMapping.ContainsKey(e.Type?.ToLower()) ? typeMapping[e.Type.ToLower()] : e.Type,
                     CurrencyCode = e.CurrencyCode ?? "N/A",
                     Amount = e.Amount.HasValue ? (decimal)e.Amount.Value : 0,
                     URL = e.URL ?? "N/A",
@@ -104,18 +131,10 @@ public class GlobalEventsController : ControllerBase
                 });
             }
 
-            // **6. Process Host Events**
             var processedHostEvents = new List<CombinedEvent>();
 
-            var hostEventTasks = hostEvents.Select(async he =>
+            foreach (var he in hostEvents)
             {
-                var hostCity = await ExtractCityFromLocation(he.Location);
-                if (!string.Equals(hostCity, city, StringComparison.OrdinalIgnoreCase))
-                {
-                    // Skip host events that do not match the input city
-                    return null;
-                }
-
                 double hostLatitude = 0, hostLongitude = 0;
 
                 if (!TryParseLocation(he.Location, out hostLatitude, out hostLongitude))
@@ -130,28 +149,23 @@ public class GlobalEventsController : ControllerBase
 
                 var distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, hostLatitude, hostLongitude);
 
-                return new CombinedEvent
+                processedHostEvents.Add(new CombinedEvent
                 {
                     Title = he.Title ?? "Unknown Title",
                     Description = he.Description ?? "No description",
                     Location = he.Location ?? "Unknown Location",
                     Start = he.Start,
                     Source = "Host",
-                    Type = he.Type ?? "Other",
+                    Type = typeMapping.ContainsKey(he.Type?.ToLower()) ? typeMapping[he.Type.ToLower()] : he.Type,
                     CurrencyCode = he.CurrencyCode ?? "N/A",
                     Amount = he.Amount ?? 0,
                     URL = he.URL ?? "N/A",
                     Distance = distance
-                };
-            });
+                });
+            }
 
-            processedHostEvents = (await Task.WhenAll(hostEventTasks)).Where(e => e != null).ToList();
-
-
-            // **7. Combine Events**
             var combinedEvents = processedApiEvents.Concat(processedHostEvents).ToList();
 
-            // **8. Apply Filters**
             if (!string.IsNullOrEmpty(eventType))
             {
                 combinedEvents = combinedEvents
@@ -180,54 +194,14 @@ public class GlobalEventsController : ControllerBase
                     .ToList();
             }
 
-            // **9. Return Combined Events**
-            Console.WriteLine($"✅ Total combined events: {combinedEvents.Count}");
             return Ok(new { Message = "Events fetched successfully.", Events = combinedEvents });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error in SearchEvents: {ex.Message}");
-            return StatusCode(500, "An error occurred while fetching events.");
+            return StatusCode(500, $"An error occurred while fetching events: {ex.Message}");
         }
     }
 
-    private async Task<string> ExtractCityFromLocation(string location)
-    {
-        if (string.IsNullOrEmpty(location))
-            return string.Empty;
-
-        try
-        {
-            var coordinates = await _googleGeocodingService.GetCoordinatesAsync(location);
-            if (!coordinates.HasValue)
-                return string.Empty;
-
-            var address = await _googleGeocodingService.GetAddressFromCoordinates(coordinates.Value.latitude, coordinates.Value.longitude);
-            var addressParts = address.Split(',');
-            if (addressParts.Length >= 2)
-            {
-                return addressParts[addressParts.Length - 3].Trim(); // Assuming city is the second-to-last part
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error extracting city: {ex.Message}");
-        }
-
-        return string.Empty;
-    }
-
-    // Function to clean the CSV formatting so it works as expected in the ranking algorithm
-    private string CleanField(string field)
-    {
-        if (string.IsNullOrEmpty(field)) return "";
-        field = field.Replace("\r", " ").Replace("\n", " ").Trim();
-        if (field.Contains(",") || field.Contains("\""))
-            return $"\"{field.Replace("\"", "\"\"")}\"";
-        return field;
-    }
-
-    // Parse location to calculate distance
     private bool TryParseLocation(string location, out double latitude, out double longitude)
     {
         latitude = 0;
