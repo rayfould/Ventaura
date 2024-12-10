@@ -261,21 +261,26 @@ const ForYou = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`http://localhost:5152/api/users/${userId}`);
+        const cleanData = (data) => {
+          return data.replace(/[^a-zA-Z0-9, ]/g, '').split(',').map(item => item.trim());
+        };
+        
+        const preferences = cleanData(response.data.preferences);
+        const dislikes = cleanData(response.data.dislikes);
+        
         setUserData({
-          preferences: response.data.preferences,
-          dislikes: response.data.dislikes,
+          preferences: preferences,
+          dislikes: dislikes,
           priceRange: response.data.priceRange,
-          maxDistance: response.data.maxDistance
+          maxDistance: response.data.maxDistance,
         });
+        preferenceSet = new Set(userData.preferences);
+        dislikeSet = new Set(userData.dislikes);
       } catch (error) {
         console.log("Error fetching form data:", error);
       }
     };
     fetchUserData();
-
-    const preferenceSet = new Set(userData.preferences);
-    dislikeSet = new Set(userData.dislikes);
-
   }, [dataLoaded, timerDone]);
 
 
