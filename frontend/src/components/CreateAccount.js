@@ -82,21 +82,45 @@ const CreateAccount = () => {
 
   const handlePreferenceToggle = (preference) => {
     setFormData((prevData) => {
-      const newPreferences = prevData.preferences.includes(preference)
-        ? prevData.preferences.filter((item) => item !== preference)
-        : [...prevData.preferences, preference];
-      return { ...prevData, preferences: newPreferences };
+      const newPreferences = new Set(prevData.preferences);
+      const newDislikes = new Set(prevData.dislikes);
+  
+      if (newPreferences.has(preference)) {
+        newPreferences.delete(preference);
+      } else {
+        newPreferences.add(preference);
+        newDislikes.delete(preference); 
+      }
+  
+      return { 
+        ...prevData, 
+        preferences: Array.from(newPreferences),
+        dislikes: Array.from(newDislikes) 
+      };
     });
   };
+  
 
   const handleDislikeToggle = (dislike) => {
     setFormData((prevData) => {
-      const newDislikes = prevData.dislikes.includes(dislike)
-        ? prevData.dislikes.filter((item) => item !== dislike)
-        : [...prevData.dislikes, dislike];
-      return { ...prevData, dislikes: newDislikes };
+      const newDislikes = new Set(prevData.dislikes);
+      const newPreferences = new Set(prevData.preferences);
+  
+      if (newDislikes.has(dislike)) {
+        newDislikes.delete(dislike);
+      } else {
+        newDislikes.add(dislike);
+        newPreferences.delete(dislike); 
+      }
+  
+      return { 
+        ...prevData, 
+        dislikes: Array.from(newDislikes),
+        preferences: Array.from(newPreferences)
+      };
     });
   };
+  
 
   const handlePriceRangeSelect = (price) => {
     setFormData((prevData) => ({
