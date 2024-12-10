@@ -11,6 +11,8 @@ public class CombinedAPIService
     // Services for interacting with Amadeus, Yelp and Ticketmaster APIs.
     private readonly TicketmasterService _ticketmasterService;
     private readonly YelpFusionService _yelpFusionService;
+    // private readonly AmadeusService _amadeusService;
+
 
 
     // Constructor to inject the Amadeus and Ticketmaster services.
@@ -18,6 +20,8 @@ public class CombinedAPIService
     {
         _ticketmasterService = ticketmasterService;
         _yelpFusionService = yelpFusionService;
+        // _amadeusService = amadeusService;
+
     }
 
     // Method to fetch and combine events from Amadeus and Ticketmaster APIs.

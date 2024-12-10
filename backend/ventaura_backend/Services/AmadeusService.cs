@@ -3,7 +3,7 @@ API in the Ventaura application. It fetches activity and event data based on use
 processes the API response, and converts the data into a format suitable for integration into the application.
 The service also handles authentication by retrieving an access token from Amadeus. */
 
-/* using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Text;
 using ventaura_backend.Models;
 using Newtonsoft.Json.Linq;
@@ -66,7 +66,7 @@ namespace ventaura_backend.Services
                     Source = "Amadeus", // Source identifier for the data.
                     Type = "Other", // Activity type.
                     CurrencyCode = activity["price"]?["currencyCode"]?.ToString() ?? "N/A", // Currency code or default.
-                    Amount = double.TryParse(activity["price"]?["amount"]?.ToString(), out var amount) ? amount : (double?)null,
+                    Amount = decimal.TryParse(activity["price"]?["amount"]?.ToString(), out var amount) ? (decimal?)amount : (decimal?)null,
                     URL = activity["self"]?["href"]?.ToString() ?? "Booking link not available." // Booking link or default text.
                 }).ToList() ?? new List<UserContent>();
 
@@ -129,4 +129,3 @@ namespace ventaura_backend.Services
         }
     }
 }
-*/

@@ -47,6 +47,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 // - CombinedAPIService merges various event sources into a unified view.
 builder.Services.AddScoped<TicketmasterService>();
 builder.Services.AddScoped<CombinedAPIService>();
+builder.Services.AddScoped<AmadeusService>();
 
 // Add a general CORS policy allowing any origin, method, and header.
 // This broad policy is useful for development and may be restricted in production.
