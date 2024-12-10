@@ -19,6 +19,22 @@ from dotenv import load_dotenv
 
 app = FastAPI(debug=True) 
 
+# Configure CORS
+origins = [
+    "http://localhost:5152",  # Frontend origin
+    "http://127.0.0.1:5152",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Allows specific origins
+    allow_credentials=True,
+    allow_methods=["*"],    # Allows all HTTP methods
+    allow_headers=["*"],    # Allows all headers
+)
+
 load_dotenv()  # Load variables from .env
 
 
@@ -237,74 +253,41 @@ async def rank_events(user_id: int) -> dict:
         user_preferences = await fetch_user_preferences(user_id)
         print(f"Fetched user preferences: {user_preferences}")
 
-        # Split preferences and dislikes into individual items and create frozensets
+        # Format the user preferences properly from the fetched data
         formatted_user = {
             'Preferences': frozenset(
-                [p.strip() for p in user_preferences.Preferences.split(',')] 
+                [p.strip() for p in user_preferences.Preferences.split(',')]
             ) if isinstance(user_preferences.Preferences, str) else frozenset(user_preferences.Preferences),
             'Disliked': frozenset(
-                [d.strip() for d in user_preferences.Dislikes.split(',')] 
+                [d.strip() for d in user_preferences.Dislikes.split(',')]
             ) if isinstance(user_preferences.Dislikes, str) else frozenset(user_preferences.Dislikes),
-            'Price Range': user_preferences.PriceRange or 'irrelevant',
-            'Max Distance': user_preferences.MaxDistance or 'Any Distance'
+            'Price Range': user_preferences.PriceRange,  # Use actual value from preferences
+            'Max Distance': user_preferences.MaxDistance  # Use actual value from preferences
         }
+
         print(f"Formatted user preferences: {formatted_user}")
 
-        # Define paths
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        backend_dir = os.path.dirname(current_dir)  # Go up one level to 'backend'
+        backend_dir = os.path.dirname(current_dir)
         input_path = os.path.join(backend_dir, "ventaura_backend", "CsvFiles", f"{user_id}.csv")
         output_path = os.path.join(backend_dir, "ventaura_backend", "CsvFiles")
 
-        # Debug prints
-        print(f"Current working directory: {os.getcwd()}")
-        print(f"CsvFiles directory exists: {os.path.exists(os.path.join(backend_dir, 'ventaura_backend', 'CsvFiles'))}")
-        print(f"Absolute path to CsvFiles: {os.path.abspath(os.path.join(backend_dir, 'ventaura_backend', 'CsvFiles'))}")
-        print(f"__file__ is: {__file__}")
-        print(f"Absolute path of __file__: {os.path.abspath(__file__)}")
-        print(f"Current_dir: {current_dir}")
-        print(f"Looking for CSV at: {input_path}")
-
-        print(f"\n=== Starting ranking process for user {user_id} ===")
-
         ranker = EventRanking(debug_mode=True)
-
-        print("Ranking system initialized")
-
+        
         if not os.path.exists(input_path):
-            print(f"ERROR: File not found at {input_path}")
             raise HTTPException(
                 status_code=404,
                 detail=f"No events file found for user {user_id} at {input_path}"
             )
 
-        print("File found, reading CSV...")
-        events_df = pd.read_csv(
-            input_path,
-            sep=',',
-            quotechar='"',
-            escapechar='\\',
-            doublequote=True,
-            skipinitialspace=True
-        )
-        print(f"CSV loaded with {len(events_df)} events")
-
-        print("Loading events into ranker...")
+        events_df = pd.read_csv(input_path)
         ranker.load_events(events_df)
         events_removed = ranker.filter_events()
-        print(f"Events filtered. Removed {events_removed} events")
 
-        print(f"Using user preferences: {formatted_user}")
-
-        print("Starting ranking process...")
         result = ranker.rank_events(formatted_user)
-        print(f"Ranking complete. Got {len(result)} values from rank_events")
         ranked_df = result[0]
-        print(f"Using first dataframe with {len(ranked_df)} events")
 
-        print("Saving ranked events...")
         ranker.save_ranked_events(user_id, ranked_df, output_path)
-        print("Events saved successfully")
 
         return {
             "success": True,
@@ -313,17 +296,14 @@ async def rank_events(user_id: int) -> dict:
             "events_removed": events_removed
         }
 
-    except HTTPException as he:
-        print(f"HTTP Exception: {he.detail}")
-        raise he
     except Exception as e:
         print(f"ERROR: {str(e)}")
-        print(f"Exception type: {type(e)}")
         print(f"Traceback:\n{traceback.format_exc()}")
         raise HTTPException(
             status_code=500,
             detail=f"Internal server error: {str(e)}"
         )
+
 
 
 

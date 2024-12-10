@@ -117,7 +117,7 @@ const ForYou = () => {
       try {
         console.log("Calling Ranking API...");
         const rankingResponse = await axios.post(
-          `http://localhost:5152/api/events/rank/${userId}`, // C# backend endpoint
+          `http://localhost:8000/rank-events/${userId}`, // FastAPI endpoint
           null, // No body needed as per your C# controller
           {
             headers: {

@@ -171,18 +171,16 @@
 /* buttons.module.css */
 
 .close-sidebar-right {
-  position: absolute;
-  top: 46%; 
+  position: sticky;
+  align-self: flex-start;
+  top: 45%; 
   left: 0%;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 10px;
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transform: rotate(180deg);
+  translate: -110%;
   transition: transform 0.3s ease;
 }
 
@@ -279,7 +277,7 @@
 /* Close Sidebar Right Button Styling */
 .close-sidebar-right {
   /* Similar to .close-sidebar */
-  background: none;
+  position: sticky;
   border: none;
   cursor: pointer;
   padding: 10px;
@@ -287,6 +285,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
 }
 
 .close-sidebar-right::before {
