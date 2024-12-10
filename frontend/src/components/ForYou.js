@@ -14,7 +14,7 @@ import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
-import logo from '../assets/ventaura-logo-white.png'; 
+import logo from '../assets/ventaura-logo-white-smooth.png'; 
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
 import LoadingOverlay from '../components/LoadingOverlay';
 import Footer from '../components/footer';
@@ -111,7 +111,39 @@ const ForYou = () => {
         setMessage(fetchEventsResponse.data.Message || "");
         setEvents(fetchEventsResponse.data.insertedEvents || []);
 
-        // === Step 2: Fetch CSV Data ===
+
+
+        // === Step 2: Call Ranking API ===
+      try {
+        console.log("Calling Ranking API...");
+        const rankingResponse = await axios.post(
+          `http://localhost:5152/api/events/rank/${userId}`, // C# backend endpoint
+          null, // No body needed as per your C# controller
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              // Include authentication headers if required
+            }
+          }
+        );
+
+        console.log("Ranking API Response:", rankingResponse.data);
+        if (rankingResponse.data.success) {
+          console.log("Ranking successful:", rankingResponse.data.message);
+          // Optionally, you can update the state or notify the user
+        } else {
+          console.error("Ranking failed:", rankingResponse.data.message);
+          setMessage("Ranking failed: " + (rankingResponse.data.message || "Unknown error."));
+          // Decide whether to proceed or halt
+          // For this example, we'll proceed to fetch CSV data
+        }
+      } catch (rankingError) {
+        console.error("Error calling Ranking API:", rankingError);
+        setMessage("An error occurred while ranking events.");
+        // Decide whether to proceed or halt
+        // For this example, we'll proceed to fetch CSV data
+      }
+        // === Step 3: Fetch CSV Data ===
         const fetchCSVResponse = await axios.get(
           `http://localhost:5152/api/combined-events/get-csv?userId=${userId}`,
           {
@@ -129,7 +161,7 @@ const ForYou = () => {
           }
         );
 
-        // === Step 3: Parse CSV Data ===
+        // === Step 4: Parse CSV Data ===
         const reader = new FileReader();
         reader.onload = () => {
           const csvString = reader.result;
@@ -492,7 +524,7 @@ const ForYou = () => {
         />
 
           {/* Update Information Button */}
-          <button type="submit" className={buttonStyles['logout-button']}>
+          <button type="submit" className={buttonStyles['update-preferences-button']}>
             Update information
           </button>
 

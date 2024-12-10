@@ -10,7 +10,7 @@ import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
-import logo from '../assets/ventaura-logo-white.png'; 
+import logo from '../assets/ventaura-logo-white-smooth.png'; 
 import Footer from '../components/footer';
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
 

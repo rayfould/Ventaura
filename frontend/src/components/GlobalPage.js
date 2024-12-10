@@ -13,7 +13,7 @@ import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css'; // Reuse formsStyles from For You Page
 import EventCard from './EventCard.js'; 
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
-import logo from '../assets/ventaura-logo-white.png'; 
+import logo from '../assets/ventaura-logo-white-smooth.png'; 
 import Footer from '../components/footer';
 
 

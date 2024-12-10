@@ -229,6 +229,34 @@
   color: var(--text);
 }
 
+.update-preferences-button {
+  font-size: 18px;
+  width: 75%; /* Adjust as needed */
+  margin: 50px auto 0 auto;
+  padding: var(--space-md);
+  background-color: var(--secondary) !important;
+  color: var(--background);
+  border: none; /* Remove default border */
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+  margin-bottom: 2rem;
+  
+  /* Center the text */
+  text-align: center;
+  
+  /* Flexbox for vertical centering */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.update-preferences-button:hover {
+  background-color: white !important;
+  border: 1px solid white;
+  color: var(--text) !important;
+}
+
 /* Sidebar Handle Button */
 .sidebar-handle {
   position: fixed;
@@ -328,9 +356,9 @@
   height: 60px;
   background-color: var(--primary);
   color: var(--background);
-  border: none;
+  border: 1px solid var(--secondary);
   border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   cursor: pointer;
   display: flex;
   align-items: center;

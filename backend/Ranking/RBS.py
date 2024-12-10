@@ -65,23 +65,16 @@ class EventRanking:
         # Define the hard cutoff distance in km
         DISTANCE_CUTOFF = 100
 
-        # Existing mask conditions
         mask = (
             self.events_df['start'].notna() &
             (pd.to_datetime(self.events_df['start']) >= self.CURRENT_TIME) &
             (self.events_df[['type', 'distance', 'start']].isna().sum(axis=1) <= 2) &
-            (self.events_df.isna().sum(axis=1) <= 4)
+            (self.events_df.isna().sum(axis=1) <= 4) &
+            (self.events_df['distance'].notna() & (self.events_df['distance'] <= DISTANCE_CUTOFF))
         )
 
-        # New distance cutoff condition:
-        # Exclude events with distance > 100 km and exclude events with missing distance
-        distance_mask = self.events_df['distance'].notna() & (self.events_df['distance'] <= DISTANCE_CUTOFF)
-
-        # Combine existing mask with distance_mask
-        combined_mask = mask & distance_mask
-
         original_input = len(self.events_df)
-        self.events_df = self.events_df[combined_mask].reset_index(drop=True)
+        self.events_df = self.events_df[mask].reset_index(drop=True)
         events_removed = original_input - len(self.events_df)
 
         self.debug_print(f"Filtered events: Removed {events_removed} invalid or too far events")

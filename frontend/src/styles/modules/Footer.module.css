@@ -1,7 +1,7 @@
 /* src/styles/modules/Footer.module.css */
 
 .footer {
-    background-color: #ffffff; /* Solid white background */
+    background-color: var(--primary); /* Solid white background */
     border-top: 2px solid var(--primary); /* Red top border for accent */
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Subtle top shadow */
     margin-top: auto;
@@ -12,8 +12,8 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
   }
   
   .logoSection {
@@ -36,9 +36,10 @@
   }
   
   .sectionTitle {
-    font-size: 1.2rem;
-    color: var(--primary); /* Red color for section titles */
+    font-size: 1.5rem;
+    color: white; /* Red color for section titles */
     margin-bottom: 10px;
+    font-weight: bold;
   }
   
   .navList,
@@ -55,14 +56,23 @@
   
   .navLink {
     text-decoration: none;
-    color: #333333; /* Dark text color */
-    transition: color 0.3s ease;
-  }
-  
-  .navLink:hover {
-    color: var(--primary) /* Red on hover */
-  }
-  
+    color: white;
+    transition: color 0.3s ease, font-weight 0.3s ease; /* Add font-weight to transition */
+    font-weight: normal; /* Explicitly set normal font-weight */
+}
+
+.navLink:hover {
+    color: var(--secondary);
+    font-weight: bold; /* Add bold on hover */
+}
+
+
+.navLink:hover {
+    color: var(--secondary);
+    font-weight: bold;
+}
+
+
   .socialIcons {
     display: flex;
     gap: 10px;
@@ -74,8 +84,8 @@
     justify-content: center;
     width: 35px;
     height: 35px;
-    background-color: var(--primary); /* Red background */
-    color: #ffffff; /* White icon color */
+    background-color: white; /* Red background */
+    color: var(--primary); /* White icon color */
     border-radius: 50%;
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
   }
@@ -105,8 +115,8 @@
   }
   
   .subscribeButton {
-    background-color: var(--primary); /* Red buttons */
-    color: #ffffff;
+    background-color: white !important; /* Red buttons */
+    color: var(--primary) !important;
     border: none;
     padding: 8px 10px;
     border-radius: 5px;
@@ -116,8 +126,9 @@
   }
   
   .subscribeButton:hover {
-    background-color: var(--secondary); /* Darker red on hover */
+    background-color: var(--secondary) !important; /* Darker red on hover */
     transform: translateY(-2px);
+    color: white !important;
   }
   
   .footerBottom {

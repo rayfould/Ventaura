@@ -9,7 +9,7 @@ import { FaUserCircle, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa';
 import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
-import logo from '../assets/ventaura-logo-white.png'; 
+import logo from '../assets/ventaura-logo-white-smooth.png'; 
 import Footer from '../components/footer';
 
 
