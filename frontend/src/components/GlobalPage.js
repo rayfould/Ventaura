@@ -36,10 +36,12 @@ const GlobalPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const [filters, setFilters] = useState({
     eventType: '',
-    // maxDistance: '',
+    maxDistance: '100',
     maxPrice: '',
     startDate: '',
     startTime: '',
+    endDate: '',
+    endTime: '',
   });
 
   useEffect(() => {
@@ -148,13 +150,21 @@ const handleSearch = async (e) => {
     return;
   }
 
-  // Combine date and time to create ISO format for startDateTime
+  // Combine start date and time to create ISO format for startDateTime
   let startDateTime = null;
-    if (filters.startDate && filters.startTime) {
-      const localDateTime = `${filters.startDate}T${filters.startTime}:00`;
-      const utcDateTime = new Date(localDateTime).toISOString(); // convert local time to UTC ISO string
-      startDateTime = utcDateTime;
-    }
+  if (filters.startDate && filters.startTime) {
+    const localDateTime = `${filters.startDate}T${filters.startTime}:00`;
+    const utcDateTime = new Date(localDateTime).toISOString(); // convert local time to UTC ISO string
+    startDateTime = utcDateTime;
+  }
+
+  // Combine end date and time to create ISO format for endDateTime
+  let endDateTime = null;
+  if (filters.endDate && filters.endTime) {
+    const localEndDateTime = `${filters.endDate}T${filters.endTime}:00`;
+    const utcEndDateTime = new Date(localEndDateTime).toISOString(); // convert local time to UTC ISO string
+    endDateTime = utcEndDateTime;
+  }
 
   try {
     const response = await axios.get('http://localhost:5152/api/global-events/search', { 
@@ -164,9 +174,20 @@ const handleSearch = async (e) => {
         eventType: filters.eventType, 
         // maxDistance: filters.maxDistance, 
         maxPrice: filters.maxPrice, 
-        startDateTime // Pass startDateTime in ISO 8601 format
+        startDateTime: startDateTime ? startDateTime : null, // Pass as string
+        endDateTime: endDateTime ? endDateTime : null,       // Pass as string
       } 
     });
+
+    console.log("Sending parameters:", {
+      city,
+      userId,
+      eventType: filters.eventType,
+      maxDistance: filters.maxDistance ? parseFloat(filters.maxDistance) : null,
+      maxPrice: filters.maxPrice ? parseFloat(filters.maxPrice) : null,
+      startDateTime: startDateTime ? startDateTime : null,
+      endDateTime: endDateTime ? endDateTime : null,
+    });    
     
     // Log the entire response data for inspection
     console.log("API Response:", response.data);
@@ -193,10 +214,12 @@ const handleSearch = async (e) => {
   const handleClearFilters = () => {
     setFilters({
       eventType: '',
-      // maxDistance: '',
+      maxDistance: '100',
       maxPrice: '',
       startDate: '',
       startTime: '',
+      endDate: '',
+      endTime: '',
     });
   };
 
@@ -375,6 +398,7 @@ const handleSearch = async (e) => {
               </div>
 
               {/* Max Distance Input */}
+              {/* If you wish to allow the user to set maxDistance, uncomment this block */}
               {/* <div className={formsStyles['form-group']}>
                 <label htmlFor="maxDistance" className={formsStyles['form-label']}>Max Distance (km)</label>
                 <input 
@@ -386,8 +410,10 @@ const handleSearch = async (e) => {
                   onChange={handleFilterChange} 
                   className={formsStyles['form-input']} 
                   min="0"
+                  step="1"
                 />
-              </div>*/}
+              </div>
+              */}
 
               {/* Max Price Input */}
               <div className={formsStyles['form-group']}>
@@ -404,7 +430,7 @@ const handleSearch = async (e) => {
                 />
               </div>
               
-              {/* Date Input */}
+              {/* Start Date Input */}
               <div className={formsStyles['form-group']}>
                 <label htmlFor="startDate" className={formsStyles['form-label']}>Start Date</label>
                 <input
@@ -417,7 +443,7 @@ const handleSearch = async (e) => {
                 />
               </div>
 
-              {/* Time Input */}
+              {/* Start Time Input */}
               <div className={formsStyles['form-group']}>
                 <label htmlFor="startTime" className={formsStyles['form-label']}>Start Time</label>
                 <input
@@ -425,6 +451,32 @@ const handleSearch = async (e) => {
                   id="startTime"
                   name="startTime"
                   value={filters.startTime}
+                  onChange={handleFilterChange}
+                  className={formsStyles['form-input']}
+                />
+              </div>
+
+              {/* End Date Input */}
+              <div className={formsStyles['form-group']}>
+                <label htmlFor="endDate" className={formsStyles['form-label']}>End Date</label>
+                <input
+                  type="date"
+                  id="endDate"
+                  name="endDate"
+                  value={filters.endDate}
+                  onChange={handleFilterChange}
+                  className={formsStyles['form-input']}
+                />
+              </div>
+
+              {/* End Time Input */}
+              <div className={formsStyles['form-group']}>
+                <label htmlFor="endTime" className={formsStyles['form-label']}>End Time</label>
+                <input
+                  type="time"
+                  id="endTime"
+                  name="endTime"
+                  value={filters.endTime}
                   onChange={handleFilterChange}
                   className={formsStyles['form-input']}
                 />

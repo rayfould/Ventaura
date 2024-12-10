@@ -27,7 +27,8 @@ public class GlobalEventsController : ControllerBase
         [FromQuery] string eventType = null,
         [FromQuery] double? maxDistance = 100, // Default to 100 km
         [FromQuery] double? maxPrice = null,
-        [FromQuery] DateTime? startDateTime = null
+        [FromQuery] DateTime? startDateTime = null,
+        [FromQuery] DateTime? endDateTime = null
     )
     {
         try
@@ -81,6 +82,9 @@ public class GlobalEventsController : ControllerBase
                 return BadRequest("User not found or location is missing.");
             }
 
+            Console.WriteLine($"Received startDateTime: {startDateTime}");
+            Console.WriteLine($"Received endDateTime: {endDateTime}");
+
             var coordinates = await _googleGeocodingService.GetCoordinatesAsync(city);
             if (coordinates == null) 
             {
@@ -98,6 +102,9 @@ public class GlobalEventsController : ControllerBase
 
             foreach (var e in apiEvents)
             {
+
+                Console.WriteLine($"Event '{e.Title}' Start Time: {e.Start}");
+
                 var location = e.Location ?? "Unknown Location";
                 double eventLatitude = 0, eventLongitude = 0;
 
@@ -136,6 +143,7 @@ public class GlobalEventsController : ControllerBase
                     URL = e.URL ?? "N/A",
                     Distance = distance
                 });
+
             }
 
             var processedHostEvents = new List<CombinedEvent>();
@@ -161,7 +169,7 @@ public class GlobalEventsController : ControllerBase
                 {
                     continue; // Skip events beyond maxDistance
                 }
-                
+
                 processedHostEvents.Add(new CombinedEvent
                 {
                     Title = he.Title ?? "Unknown Title",
@@ -198,6 +206,18 @@ public class GlobalEventsController : ControllerBase
                 combinedEvents = combinedEvents
                     .Where(e => e.Start.HasValue && e.Start.Value >= startDateTime.Value)
                     .ToList();
+            }
+
+            if (endDateTime.HasValue)
+            {
+                combinedEvents = combinedEvents
+                    .Where(e => e.Start.HasValue && e.Start.Value <= endDateTime.Value)
+                    .ToList();
+            }
+
+            if (startDateTime.HasValue && endDateTime.HasValue && endDateTime.Value < startDateTime.Value)
+            {
+                return BadRequest("End DateTime cannot be earlier than Start DateTime.");
             }
 
             return Ok(new { Message = "Events fetched successfully.", Events = combinedEvents });
