@@ -336,7 +336,7 @@ if __name__ == "__main__":
     ranker = EventRanking(debug_mode=True)
 
     # Load events from a CSV file
-    events_df = pd.read_csv("API/content/17.csv")  # Replace with your test file path
+    events_df = pd.read_csv("API/content/27.csv")  # Replace with your test file path
     ranker.load_events(events_df)
 
     # Filter out invalid events
@@ -371,7 +371,7 @@ if __name__ == "__main__":
     print(ranked_df[['contentId', 'type', 'amount', 'distance']].head(10).to_string(index=False))
 
     # Save results (without scores)
-    ranker.save_ranked_events(17, ranked_df)
+    ranker.save_ranked_events(27, ranked_df)
 
     # Save detailed scores (optional)
     ranker.save_detailed_scores(17, detailed_scores)

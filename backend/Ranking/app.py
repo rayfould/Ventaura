@@ -2,7 +2,6 @@ import os
 import traceback
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field
-from typing import List, Union
 import pandas as pd
 import torch
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,18 +24,29 @@ origins = [
     "http://127.0.0.1:5152",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Allows specific origins
+    allow_origins=origins,           
     allow_credentials=True,
-    allow_methods=["*"],    # Allows all HTTP methods
-    allow_headers=["*"],    # Allows all headers
+    allow_methods=["*"],            
+    allow_headers=["*"],             
 )
 
 load_dotenv()  # Load variables from .env
 
+@app.middleware("http")
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        print("\n=== Error Traceback ===")
+        print(traceback.format_exc())
+        print("=====================\n")
+        raise e
 
 # Define required columns
 required_columns = {
@@ -152,15 +162,7 @@ def validate_input(user_id: int, events_df: pd.DataFrame) -> Tuple[pd.DataFrame,
 
     return events_df, True  # Assuming all validations pass
 
-@app.middleware("http")
-async def catch_exceptions_middleware(request: Request, call_next):
-    try:
-        return await call_next(request)
-    except Exception as e:
-        print("\n=== Error Traceback ===")
-        print(traceback.format_exc())
-        print("=====================\n")
-        raise e
+
 
 # Load model
 #ranking_service = EventRankingService(model_path=LOAD_MODEL_PATH)
@@ -245,6 +247,11 @@ async def catch_exceptions_middleware(request: Request, call_next):
 #         raise HTTPException(status_code=400, detail=f"Error ranking events: {str(e)}")
 # app.py
 
+def normalize_event_type(event_type):
+        if pd.isna(event_type):
+            return np.nan
+        return event_type.lower().rstrip('s')
+
 @app.post("/rank-events/{user_id}")  
 async def rank_events(user_id: int) -> dict:
     print(f"Rank events called with user_id: {user_id}")
@@ -256,13 +263,17 @@ async def rank_events(user_id: int) -> dict:
         # Format the user preferences properly from the fetched data
         formatted_user = {
             'Preferences': frozenset(
-                [p.strip() for p in user_preferences.Preferences.split(',')]
-            ) if isinstance(user_preferences.Preferences, str) else frozenset(user_preferences.Preferences),
+                normalize_event_type(p.strip()) 
+                for p in user_preferences.Preferences.split(',')
+                if p.strip()
+            ),
             'Disliked': frozenset(
-                [d.strip() for d in user_preferences.Dislikes.split(',')]
-            ) if isinstance(user_preferences.Dislikes, str) else frozenset(user_preferences.Dislikes),
-            'Price Range': user_preferences.PriceRange,  # Use actual value from preferences
-            'Max Distance': user_preferences.MaxDistance  # Use actual value from preferences
+                normalize_event_type(d.strip()) 
+                for d in user_preferences.Dislikes.split(',')
+                if d.strip()
+            ),
+            'Price Range': user_preferences.PriceRange,
+            'Max Distance': user_preferences.MaxDistance
         }
 
         print(f"Formatted user preferences: {formatted_user}")
@@ -304,22 +315,6 @@ async def rank_events(user_id: int) -> dict:
             detail=f"Internal server error: {str(e)}"
         )
 
-
-
-
-
-# Add middleware for error logging
-@app.middleware("http")
-async def catch_exceptions_middleware(request: Request, call_next):
-    try:
-        return await call_next(request)
-    except Exception as e:
-        print("\n=== Error Traceback ===")
-        print(traceback.format_exc())
-        print("=====================\n")
-        raise e
-
-# Your existing endpoint code here...
 
 @app.get("/test")
 async def test():
