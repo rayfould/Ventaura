@@ -30,6 +30,12 @@ import Virtual from './virtual.png';
 import VisualArts from './visualArts.png';
 import Wellness from './wellness.png';
 import Workshops from './workshops.png';
+import Lectures from './lectures.png';
+import Fashion from './fashion.png';
+import Motorsports from './motorsports.png';
+import Dance from './dance.png';
+import Comedy from './comedy.png';
+
 
 const eventIcons = {
   'Baseball': Baseball,
@@ -62,7 +68,12 @@ const eventIcons = {
   'Virtual': Virtual,
   'Visual Arts': VisualArts,
   'Wellness': Wellness,
-  'Workshops': Workshops
+  'Workshops': Workshops,
+  "Lectures": Lectures,
+  "Fashion": Fashion,
+  "Motorsports": Motorsports,
+  "Dance": Dance,
+  "Comedy": Comedy,
 };
 
 export default eventIcons;

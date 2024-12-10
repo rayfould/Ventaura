@@ -79,12 +79,31 @@
 
 .button-56:hover{
   outline: 0;
+  
+
 }
 
 @media (min-width: 768px) {
   .button-56{
     padding: 0 40px;
   }
+}
+
+/* Active button styles */
+.active {
+  background-color: rgb(142, 49, 57);
+}
+
+.button-56.active::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background-color: var(--primary);
+  border-radius: 50%;
 }
 
 /* Profile Dropdown Toggle Button */

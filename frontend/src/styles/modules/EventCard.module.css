@@ -184,3 +184,23 @@
   height: auto;
   
 }
+
+
+.moreInfoButton {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+
+.moreInfoButton:hover {
+  background-color: white;
+  color: var(--text); 
+  transform: translateY(-2px);
+}
