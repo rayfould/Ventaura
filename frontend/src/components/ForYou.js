@@ -28,8 +28,8 @@ const ForYou = () => {
     maxDistance: ""
   });
   
-  let preferenceSet = new Set(userData.preferences);
-  let dislikeSet = new Set(userData.dislikes);
+  const preferenceSet = new Set(userData.preferences);
+  const dislikeSet = new Set(userData.dislikes);
 
 
   const navigate = useNavigate();
@@ -318,16 +318,18 @@ const ForYou = () => {
     setUserData((prevData) => {
       // Create a copy of the Preference from the previous data
       const newPreferenceSet = new Set(prevData.preferences);
+      const newDislikesSet = new Set(prevData.dislikes);
   
       // Toggle the dislike
       if (newPreferenceSet.has(preference)) {
         newPreferenceSet.delete(preference);
       } else {
         newPreferenceSet.add(preference);
+        newDislikesSet.delete(preference);
       }
   
       // Return the updated userData
-      return { ...prevData, preferences: newPreferenceSet };
+      return { ...prevData, preferences: newPreferenceSet, dislikes: newDislikesSet};
     });
   };
 
@@ -369,6 +371,7 @@ const ForYou = () => {
   const handleDislikeToggle = (dislike) => {
     setUserData((prevData) => {
       // Create a copy of the dislikeSet from the previous data
+      const newPreferenceSet = new Set(prevData.preferences);
       const newDislikeSet = new Set(prevData.dislikes);
   
       // Toggle the dislike
@@ -376,10 +379,11 @@ const ForYou = () => {
         newDislikeSet.delete(dislike);
       } else {
         newDislikeSet.add(dislike);
+        newPreferenceSet.delete(dislike);
       }
   
       // Return the updated userData
-      return { ...prevData, dislikes: newDislikeSet };
+      return { ...prevData, dislikes: newDislikeSet, preferences: newPreferenceSet };
     });
   };
   
