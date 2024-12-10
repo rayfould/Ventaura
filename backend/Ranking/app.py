@@ -1,17 +1,26 @@
-import sys
 import os
+import traceback
 from fastapi import FastAPI, HTTPException, Request
-from numpy.ma.core import append
 from pydantic import BaseModel, Field
-from typing import *
+from typing import List, Union
+import pandas as pd
+import torch
+from fastapi.middleware.cors import CORSMiddleware
+from typing import List, Union, Optional, Tuple
+import uvicorn
+
 # Local imports
-from config import *
-from DQL import QNetwork
-from Event_Ranking_Environment import EventRecommendationEnv
-from DQL_Test import EventTester
+from models import UserPreferences
+from services import fetch_user_preferences
 from RBS import EventRanking
+from dotenv import load_dotenv
+
+
 
 app = FastAPI(debug=True) 
+
+load_dotenv()  # Load variables from .env
+
 
 # Define required columns
 required_columns = {
@@ -218,11 +227,30 @@ async def catch_exceptions_middleware(request: Request, call_next):
 #         print(f"Traceback: {traceback.format_exc()}")
 #
 #         raise HTTPException(status_code=400, detail=f"Error ranking events: {str(e)}")
+# app.py
+
 @app.post("/rank-events/{user_id}")  
 async def rank_events(user_id: int) -> dict:
     print(f"Rank events called with user_id: {user_id}")
     try:
-        
+        # Fetch user preferences from C# backend
+        user_preferences = await fetch_user_preferences(user_id)
+        print(f"Fetched user preferences: {user_preferences}")
+
+        # Split preferences and dislikes into individual items and create frozensets
+        formatted_user = {
+            'Preferences': frozenset(
+                [p.strip() for p in user_preferences.Preferences.split(',')] 
+            ) if isinstance(user_preferences.Preferences, str) else frozenset(user_preferences.Preferences),
+            'Disliked': frozenset(
+                [d.strip() for d in user_preferences.Dislikes.split(',')] 
+            ) if isinstance(user_preferences.Dislikes, str) else frozenset(user_preferences.Dislikes),
+            'Price Range': user_preferences.PriceRange or 'irrelevant',
+            'Max Distance': user_preferences.MaxDistance or 'Any Distance'
+        }
+        print(f"Formatted user preferences: {formatted_user}")
+
+        # Define paths
         current_dir = os.path.dirname(os.path.abspath(__file__))
         backend_dir = os.path.dirname(current_dir)  # Go up one level to 'backend'
         input_path = os.path.join(backend_dir, "ventaura_backend", "CsvFiles", f"{user_id}.csv")
@@ -232,7 +260,6 @@ async def rank_events(user_id: int) -> dict:
         print(f"Current working directory: {os.getcwd()}")
         print(f"CsvFiles directory exists: {os.path.exists(os.path.join(backend_dir, 'ventaura_backend', 'CsvFiles'))}")
         print(f"Absolute path to CsvFiles: {os.path.abspath(os.path.join(backend_dir, 'ventaura_backend', 'CsvFiles'))}")
-        print(f"Current working directory: {os.getcwd()}")
         print(f"__file__ is: {__file__}")
         print(f"Absolute path of __file__: {os.path.abspath(__file__)}")
         print(f"Current_dir: {current_dir}")
@@ -267,16 +294,10 @@ async def rank_events(user_id: int) -> dict:
         events_removed = ranker.filter_events()
         print(f"Events filtered. Removed {events_removed} events")
 
-        test_user = {
-            'Preferences': frozenset(['music', 'festival']),
-            'Disliked': frozenset(['opera']),
-            'Price Range': '$$',
-            'Max Distance': 'Local'
-        }
-        print(f"Using test user preferences: {test_user}")
+        print(f"Using user preferences: {formatted_user}")
 
         print("Starting ranking process...")
-        result = ranker.rank_events(test_user)
+        result = ranker.rank_events(formatted_user)
         print(f"Ranking complete. Got {len(result)} values from rank_events")
         ranked_df = result[0]
         print(f"Using first dataframe with {len(ranked_df)} events")
@@ -298,12 +319,12 @@ async def rank_events(user_id: int) -> dict:
     except Exception as e:
         print(f"ERROR: {str(e)}")
         print(f"Exception type: {type(e)}")
-        import traceback
         print(f"Traceback:\n{traceback.format_exc()}")
         raise HTTPException(
             status_code=500,
             detail=f"Internal server error: {str(e)}"
         )
+
 
 
 
