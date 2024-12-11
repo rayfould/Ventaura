@@ -1,6 +1,6 @@
 // src/pages/ForYou.js
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Papa from 'papaparse';
 import { useNavigate, Link, NavLink } from "react-router-dom";
@@ -34,7 +34,7 @@ const ForYou = () => {
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false); 
   const [progress, setProgress] = useState(0);
   const isLoading = progress < 100;
-  const MIN_DISPLAY_TIME = 100; // 10 seconds
+  const MIN_DISPLAY_TIME = 10000; // 10 seconds
   const [timerDone, setTimerDone] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [formData, setFormData] = useState({
@@ -100,7 +100,32 @@ const ForYou = () => {
 
       setTimeout(() => {
         window.location.reload();
-      }, 100); 
+      }, 100);
+
+      // Fetch user data again to update the UI
+      const fetchUserData = async () => {
+        try {
+          const response = await axios.get(`http://localhost:5152/api/users/${userId}`);
+          const cleanData = (data) => {
+            return data.replace(/[^a-zA-Z0-9, ]/g, '').split(',').map(item => item.trim());
+          };
+          
+          const preferences = cleanData(response.data.preferences);
+          const dislikes = cleanData(response.data.dislikes);
+          
+          setUserData((prevData) => ({
+            ...prevData,
+            preferences: preferences,
+            dislikes: dislikes,
+            priceRange: response.data.priceRange,
+            maxDistance: response.data.maxDistance,
+          }));
+        } catch (error) {
+          console.log("Error fetching form data:", error);
+        }
+      };
+      fetchUserData();
+
     } catch (error) {
       if (error.response) {
         setMessage(error.response.data.Message || "An error occurred.");
@@ -281,7 +306,7 @@ const ForYou = () => {
 
   // UseEffect to fetch user data for preferences bar
   useEffect(() => {
-    if (!dataLoaded || !timerDone) return; // Ensure data is loaded and timer is done
+    if (!dataLoaded) return; // Ensure data is loaded
 
     const fetchUserData = async () => {
       try {
@@ -305,7 +330,7 @@ const ForYou = () => {
       }
     };
     fetchUserData();
-  }, [dataLoaded, timerDone, userId]);
+  }, [dataLoaded, userId]);
 
   const handleManualLogout = async () => {
     if (!userId) {
@@ -575,7 +600,6 @@ const ForYou = () => {
             </div>
           </div>
 
-
           {/* Price Range Section */}
           <div className={formsStyles['preferences-container']}>
             <p className={layoutStyles.sectionTitle}>Select Price Range:</p>
@@ -637,4 +661,4 @@ const ForYou = () => {
   );
 };
 
-export default ForYou;
+export default ForYou; 
