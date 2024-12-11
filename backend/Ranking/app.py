@@ -3,7 +3,6 @@ import traceback
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field
 import pandas as pd
-import torch
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Union, Optional, Tuple
 import uvicorn
