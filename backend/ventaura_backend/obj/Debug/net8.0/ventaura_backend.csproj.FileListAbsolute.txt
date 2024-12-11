@@ -650,3 +650,6 @@ S:\Coding\Projects\Ventaura\backend\ventaura_backend\obj\Debug\net8.0\refint\ven
 S:\Coding\Projects\Ventaura\backend\ventaura_backend\obj\Debug\net8.0\ventaura_backend.pdb
 S:\Coding\Projects\Ventaura\backend\ventaura_backend\obj\Debug\net8.0\ventaura_backend.genruntimeconfig.cache
 S:\Coding\Projects\Ventaura\backend\ventaura_backend\obj\Debug\net8.0\ref\ventaura_backend.dll
+C:\Users\User\Documents\GitHub\Ventaura\backend\ventaura_backend\obj\Debug\net8.0\ventaura_backend.dll
+C:\Users\User\Documents\GitHub\Ventaura\backend\ventaura_backend\obj\Debug\net8.0\refint\ventaura_backend.dll
+C:\Users\User\Documents\GitHub\Ventaura\backend\ventaura_backend\obj\Debug\net8.0\ventaura_backend.pdb

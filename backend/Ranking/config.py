@@ -12,66 +12,20 @@ import os
 from functools import lru_cache
 import traceback
 from pathlib import Path
+import time
 from decimal import Decimal, getcontext
+import psutil
 from contextlib import contextmanager
 from collections import defaultdict
 from fastapi import FastAPI, HTTPException
 import uvicorn
 
-# Constants
-DEBUG_MODE = False
-DEEP_DEBUG = False
 
-# Define base directories (ensure these are defined appropriately)
-BASE_DIR = Path(__file__).resolve().parent
-TEST_DATA_DIR = BASE_DIR / 'Testing' / 'data'
-ANALYTICS_DIR = BASE_DIR / 'Analytics'
-MODELS_DIR = BASE_DIR / 'Models'
-
-def create_model_directories(model_num):
-    """Create directory structure for a specific model number."""
-    analytics_base = ANALYTICS_DIR / f'Model_{model_num}'
-    models_base = MODELS_DIR / f'Model_{model_num}'
-
-    directories = {
-        'analytics': {
-            'component_analysis': analytics_base / 'component_analysis',
-            'training_metrics': analytics_base / 'training_metrics',
-            'additional_analysis': analytics_base / 'additional_analysis'
-        },
-        'models': {
-            'checkpoints': models_base / 'checkpoints',
-            'recommender': models_base / 'recommender'
-        },
-        'base': {
-            'analytics': analytics_base,
-            'models': models_base
-        }
-    }
-
-    for category in directories.values():
-        if isinstance(category, dict):
-            for dir_path in category.values():
-                dir_path.mkdir(parents=True, exist_ok=True)
-                debug_print(f"Created directory: {dir_path}")
-
-    return directories
-
-# Data file paths
-EVENTS_CSV_PATH = TEST_DATA_DIR / '100_generated_events.csv'
-USERS_CSV_PATH = TEST_DATA_DIR / 'diverse_users.csv'
 
 PRICE_RANGES = {
     '$': {'min': 0, 'max': 30},
     '$$': {'min': 31, 'max': 100},
     '$$$': {'min': 101, 'max': 300},
-    'irrelevant': {'min': 0, 'max': float('inf')}
-}
-
-POPULARITY_RANGES = {
-    'Small': {'min': 0, 'max': 100},      # Local events, workshops, meetups
-    'Medium': {'min': 101, 'max': 500},   # Community events, local festivals
-    'Large': {'min': 501, 'max': float('inf')},   # Major events, large festivals
     'irrelevant': {'min': 0, 'max': float('inf')}
 }
 
@@ -94,6 +48,7 @@ RBS_PRICE_SCORING = {
     'tolerance_percentage': 0.3        # 30% tolerance for "close" scores
 }
 
+
 TIME_SCORING_CONFIG = {
     'max_preferred_hours': 336,  # 14 days
     'past_event_penalty': -100,
@@ -109,18 +64,21 @@ TIME_PREFERENCES = {
     'irrelevant': {'start': 0, 'end': 24}
 }
 
+
+
 DISTANCE_SCORING_CONFIG = {
     'over_max_penalty_factor': 100
 }
 
 DISTANCE_RANGES = {
-    "Very Local": 5,      # 0-5 km
-    "Local": 15,          # 5-15 km
-    "City-wide": 30,      # 15-30 km
-    "Regional": 100,      # 30-100 km
-    "Any Distance": 500   # No real limit
-}
+        "Very Local": 5,      # 0-5 km
+        "Local": 15,          # 5-15 km
+        "City-wide": 30,      # 15-30 km
+        "Regional": 100,      # 30-100 km
+        "Any Distance": 500   # No real limit
+    }
 
+# Add center-targeting config for other features
 CENTER_TARGETING_CONFIG = {
     'popularity': {
         'deviation_penalty': 0.5,    # Changed from previous value to ensure scores stay in [-1, 1]
@@ -136,13 +94,14 @@ CENTER_TARGETING_CONFIG = {
     }
 }
 
+
+
 # Load common data
 events_df = pd.read_csv(EVENTS_CSV_PATH)
 users = pd.read_csv(USERS_CSV_PATH)
-
 class TimeHandler:
     def __init__(self):
-        self._timezone = timezone.utc
+        self._timezone = pytz.UTC
         self._current_time = None
 
     def set_current_time(self, time=None):
@@ -158,6 +117,7 @@ class TimeHandler:
     def get_timestamp(self):
         """Get current timestamp in seconds"""
         return self.get_current_time().timestamp()
+
 
 # Create singleton instance
 time_handler = TimeHandler()
@@ -204,18 +164,21 @@ def count_nan_events(df):
     nan_rows = df.isna().any(axis=1)
     return nan_rows.sum()
 
+
 # Add helper function for case-insensitive lookup
 def get_popularity_range(crowd_size):
     """Get popularity range with case-insensitive lookup."""
     if pd.isna(crowd_size):
-        return POPULARITY_RANGES['irrelevant']
-    return POPULARITY_RANGES[crowd_size.capitalize()]  # Ensure proper case
+        return POPULARITY_RANGES['IRRELEVANT']
+    return POPULARITY_RANGES[crowd_size.upper()]
+
+
 
 def monitor_memory():
     """Monitor memory usage in MB"""
-    import psutil
     process = psutil.Process(os.getpid())
     return process.memory_info().rss / 1024 / 1024
+
 
 @contextmanager
 def plot_context(figsize=(10, 6), subplots=False, *subplot_args, **subplot_kwargs):
@@ -228,6 +191,8 @@ def plot_context(figsize=(10, 6), subplots=False, *subplot_args, **subplot_kwarg
             yield
     finally:
         plt.close('all')
+
+
 
 # Existing configurations like PENALTY_CONFIG
 PENALTY_CONFIG = {
@@ -250,6 +215,7 @@ PENALTY_CONFIG = {
     }
 }
 
+
 # Helper function to get price range
 def get_price_range(price_pref):
     return PRICE_RANGES.get(price_pref, PRICE_RANGES['irrelevant'])
@@ -261,46 +227,33 @@ def normalize_event_type(event_type):
         return np.nan
     return event_type.strip().lower().rstrip('s')  # Normalize case and remove trailing 's'
 
+
 # Centralized penalty function
 def apply_penalty(final_score, event, user):
     """
     Apply penalties to the final score if any field deviates significantly from user preferences.
     """
-
-    # Determine Max Distance
-    user_max_distance = user.get('Max Distance', 'Any Distance')
-
-    if isinstance(user_max_distance, (int, float)):
-        max_distance = user_max_distance
-    elif user_max_distance == 'Any Distance':
-        max_distance = float('inf')
-    else:
-        max_distance = DISTANCE_RANGES.get(user_max_distance, float('inf'))
-
     penalty_multiplier = 1.0  # No penalty by default
-
     # Price penalty
     event_price = event['amount']
     if event_price > 0:  # Ensure event price is valid
-        user_price_pref = user.get('Price Range', 'irrelevant')
-        if user_price_pref != 'irrelevant':
-            price_range = get_price_range(user_price_pref)
-            max_price = price_range['max']
-            tolerance_limit = max_price * PENALTY_CONFIG["price"]["tolerance_multiplier"]
+        user_price_pref = get_price_range(user['Price Range'])
+        max_price = user_price_pref['max']
+        tolerance_limit = max_price * PENALTY_CONFIG["price"]["tolerance_multiplier"]
 
-            if event_price > tolerance_limit:  # Severe deviation from budget
-                penalty_multiplier *= PENALTY_CONFIG["price"]["severe_penalty"]
-        # If 'irrelevant', no penalty is applied for price
+        if event_price > tolerance_limit:  # Severe deviation from budget
+            penalty_multiplier *= PENALTY_CONFIG["price"]["severe_penalty"]
 
     # Distance penalty
     event_distance = event['distance']
+    max_distance = DISTANCE_RANGES[user['Max Distance']]
     tolerance_limit = max_distance * PENALTY_CONFIG["distance"]["tolerance_multiplier"]
 
     if event_distance > tolerance_limit:  # Severe deviation from max distance
         penalty_multiplier *= PENALTY_CONFIG["distance"]["severe_penalty"]
 
     # Event type penalty (Disliked category)
-    event_type = normalize_event_type(event['type'])  # Changed from 'title' to 'type'
+    event_type = normalize_event_type(event['title'])
     if event_type in user['Disliked']:
         penalty_multiplier *= PENALTY_CONFIG["event_type"]["disliked_penalty"]
 
