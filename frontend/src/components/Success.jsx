@@ -9,11 +9,13 @@ import postEventStyles from '../styles//modules/postevent.module.css'; // New Po
 
 // Expanded list of event types
 const eventTypes = [
-  "Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
-  "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
-  "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", 
-  "Science", "Basketball", "Baseball", "Pottery", "Tennis", "Soccer", "Football", 
-  "Fishing", "Hiking", "Food and Drink", "Lectures", "Fashion", "Motorsports", "Dance", "Comedy", "Other"
+  "Baseball", "Basketball", "Comedy", "Community", "Conferences", 
+  "Dance", "Exhibitions", "Family", "Fashion", "Festivals", 
+  "Film", "Fishing", "Food and Drink", "Football", "Gaming", 
+  "Hiking", "Hockey", "Holiday", "Lectures", "Motorsports", 
+  "Music", "Networking", "Nightlife", "Outdoors", 
+  "Pets", "Pottery", "Science", "Soccer", "Tennis", 
+  "Theater", "Virtual", "Wellness", "Workshops", "Other"
 ];
 
 const Success = () => {

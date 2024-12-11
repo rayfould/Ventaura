@@ -887,14 +887,19 @@
 }
 
 .prices-button {
-    background-color: #ffffff; /* White background */
-    color: #000000; /* Black text */
-    padding: var(--space-md);
-    margin: var(--space-xs);
+    background-color: #ffffff;
+    color: #000000;
+    padding: var(--space-xs); /* Reduced padding */
     border: 2px solid transparent;
     border-radius: var(--radius-sm);
     cursor: pointer;
     transition: all 0.2s ease;
+    flex: 1; /* Makes buttons share space equally */
+    min-width: 0; /* Allows buttons to shrink if needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px; /* Smaller fixed height */
   }
   
   .prices-button:hover {
@@ -911,14 +916,20 @@
   
   .preference-button,
   .dislike-button {
-    padding: var(--space-md);
-    margin: var(--space-xs);
+    font-size: 1rem;
+    padding: .25rem;
+    margin: .25rem;
     border: 2px solid transparent;
     border-radius: var(--radius-sm);
-    background-color: #e9e8e8; /* Light gray background */
-    color: #000000; /* Black text */
+    background-color: #e9e8e8;
+    color: #000000;
     cursor: pointer;
     transition: all 0.2s ease;
+    width: 90%; /* Changed from fixed width */
+    min-height: 50px; /* Changed from height to min-height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .preference-button:hover,
@@ -935,3 +946,9 @@
     box-shadow: 0 0 10px rgba(40, 167, 69, 0.5); /* Vague glowing effect */
   }
   
+
+  .section-title {
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin: 5% auto;
+  }

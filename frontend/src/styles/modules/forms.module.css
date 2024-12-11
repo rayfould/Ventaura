@@ -143,3 +143,34 @@ button[type="submit"]:disabled {
 .filter-note strong {
     color: #333; /* Bold text color */
 }
+
+.preferences-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+.preferences-container p {
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin: 5% auto;
+  }
+.preferences-container input {
+    justify-content: center;
+    font-size: 1.1rem;
+    margin: 0% auto;
+    width: 100%;
+  }
+
+.pref-button-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: var(--space-xs);
+  }
+
+.price-button-container {
+    display: flex;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: var(--space-xs);
+}

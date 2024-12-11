@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ventaura_backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5134b4b7ce746dff1f0de1137d437a9563a47cdd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a094553bc5836dc7893672d4ab3795f0932c56f1")]
 [assembly: System.Reflection.AssemblyProductAttribute("ventaura_backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ventaura_backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

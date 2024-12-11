@@ -1,13 +1,11 @@
 // src/pages/ForYou.js
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Papa from 'papaparse';
-import { usePapaParse } from 'react-papaparse';
-import EventCard from './EventCard.js';  
 import { useNavigate, Link, NavLink } from "react-router-dom";
 import { Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaUserCircle, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa'; 
+import { FaUserCircle, FaSignOutAlt, FaUser } from 'react-icons/fa'; 
 
 // Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
@@ -18,7 +16,7 @@ import logo from '../assets/ventaura-logo-white-smooth.png';
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
 import LoadingOverlay from '../components/LoadingOverlay';
 import Footer from '../components/footer';
-
+import EventCard from '../components/EventCard.js'; // Corrected import path
 
 const ForYou = () => {
   const [userData, setUserData] = useState({
@@ -27,26 +25,16 @@ const ForYou = () => {
     priceRange: "",
     maxDistance: ""
   });
-  
-  const preferenceSet = new Set(userData.preferences);
-  const dislikeSet = new Set(userData.dislikes);
-
 
   const navigate = useNavigate();
-  const [userId, setUserId] = useState(localStorage.getItem("userId"));
+  const [userId] = useState(localStorage.getItem("userId"));
   const [events, setEvents] = useState([]);
   const [message, setMessage] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false); 
-  const { readString } = usePapaParse();
-  const [csvData, setCsvData] = useState([]);
-  const [showHeader, setShowHeader] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0); 
-  const [userLocation, setUserLocation] = useState('Loading...');
-  const [coordinates, setCoordinates] = useState(null);
   const [progress, setProgress] = useState(0);
   const isLoading = progress < 100;
-  const MIN_DISPLAY_TIME = 10000; // 10 seconds
+  const MIN_DISPLAY_TIME = 100; // 10 seconds
   const [timerDone, setTimerDone] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [formData, setFormData] = useState({
@@ -62,11 +50,13 @@ const ForYou = () => {
   });
 
   const uniqueOptions = [
-    "Music", "Festivals", "Hockey", "Outdoors", "Workshops", "Conferences", 
-    "Exhibitions", "Community", "Theater", "Family", "Nightlife", "Wellness", 
-    "Holiday", "Networking", "Gaming", "Film", "Pets", "Virtual", 
-    "Science", "Basketball", "Baseball", "Pottery", "Tennis", "Soccer", "Football", 
-    "Fishing", "Hiking", "Food and Drink", "Lectures", "Fashion", "Motorsports", "Dance", "Comedy", "Other"
+    "Baseball", "Basketball", "Comedy", "Community", "Conferences", 
+    "Dance", "Exhibitions", "Family", "Fashion", "Festivals", 
+    "Film", "Fishing", "Food and Drink", "Football", "Gaming", 
+    "Hiking", "Hockey", "Holiday", "Lectures", "Motorsports", 
+    "Music", "Networking", "Nightlife", "Outdoors", 
+    "Pets", "Pottery", "Science", "Soccer", "Tennis", 
+    "Theater", "Virtual", "Wellness", "Workshops", "Other"
   ];
 
   const handleChange = (e) => {
@@ -84,6 +74,46 @@ const ForYou = () => {
 
   // Timeout duration in milliseconds (30 minutes)
   const TIMEOUT_DURATION = 30 * 60 * 1000;
+
+  // Define handleSubmit inside the component
+  const handleSubmit = async (e) => {
+    e.preventDefault(); 
+    try {
+      const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
+
+      // Prepare the request data
+      const updateData = {
+        userId: userId,
+        preferences: userData.preferences.join(", "), // Assuming preferences is an array
+        dislikes: userData.dislikes.join(", "), 
+        priceRange: userData.priceRange.toString(), 
+        maxDistance: Number(userData.maxDistance) 
+      };
+
+      // Make the PUT request to the server
+      const response = await axios.put(
+        `http://localhost:5152/api/users/updatePreferences`,
+        updateData
+      );
+
+      setMessage(response.data.Message || "User information updated successfully.");
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 100); 
+    } catch (error) {
+      if (error.response) {
+        setMessage(error.response.data.Message || "An error occurred.");
+      } else {
+        setMessage("An error occurred while updating preferences.");
+      }
+    }
+
+    // Optionally, reset the message after some time
+    setTimeout(() => {
+      setMessage('');
+    }, 10000);
+  };
 
   useEffect(() => {
     if (!userId) {
@@ -103,58 +133,54 @@ const ForYou = () => {
         }, MIN_DISPLAY_TIME);
 
         // === Step 1: Fetch Events ===
+        console.log("Fetching events...");
         const fetchEventsResponse = await axios.get(
           `http://localhost:5152/api/combined-events/fetch?userId=${userId}`,
           {
             onDownloadProgress: (progressEvent) => {
               const { loaded, total } = progressEvent;
               if (total) {
-                // Assuming this call represents 50% of the total progress
                 const percentCompleted = Math.round((loaded / total) * 50);
-                setProgress((prevProgress) => {
-                  // Ensure we don't decrease progress
-                  return Math.max(prevProgress, percentCompleted);
-                });
+                setProgress((prevProgress) => Math.max(prevProgress, percentCompleted));
               }
             }
           }
         );
-        setMessage(fetchEventsResponse.data.Message || "");
-        setEvents(fetchEventsResponse.data.insertedEvents || []);
-
-
+        console.log("Events fetched:", fetchEventsResponse.data.insertedEvents);
+        // Optionally, you can decide to skip this if CSV data is the final source
+        // setEvents(fetchEventsResponse.data.insertedEvents || []);
 
         // === Step 2: Call Ranking API ===
-      try {
-        console.log("Calling Ranking API...");
-        const rankingResponse = await axios.post(
-          `http://localhost:8000/rank-events/${userId}`, // FastAPI endpoint
-          null, // No body needed as per your C# controller
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              // Include authentication headers if required
+        try {
+          console.log("Calling Ranking API...");
+          const rankingResponse = await axios.post(
+            `http://localhost:8000/rank-events/${userId}`, // FastAPI endpoint
+            null, // No body needed as per your C# controller
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                // Include authentication headers if required
+              }
             }
-          }
-        );
+          );
 
-        console.log("Ranking API Response:", rankingResponse.data);
-        if (rankingResponse.data.success) {
-          console.log("Ranking successful:", rankingResponse.data.message);
-          // Optionally, you can update the state or notify the user
-        } else {
-          console.error("Ranking failed:", rankingResponse.data.message);
-          setMessage("Ranking failed: " + (rankingResponse.data.message || "Unknown error."));
-          // Decide whether to proceed or halt
-          // For this example, we'll proceed to fetch CSV data
+          console.log("Ranking API Response:", rankingResponse.data);
+          if (rankingResponse.data.success) {
+            console.log("Ranking successful:", rankingResponse.data.message);
+            // Optionally, update state or notify the user
+          } else {
+            console.error("Ranking failed:", rankingResponse.data.message);
+            setMessage("Ranking failed: " + (rankingResponse.data.message || "Unknown error."));
+            // Proceed to fetch CSV data
+          }
+        } catch (rankingError) {
+          console.error("Error calling Ranking API:", rankingError);
+          setMessage("An error occurred while ranking events.");
+          // Proceed to fetch CSV data
         }
-      } catch (rankingError) {
-        console.error("Error calling Ranking API:", rankingError);
-        setMessage("An error occurred while ranking events.");
-        // Decide whether to proceed or halt
-        // For this example, we'll proceed to fetch CSV data
-      }
+
         // === Step 3: Fetch CSV Data ===
+        console.log("Fetching CSV data...");
         const fetchCSVResponse = await axios.get(
           `http://localhost:5152/api/combined-events/get-csv?userId=${userId}`,
           {
@@ -162,16 +188,14 @@ const ForYou = () => {
             onDownloadProgress: (progressEvent) => {
               const { loaded, total } = progressEvent;
               if (total) {
-                // This call represents the remaining 50% of the total progress
                 const percentCompleted = Math.round((loaded / total) * 50) + 50;
-                setProgress((prevProgress) => {
-                  return Math.max(prevProgress, percentCompleted);
-                });
+                setProgress((prevProgress) => Math.max(prevProgress, percentCompleted));
               }
             }
           }
         );
 
+        console.log("CSV data fetched");
         // === Step 4: Parse CSV Data ===
         const reader = new FileReader();
         reader.onload = () => {
@@ -180,13 +204,13 @@ const ForYou = () => {
             header: true,
             skipEmptyLines: true,
             complete: (results) => {
+              console.log("CSV Parsing complete:", results.data);
               setEvents(results.data);
               setDataLoaded(true); // Data loading complete
-              console.log("Data loaded");
             },
             error: (error) => {
               console.error("CSV Parsing Error:", error);
-              setProgress(100); // Even on error, hide the overlay
+              setProgress(100); // Hide the overlay
             }
           });
         };
@@ -255,9 +279,10 @@ const ForYou = () => {
     }
   }, [dataLoaded, timerDone]);
 
-  //a UseEffect JUST to get the users data for preferences bar
+  // UseEffect to fetch user data for preferences bar
   useEffect(() => {
-    //get the users data
+    if (!dataLoaded || !timerDone) return; // Ensure data is loaded and timer is done
+
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`http://localhost:5152/api/users/${userId}`);
@@ -268,21 +293,19 @@ const ForYou = () => {
         const preferences = cleanData(response.data.preferences);
         const dislikes = cleanData(response.data.dislikes);
         
-        setUserData({
+        setUserData((prevData) => ({
+          ...prevData,
           preferences: preferences,
           dislikes: dislikes,
           priceRange: response.data.priceRange,
           maxDistance: response.data.maxDistance,
-        });
-        preferenceSet = new Set(userData.preferences);
-        dislikeSet = new Set(userData.dislikes);
+        }));
       } catch (error) {
         console.log("Error fetching form data:", error);
       }
     };
     fetchUserData();
-  }, [dataLoaded, timerDone]);
-
+  }, [dataLoaded, timerDone, userId]);
 
   const handleManualLogout = async () => {
     if (!userId) {
@@ -316,79 +339,46 @@ const ForYou = () => {
 
   const handlePreferenceToggle = (preference) => {
     setUserData((prevData) => {
-      // Create a copy of the Preference from the previous data
-      const newPreferenceSet = new Set(prevData.preferences);
-      const newDislikesSet = new Set(prevData.dislikes);
-  
-      // Toggle the dislike
-      if (newPreferenceSet.has(preference)) {
-        newPreferenceSet.delete(preference);
+      const newPreferences = new Set(prevData.preferences);
+      const newDislikes = new Set(prevData.dislikes);
+
+      if (newPreferences.has(preference)) {
+        newPreferences.delete(preference);
       } else {
-        newPreferenceSet.add(preference);
-        newDislikesSet.delete(preference);
+        newPreferences.add(preference);
+        newDislikes.delete(preference);
       }
-  
-      // Return the updated userData
-      return { ...prevData, preferences: newPreferenceSet, dislikes: newDislikesSet};
-    });
-  };
 
-  const handleSubmit = async (e) => {
-    try {
-      const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
-
-
-      // Prepare the request data
-      const updateData = {
-        userId: userId,
-        preferences: Array.from(preferenceSet).join(", "),
-        dislikes: Array.from(dislikeSet).join(", "), 
-        priceRange: userData.priceRange.toString(), 
-        maxDistance: Number(userData.maxDistance) 
+      return { 
+        ...prevData, 
+        preferences: Array.from(newPreferences), 
+        dislikes: Array.from(newDislikes) 
       };
-
-      // Make the PUT request to the server
-      const response = await axios.put(
-        `http://localhost:5152/api/users/updatePreferences`,
-        updateData
-      );
-
-      setMessage(response.data.Message || "User information updated successfully.");
-    } catch (error) {
-      
-      if (error.response) {
-        setMessage(error.response.data.Message || userData.preferences );
-      } else {
-        setMessage(error.response.data.Message || userData.dislikes);
-      }
-    }
-
-    const timeoutId = setTimeout(() => {
-      setMessage('Updated Message');
-    }, 10000);
+    });
   };
 
   const handleDislikeToggle = (dislike) => {
     setUserData((prevData) => {
-      // Create a copy of the dislikeSet from the previous data
-      const newPreferenceSet = new Set(prevData.preferences);
-      const newDislikeSet = new Set(prevData.dislikes);
-  
-      // Toggle the dislike
-      if (newDislikeSet.has(dislike)) {
-        newDislikeSet.delete(dislike);
+      const newDislikes = new Set(prevData.dislikes);
+      const newPreferences = new Set(prevData.preferences);
+
+      if (newDislikes.has(dislike)) {
+        newDislikes.delete(dislike);
       } else {
-        newDislikeSet.add(dislike);
-        newPreferenceSet.delete(dislike);
+        newDislikes.add(dislike);
+        newPreferences.delete(dislike);
       }
-  
-      // Return the updated userData
-      return { ...prevData, dislikes: newDislikeSet, preferences: newPreferenceSet };
+
+      return { 
+        ...prevData, 
+        dislikes: Array.from(newDislikes), 
+        preferences: Array.from(newPreferences) 
+      };
     });
   };
-  
 
   // Handle scroll to show/hide header based on scroll position
+  const [showHeader, setShowHeader] = useState(true);
   const handleScroll = () => {
     if (typeof window !== 'undefined') {
       const currentScrollY = window.scrollY;
@@ -405,11 +395,6 @@ const ForYou = () => {
       return () => window.removeEventListener('scroll', handleScroll);
     }
   }, []);
-
-  // Determine active page
-  const isActive = (path) => {
-    return navigate.location && navigate.location.pathname === path;
-  };
 
   return (
     <div className={layoutStyles['page-container']}>
@@ -535,11 +520,11 @@ const ForYou = () => {
           {message && <p className={layoutStyles.message}>{message}</p>}
           <div className={layoutStyles['event-grid']}>
             {events && events.length > 0 ? (
-              events.map((event) => (
-                <EventCard key={event.id || event.index} event={event} /> // Preferably use event.id
+              events.map((event, index) => (
+                <EventCard key={event.id || index} event={event} /> // Preferably use event.id
               ))
             ) : (
-              !isLoading && <p>No events found.</p>
+              !isLoading && dataLoaded && <p>No events found.</p>
             )}
           </div>
         </main>
@@ -554,67 +539,80 @@ const ForYou = () => {
           >
           </button>
           {/* Likes Section */}
-          <div className={formsStyles.preferencesSection}>
-          <p>Select Preferences:</p> 
-            {uniqueOptions.map((preference) => (
-              <button
-                type="button"
-                key={preference}
-                onClick={() => handlePreferenceToggle(preference)}
-                className={`${layoutStyles['preference-button']} ${preferenceSet.has(preference) ? layoutStyles['selected'] : ''}`}
-              >
-                {preference}
-              </button>
-            ))}
-        </div>
+          <div className={formsStyles['preferences-container']}>
+            <p>Show More:</p>
+            <div className={formsStyles['pref-button-container']}>
+              {uniqueOptions.map((preference) => (
+                <button
+                  type="button"
+                  key={preference}
+                  onClick={() => handlePreferenceToggle(preference)}
+                  className={`${layoutStyles['preference-button']} ${
+                    userData.preferences.includes(preference) ? layoutStyles['selected'] : ''
+                  }`}
+                >
+                  {preference}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          <div className={formsStyles.preferencesSection}>
-          <p className={layoutStyles.sectionTitle}>Select Dislikes:</p>
-            {uniqueOptions.map((dislike) => (
-              <button
-                type="button"
-                key={dislike}
-                onClick={() => handleDislikeToggle(dislike)}
-                className={`${layoutStyles['dislike-button']} ${dislikeSet.has(dislike) ? layoutStyles['selected'] : ''}`}
-              >
-                {dislike}
-              </button>
-            ))}
-        </div>
+          <div className={formsStyles['preferences-container']}>
+            <p className={layoutStyles.sectionTitle}>Show Less:</p>
+            <div className={formsStyles['pref-button-container']}>
+              {uniqueOptions.map((dislike) => (
+                <button
+                  type="button"
+                  key={dislike}
+                  onClick={() => handleDislikeToggle(dislike)}
+                  className={`${layoutStyles['dislike-button']} ${
+                    userData.dislikes.includes(dislike) ? layoutStyles['selected'] : ''
+                  }`}
+                >
+                  {dislike}
+                </button>
+              ))}
+            </div>
+          </div>
+
 
           {/* Price Range Section */}
-          <div className={formsStyles.preferencesSection}>
-          <p className={layoutStyles.sectionTitle}>Select Price Range:</p>
-            {priceOptions.map((price) => (
-              <button
-                type="button"
-                key={price}
-                onClick={() => handlePriceRangeSelect(price)}
-                className={`${layoutStyles['prices-button']} ${userData.priceRange === price ? layoutStyles['selected'] : ''}`}
-              >
-                {price}
-              </button>
-            ))}
-        </div>
-
-        <p className={layoutStyles.sectionTitle}>Select Distance(km):</p>
-          <input
-          type="number"  // <-- Use type="number" instead of type="integer"
-          name="maxDistance"  // <-- Corrected the typo (was MaxDistanct)
-          placeholder="Max Distance (km)"  // Optional: Placeholder to guide user input
-          value={userData.maxDistance}
-          onChange={handleChange}
-          className={formsStyles.slider}
-          min="1"  // <-- Set a minimum distance
-          max="100" // <-- Set a maximum distance
-          required
-        />
-
+          <div className={formsStyles['preferences-container']}>
+            <p className={layoutStyles.sectionTitle}>Select Price Range:</p>
+            <div className={formsStyles['price-button-container']}>
+              {priceOptions.map((price) => (
+                <button
+                  type="button"
+                  key={price}
+                  onClick={() => handlePriceRangeSelect(price)}
+                  className={`${layoutStyles['prices-button']} ${
+                    userData.priceRange === price ? layoutStyles['selected'] : ''
+                  }`}
+                >
+                  {price}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className={formsStyles['preferences-container']}>
+            <p className={layoutStyles['section-title']}>Select Distance(km):</p>
+            <input
+              type="number"  // Use type="number" instead of type="integer"
+              name="maxDistance"  // Corrected the typo (was MaxDistanct)
+              placeholder="Max Distance (km)"  // Optional: Placeholder to guide user input
+              value={userData.maxDistance}
+              onChange={handleChange}
+              className={formsStyles.slider}
+              min="1"  // Set a minimum distance
+              max="100" // Set a maximum distance
+              required
+            />
+          </div>
           {/* Update Information Button */}
           <form onSubmit={handleSubmit}>
-          <button type="submit" className={buttonStyles['update-preferences-button']}>
-            Update information
-          </button>
+            <button type="submit" className={buttonStyles['update-preferences-button']}>
+              Update information
+            </button>
           </form>
           <p>. </p>
         </div>
