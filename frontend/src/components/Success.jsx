@@ -33,17 +33,10 @@ const Success = () => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  // Get the session ID from the URL query parameters
-  const urlParams = new URLSearchParams(window.location.search);
-  const sessionId = urlParams.get('session_id');
-
+  // Removed session_id logic
   useEffect(() => {
-    if (sessionId) {
-      setMessage("Payment Successful! Please add event details.");
-    } else {
-      setMessage("Payment Unsuccessful.");
-    }
-  }, [sessionId]);
+    setMessage("Please add your event details.");
+  }, []);
 
   // Load Google Places API for Autocomplete
   useEffect(() => {
@@ -149,122 +142,118 @@ const Success = () => {
 
   return (
     <div className={layoutStyles['page-container']}>
-      {sessionId ? (
-        <>
-          <header className={layoutStyles['header-side']}>
-            <h1 className={layoutStyles['header-title']}>
-              Event Details:
-            </h1>
-          </header>
+      <>
+        <header className={layoutStyles['header-side']}>
+          <h1 className={layoutStyles['header-title']}>
+            Event Details:
+          </h1>
+        </header>
 
-          <form onSubmit={handleSubmit} className={postEventStyles['post-event-form']}>
-            <div className={postEventStyles['form-group']}>
-              <label className={postEventStyles['label']}>Event Title:</label>
-              <input
-                type="text"
-                name="eventTitle"
-                value={formData.eventTitle}
-                onChange={handleChange}
-                className={postEventStyles['form-input']}
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit} className={postEventStyles['post-event-form']}>
+          <div className={postEventStyles['form-group']}>
+            <label className={postEventStyles['label']}>Event Title:</label>
+            <input
+              type="text"
+              name="eventTitle"
+              value={formData.eventTitle}
+              onChange={handleChange}
+              className={postEventStyles['form-input']}
+              required
+            />
+          </div>
 
-            <div className={postEventStyles['form-group']}>
-              <label className={postEventStyles['label']}>Event Description:</label>
-              <textarea
-                name="eventDescription"
-                value={formData.eventDescription}
-                onChange={handleChange}
-                className={postEventStyles['form-input']}
-                required
-              />
-            </div>
+          <div className={postEventStyles['form-group']}>
+            <label className={postEventStyles['label']}>Event Description:</label>
+            <textarea
+              name="eventDescription"
+              value={formData.eventDescription}
+              onChange={handleChange}
+              className={postEventStyles['form-input']}
+              required
+            />
+          </div>
 
-            <div className={postEventStyles['form-group']}>
-              <label className={postEventStyles['label']}>Location:</label>
-              <input
-                type="text"
-                name="eventLocation"
-                value={formData.eventLocation}
-                onChange={handleChange}
-                className={postEventStyles['form-input']}
-                required
-              />
-            </div>
+          <div className={postEventStyles['form-group']}>
+            <label className={postEventStyles['label']}>Location:</label>
+            <input
+              type="text"
+              name="eventLocation"
+              value={formData.eventLocation}
+              onChange={handleChange}
+              className={postEventStyles['form-input']}
+              required
+            />
+          </div>
 
-            <div className={postEventStyles['form-group']}>
-              <label className={postEventStyles['label']}>Date:</label>
-              <input
-                type="date"
-                name="eventDate"
-                value={formData.eventDate}
-                onChange={handleChange}
-                className={postEventStyles['form-input']}
-                required
-              />
-            </div>
+          <div className={postEventStyles['form-group']}>
+            <label className={postEventStyles['label']}>Date:</label>
+            <input
+              type="date"
+              name="eventDate"
+              value={formData.eventDate}
+              onChange={handleChange}
+              className={postEventStyles['form-input']}
+              required
+            />
+          </div>
 
-            <div className={postEventStyles['form-group']}>
-              <label className={postEventStyles['label']}>Time:</label>
-              <input
-                type="time"
-                name="eventTime"
-                value={formData.eventTime}
-                onChange={handleChange}
-                className={postEventStyles['form-input']}
-                required
-              />
-            </div>
+          <div className={postEventStyles['form-group']}>
+            <label className={postEventStyles['label']}>Time:</label>
+            <input
+              type="time"
+              name="eventTime"
+              value={formData.eventTime}
+              onChange={handleChange}
+              className={postEventStyles['form-input']}
+              required
+            />
+          </div>
 
-            <div className={postEventStyles['form-group']}>
-              <label className={postEventStyles['label']}>Event Type:</label>
-              <select
-                name="eventType"
-                value={formData.eventType}
-                onChange={handleChange}
-                className={postEventStyles['form-select']}
-                required
-              >
-                <option value="">Select event type</option>
-                {eventTypes.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
+          <div className={postEventStyles['form-group']}>
+            <label className={postEventStyles['label']}>Event Type:</label>
+            <select
+              name="eventType"
+              value={formData.eventType}
+              onChange={handleChange}
+              className={postEventStyles['form-select']}
+              required
+            >
+              <option value="">Select event type</option>
+              {eventTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
 
-            <div className={postEventStyles['form-group']}>
-              <label className={postEventStyles['label']}>Price (USD):</label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                className={postEventStyles['form-input']}
-                required
-              />
-            </div>
+          <div className={postEventStyles['form-group']}>
+            <label className={postEventStyles['label']}>Price (USD):</label>
+            <input
+              type="number"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              className={postEventStyles['form-input']}
+              required
+            />
+          </div>
 
-            <div className={postEventStyles['form-group']}>
-              <label className={postEventStyles['label']}>Contact Info (Phone number):</label>
-              <input
-                type="text"
-                name="contactInfo"
-                value={formData.contactInfo}
-                onChange={handleChange}
-                className={postEventStyles['form-input']}
-                required
-              />
-            </div>
+          <div className={postEventStyles['form-group']}>
+            <label className={postEventStyles['label']}>Contact Info (Phone number):</label>
+            <input
+              type="text"
+              name="contactInfo"
+              value={formData.contactInfo}
+              onChange={handleChange}
+              className={postEventStyles['form-input']}
+              required
+            />
+          </div>
 
-            <button type="submit" className={postEventStyles['submit-button']}>
-              Submit Event
-            </button>
-          </form>
-        </>
-      ) : (
-        <p className={postEventStyles['message']}>{message}</p>
-      )}
+          <button type="submit" className={postEventStyles['submit-button']}>
+            Submit Event
+          </button>
+        </form>
+      </>
     </div>
   );
 };

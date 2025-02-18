@@ -22,13 +22,16 @@ const AddEvent = () => {
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-
+  const handleNavigateToSuccess = () => {
+    navigate("/success");
+  };
 
   const handleManualLogout = async () => {
     if (!userId) {
       alert("No user ID found in local storage.");
       return;
     }
+  
   
     try {
       const response = await axios.post(
@@ -184,14 +187,14 @@ const AddEvent = () => {
 
         <form
           className={formsStyles.form}
-          action="http://localhost:5152/api/create-checkout-session"
-          method="POST"
+          // Removed action and method attributes
         >
           <button 
-            type="submit" 
+            type="button" // Added type="button" to prevent form submission
+            onClick={handleNavigateToSuccess} 
             className={buttonStyles.primaryButton}
-          >
-            Make Payment
+            >
+              Make Payment
           </button>
         </form>
       </main>

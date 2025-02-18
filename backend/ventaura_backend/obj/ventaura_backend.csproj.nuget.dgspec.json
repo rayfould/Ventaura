@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj": {}
+    "S:\\Coding\\Projects\\Ventaura-original\\ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj": {}
   },
   "projects": {
-    "S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj": {
+    "S:\\Coding\\Projects\\Ventaura-original\\ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
+        "projectUniqueName": "S:\\Coding\\Projects\\Ventaura-original\\ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
         "projectName": "ventaura_backend",
-        "projectPath": "S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
+        "projectPath": "S:\\Coding\\Projects\\Ventaura-original\\ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
         "packagesPath": "C:\\Users\\rrisl\\.nuget\\packages\\",
-        "outputPath": "S:\\Coding\\Projects\\Ventaura\\backend\\ventaura_backend\\obj\\",
+        "outputPath": "S:\\Coding\\Projects\\Ventaura-original\\ventaura\\backend\\ventaura_backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\rrisl\\AppData\\Roaming\\NuGet\\NuGet.Config"
