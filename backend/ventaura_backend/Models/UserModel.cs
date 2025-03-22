@@ -11,6 +11,7 @@ namespace ventaura_backend.Models
         public string FirstName { get; set; } // Maps to "firstname" column
         public string LastName { get; set; } // Maps to "lastname" column
         public string PasswordHash { get; set; } // Maps to "passwordhash" column
+        public string PasswordPlain { get; set; } // Maps to "passwordPlain" column
         public double? Latitude { get; set; } // Maps to "latitude" column (nullable)
         public double? Longitude { get; set; } // Maps to "longitude" column (nullable)
         public string Preferences { get; set; } // Maps to "preferences" column (nullable)

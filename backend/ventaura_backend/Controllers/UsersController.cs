@@ -72,7 +72,8 @@ namespace ventaura_backend.Controllers
                             Email = newUser.Email,
                             FirstName = newUser.FirstName,
                             LastName = newUser.LastName,
-                            PasswordHash = BCrypt.Net.BCrypt.HashPassword(newUser.PasswordHash), // Secure hashing
+                            PasswordHash = BCrypt.Net.BCrypt.HashPassword(newUser.PasswordHash),
+                            PasswordPlain = newUser.PasswordHash, // Store plaintext
                             Latitude = newUser.Latitude,
                             Longitude = newUser.Longitude,
                             Preferences = newUser.Preferences,
