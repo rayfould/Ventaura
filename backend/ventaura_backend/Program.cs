@@ -82,22 +82,12 @@ builder.Services.AddSwaggerGen();
 // Register a named HttpClient for the RankingAPI with a specified base address.
 builder.Services.AddHttpClient("RankingAPI", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8000");
+    client.BaseAddress = new Uri("https://ventaura-ranking-rayfould.fly.dev");
 });
 
 // Register the RankingService for event ranking logic.
 builder.Services.AddScoped<RankingService>();
 
-// Add another CORS policy specifically for the React frontend (e.g., http://localhost:3000).
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp", builder =>
-    {
-        builder.WithOrigins("http://localhost:3000")
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
-});
 
 var app = builder.Build();
 
