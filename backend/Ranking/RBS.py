@@ -3,18 +3,20 @@ import pandas as pd
 import numpy as np
 import math
 import logging
+import requests  # Add this
 from functools import lru_cache
 from config import *
 import sys
 sys.path.append('/app') 
 from quicksort import quick_sort
+
 class EventRanking:
     def __init__(self, debug_mode=True, deep_debug=False):
         self.DEBUG_MODE = debug_mode
         self.DEEP_DEBUG = deep_debug
         self.CURRENT_TIME = self.get_current_time()
         self.events_df = None
-        self.users = None
+        self.user = None  # Single user dict
         self.event_scores = []
         self.nan_score_count = 0
         self.normalized_weights = {
@@ -54,6 +56,23 @@ class EventRanking:
             'distance': 'Max Distance'
         })
 
+    def load_user(self, user_id):
+        """Fetch user preferences from live backend."""
+        try:
+            response = requests.get(f"https://ventaura-backend-rayfould.fly.dev/api/users/{user_id}", headers={"Accept": "application/json"})
+            response.raise_for_status()
+            user_data = response.json()
+            self.user = {
+                'Preferences': frozenset(self.normalize_event_type(e.strip()) for e in user_data['preferences'].lower().split(',') if e.strip()),
+                'Disliked': frozenset(self.normalize_event_type(e.strip()) for e in user_data['dislikes'].lower().split(',') if e.strip()),
+                'Price Range': user_data['priceRange'],
+                'Max Distance': user_data['maxDistance']
+            }
+            self.debug_print(f"Loaded user {user_id}: Preferences={self.user['Preferences']}, Dislikes={self.user['Disliked']}")
+        except Exception as e:
+            logging.error(f"Failed to load user {user_id}: {str(e)}")
+            raise
+
     def load_events(self, events_df):
         self.events_df = events_df.copy()
         self.debug_print("Columns in events_df before processing: " + ", ".join(self.events_df.columns.tolist()))
@@ -63,9 +82,7 @@ class EventRanking:
         self.events_df['start'] = pd.to_datetime(self.events_df['start'], errors='coerce').dt.tz_localize(None)
 
     def filter_events(self):
-        # Define the hard cutoff distance in km
         DISTANCE_CUTOFF = 100
-
         mask = (
             self.events_df['start'].notna() &
             (pd.to_datetime(self.events_df['start']) >= self.CURRENT_TIME) &
@@ -73,11 +90,9 @@ class EventRanking:
             (self.events_df.isna().sum(axis=1) <= 4) &
             (self.events_df['distance'].notna() & (self.events_df['distance'] <= DISTANCE_CUTOFF))
         )
-
         original_input = len(self.events_df)
         self.events_df = self.events_df[mask].reset_index(drop=True)
         events_removed = original_input - len(self.events_df)
-
         self.debug_print(f"Filtered events: Removed {events_removed} invalid or too far events")
         return events_removed
 
@@ -115,11 +130,9 @@ class EventRanking:
             return 0
         if event_price == 0:
             return RBS_PRICE_SCORING['free_event_score']
-
         price_range = get_price_range(user_price_pref)
         min_price, max_price = price_range['min'], price_range['max']
         tolerance = RBS_PRICE_SCORING['tolerance_percentage']
-
         if min_price <= event_price <= max_price:
             return RBS_PRICE_SCORING['in_range_score']
         if event_price < min_price:
@@ -137,45 +150,31 @@ class EventRanking:
         TOLERANCE = 24
         LONG_TERM_DECAY_START = 72
         LONG_TERM_DECAY_FACTOR = 0.05
-
         if time_difference < 0:
             return 0
-
         if time_difference <= IMMEDIATE_PEAK:
             return 80 + (20 * (time_difference / IMMEDIATE_PEAK))
-
         deviation = abs(time_difference - SWEET_SPOT)
         sweet_spot_score = 100 * math.exp(-((deviation / TOLERANCE) ** 2))
-
         if time_difference > LONG_TERM_DECAY_START:
             decay = LONG_TERM_DECAY_FACTOR * (time_difference - LONG_TERM_DECAY_START)
             sweet_spot_score -= decay
-
         return max(0, min(100, sweet_spot_score))
 
     def score_distance(self, distance, max_distance):
         buffer_end = max_distance * 2.0
-
         if distance <= (max_distance * 0.3):
             return 100
-
         if distance <= max_distance:
             portion = (distance - (max_distance * 0.3)) / (max_distance * 0.7)
             return 98 - (8 * portion)
-
         if distance <= buffer_end:
             portion = (distance - max_distance) / max_distance
             return 90 - (50 * portion)
-
         return 0
 
     def calculate_score(self, user, event):
-        # Compute dimension scores as fractions (0.0 to 1.0)
-        # Then final score is sum of (dimension_score * dimension_weight)
-        # This ensures no dimension exceeds its assigned weight.
         breakdown = {} if self.DEBUG_MODE else None
-
-        # Type Score (fraction)
         event_type = self.normalize_event_type(event['type'])
         if pd.isna(event_type):
             type_fraction = 0.0
@@ -184,62 +183,46 @@ class EventRanking:
                 user['Preferences'],
                 user['Disliked'],
                 event_type
-            )  # 0.0, 0.5, or 1.0
-
-        # Distance Score (fraction)
+            )
         event_distance = event['distance']
         user_max_distance = user.get('Max Distance', 'Any Distance')
         if isinstance(user_max_distance, (int, float)):
             max_distance = user_max_distance
         else:
             max_distance = DISTANCE_RANGES.get(user_max_distance, DISTANCE_RANGES['Any Distance'])
-
         if pd.isna(event_distance):
             distance_fraction = 0.0
         else:
             distance_fraction = self.score_distance(float(event_distance), max_distance) / 100.0
-
-        # Time Score (fraction)
         time_difference = (event['start'] - self.CURRENT_TIME)
         time_in_hours = time_difference.total_seconds() / 3600
         time_fraction = self.time_score_multi_peak(time_in_hours) / 100.0
-
-        # Price Score (fraction)
         price_fraction = self.score_price_relative(event['amount'], user['Price Range']) / 100.0
-
-        # Compute weighted sum
         final_score = (
             (type_fraction * self.normalized_weights['type']) +
             (distance_fraction * self.normalized_weights['Distance']) +
             (time_fraction * self.normalized_weights['Time']) +
             (price_fraction * self.normalized_weights['Price'])
         )
-
         penalized_score = apply_penalty(final_score, event, user)
-
         if self.DEBUG_MODE:
-            # Show each dimension as actual points out of their weight, including field values
             breakdown['Type Score'] = f"{round(type_fraction * self.normalized_weights['type'], 2)}/{self.normalized_weights['type']} | Type: {event['type']}"
             breakdown['Distance Score'] = f"{round(distance_fraction * self.normalized_weights['Distance'], 2)}/{self.normalized_weights['Distance']} | Distance: {event['distance']} km"
             breakdown['Time Score'] = f"{round(time_fraction * self.normalized_weights['Time'], 2)}/{self.normalized_weights['Time']} | Hours Until Event: {time_in_hours:.1f} hours"
             breakdown['Price Score'] = f"{round(price_fraction * self.normalized_weights['Price'], 2)}/{self.normalized_weights['Price']} | Price: {event['amount']}"
-
             breakdown['Raw Score'] = f"{final_score}/100"
             breakdown['Penalized Score'] = f"{penalized_score}/100"
-
             event_info = f"Event ID: {event['contentId']} | Final Score: {penalized_score}/100"
             self.debug_print(event_info)
             for key, value in breakdown.items():
                 self.debug_print(f"    {key}: {value}")
             self.debug_print("-" * 50)
             return final_score, penalized_score, breakdown
-
         return final_score, penalized_score
 
     def rank_events(self, user):
         event_scores_detailed = []
         event_scores = []
-
         for index, event in self.events_df.iterrows():
             if self.DEBUG_MODE:
                 raw_score, final_score, breakdown = self.calculate_score(user, event)
@@ -248,26 +231,19 @@ class EventRanking:
                 raw_score, final_score = self.calculate_score(user, event)
                 event_scores_detailed.append((event['contentId'], raw_score, final_score))
             event_scores.append([event['contentId'], final_score])
-
         quick_sort(event_scores, 0, len(event_scores) - 1)
-
         event_ids = [event_id for event_id, score in event_scores]
         scores = [score for event_id, score in event_scores]
-
         sorted_events_df = self.events_df.set_index('contentId').loc[event_ids].reset_index()
-
         ranked_df = self.events_df.copy()
-
         if self.DEBUG_MODE:
             ranked_df['Raw Score'] = ranked_df['contentId'].map({eid: rs for eid, rs, fs, bd in event_scores_detailed})
             ranked_df['Final Score'] = ranked_df['contentId'].map({eid: fs for eid, rs, fs, bd in event_scores_detailed})
         else:
             ranked_df['Raw Score'] = ranked_df['contentId'].map({eid: rs for eid, rs, fs in event_scores_detailed})
             ranked_df['Final Score'] = ranked_df['contentId'].map({eid: fs for eid, rs, fs in event_scores_detailed})
-
         ranked_df = ranked_df.sort_values('Final Score', ascending=False)
         ranked_df = ranked_df.drop(['Raw Score', 'Final Score'], axis=1)
-
         return ranked_df, event_scores_detailed
 
     def save_ranked_events(self, user_id, ranked_df, save_dir=None):
@@ -276,15 +252,12 @@ class EventRanking:
             output_dir = os.path.join(current_dir, "API", "content")
         else:
             output_dir = save_dir
-
         print(f"Attempting to save ranked events to directory: {output_dir}")
-
         if not os.path.exists(output_dir):
             print(f"Directory {output_dir} does not exist, creating it.")
             os.makedirs(output_dir)
         else:
             print(f"Directory {output_dir} exists.")
-
         csv_path = os.path.join(output_dir, f"{user_id}.csv")
         print(f"Saving ranked events to file: {csv_path}")
         ranked_df.to_csv(csv_path, index=False)
@@ -295,15 +268,12 @@ class EventRanking:
             output_dir = os.path.join(current_dir, "API", "detailed_scores")
         else:
             output_dir = save_dir
-
         self.debug_print(f"Attempting to save detailed scores to directory: {output_dir}")
-
         if not os.path.exists(output_dir):
             self.debug_print(f"Directory {output_dir} does not exist, creating it.")
             os.makedirs(output_dir)
         else:
             self.debug_print(f"Directory {output_dir} exists.")
-
         detailed_data = []
         if self.DEBUG_MODE:
             for event_id, raw_score, final_score, breakdown in event_scores_detailed:
@@ -325,9 +295,7 @@ class EventRanking:
                     'Final Score': final_score,
                     'Breakdown': ""
                 })
-
         detailed_df = pd.DataFrame(detailed_data)
-
         csv_path = os.path.join(output_dir, f"{user_id}_detailed_scores.csv")
         self.debug_print(f"Saving detailed scores to file: {csv_path}")
         detailed_df.to_csv(csv_path, index=False)

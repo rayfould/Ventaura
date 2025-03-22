@@ -213,8 +213,7 @@ const ForYou = () => {
             header: true,
             skipEmptyLines: true,
             complete: (results) => {
-              console.log("CSV Parsing complete:", results.data);
-              setEvents(results.data);
+              console.log("Parsed Events:", results.data.map(e => ({ id: e.contentId, type: e.type })));              setEvents(results.data);
               setDataLoaded(true);
             },
             error: (error) => {
@@ -404,6 +403,7 @@ const ForYou = () => {
     }
   }, []);
 
+  console.log("Rendering Events:", events.map(e => ({ id: e.contentId, type: e.type })));
   return (
     <div className={layoutStyles['page-container']}>
       {/* Loading Overlay */}
