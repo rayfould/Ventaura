@@ -150,13 +150,7 @@ const ForYou = () => {
 
     const fetchData = async () => {
       try {
-        // === Start Minimum Display Timer ===
-        timer = setTimeout(() => {
-          setTimerDone(true);
-          console.log("Timer done");
-        }, MIN_DISPLAY_TIME);
-
-        // === Step 1: Fetch Events ===
+        // Fetch events
         console.log("Fetching events...");
         const fetchEventsResponse = await axios.get(
           `${API_BASE_URL}/api/combined-events/fetch?userId=${userId}`,
@@ -164,63 +158,54 @@ const ForYou = () => {
             onDownloadProgress: (progressEvent) => {
               const { loaded, total } = progressEvent;
               if (total) {
-                const percentCompleted = Math.round((loaded / total) * 50);
+                const percentCompleted = Math.round((loaded / total) * 33);
                 setProgress((prevProgress) => Math.max(prevProgress, percentCompleted));
               }
             }
           }
         );
-        console.log("Events fetched:", fetchEventsResponse.data.insertedEvents);
-        // Optionally, you can decide to skip this if CSV data is the final source
-        // setEvents(fetchEventsResponse.data.insertedEvents || []);
-
-        // === Step 2: Call Ranking API ===
-        try {
-          console.log("Calling Ranking API...");
-          const rankingResponse = await axios.post(
-            `${API_BASE_URL}/api/events/rank/${userId}`, // FastAPI endpoint
-            null, // No body needed as per your C# controller
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                // Include authentication headers if required
+        console.log("Events fetched:", fetchEventsResponse.data);
+    
+        // Rank events
+        console.log("Calling Ranking API...");
+        const rankingResponse = await axios.post(
+          `${API_BASE_URL}/api/events/rank/${userId}`,
+          null,
+          {
+            headers: { 'Content-Type': 'application/json' },
+            onDownloadProgress: (progressEvent) => {
+              const { loaded, total } = progressEvent;
+              if (total) {
+                const percentCompleted = Math.round((loaded / total) * 33) + 33;
+                setProgress((prevProgress) => Math.max(prevProgress, percentCompleted));
               }
             }
-          );
-
-          console.log("Ranking API Response:", rankingResponse.data);
-          if (rankingResponse.data.success) {
-            console.log("Ranking successful:", rankingResponse.data.message);
-            // Optionally, update state or notify the user
-          } else {
-            console.error("Ranking failed:", rankingResponse.data.message);
-            setMessage("Ranking failed: " + (rankingResponse.data.message || "Unknown error."));
-            // Proceed to fetch CSV data
           }
-        } catch (rankingError) {
-          console.error("Error calling Ranking API:", rankingError);
-          setMessage("An error occurred while ranking events.");
-          // Proceed to fetch CSV data
+        );
+        if (!rankingResponse.data.success) {
+          console.error("Ranking failed:", rankingResponse.data.message);
+          setMessage("Ranking failed: " + (rankingResponse.data.message || "Unknown error"));
+          setProgress(100); // Hide loading
+          return; // Stop here
         }
-
-        // === Step 3: Fetch CSV Data ===
+        console.log("Ranking successful:", rankingResponse.data.message);
+    
+        // Fetch CSV
         console.log("Fetching CSV data...");
         const fetchCSVResponse = await axios.get(
           `${API_BASE_URL}/api/combined-events/get-csv?userId=${userId}`,
           {
-            responseType: 'blob', // To handle CSV as binary data
+            responseType: 'blob',
             onDownloadProgress: (progressEvent) => {
               const { loaded, total } = progressEvent;
               if (total) {
-                const percentCompleted = Math.round((loaded / total) * 50) + 50;
+                const percentCompleted = Math.round((loaded / total) * 34) + 66;
                 setProgress((prevProgress) => Math.max(prevProgress, percentCompleted));
               }
             }
           }
         );
-
-        console.log("CSV data fetched");
-        // === Step 4: Parse CSV Data ===
+    
         const reader = new FileReader();
         reader.onload = () => {
           const csvString = reader.result;
@@ -230,24 +215,23 @@ const ForYou = () => {
             complete: (results) => {
               console.log("CSV Parsing complete:", results.data);
               setEvents(results.data);
-              setDataLoaded(true); // Data loading complete
+              setDataLoaded(true);
             },
             error: (error) => {
               console.error("CSV Parsing Error:", error);
-              setProgress(100); // Hide the overlay
+              setProgress(100);
             }
           });
         };
         reader.onerror = () => {
           console.error("FileReader Error:", reader.error);
-          setProgress(100); // Hide the overlay on error
+          setProgress(100);
         };
         reader.readAsText(fetchCSVResponse.data);
-
       } catch (error) {
         console.error("Data Fetching Error:", error);
         setMessage(error.response?.data?.message || "An error occurred while fetching data.");
-        setProgress(100); // Hide the overlay even if there's an error
+        setProgress(100);
       }
     };
 
