@@ -93,7 +93,7 @@ const ForYou = () => {
 
         // === Step 1: Fetch Events ===
         const fetchEventsResponse = await axios.get(
-          `http://localhost:5152/api/combined-events/fetch?userId=${userId}`,
+          `${API_BASE_URL}/api/combined-events/fetch?userId=${userId}`,
           {
             onDownloadProgress: (progressEvent) => {
               const { loaded, total } = progressEvent;
@@ -145,7 +145,7 @@ const ForYou = () => {
       }
         // === Step 3: Fetch CSV Data ===
         const fetchCSVResponse = await axios.get(
-          `http://localhost:5152/api/combined-events/get-csv?userId=${userId}`,
+          `${API_BASE_URL}/api/combined-events/get-csv?userId=${userId}`,
           {
             responseType: 'blob', // To handle CSV as binary data
             onDownloadProgress: (progressEvent) => {
@@ -207,7 +207,7 @@ const ForYou = () => {
     const handleAutoLogout = async () => {
       try {
         await axios.post(
-          `http://localhost:5152/api/combined-events/logout?userId=${userId}`
+          `${API_BASE_URL}/api/combined-events/logout?userId=${userId}`
         );
         navigate("/login");
       } catch (error) {
@@ -252,7 +252,7 @@ const ForYou = () => {
   
     try {
       const response = await axios.post(
-        `http://localhost:5152/api/combined-events/logout?userId=${userId}`
+        `${API_BASE_URL}/api/combined-events/logout?userId=${userId}`
       );
   
       // Check if response.data is defined and has a Message property

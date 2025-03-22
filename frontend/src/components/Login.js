@@ -8,6 +8,7 @@ import { useNavigate, Link } from "react-router-dom";
 import layoutStyles from '../styles/layout.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
+import { API_BASE_URL } from '../config';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -50,10 +51,7 @@ const Login = () => {
     setIsLoading(true); // Optionally remove if no overlay
 
     try {
-      const response = await axios.post(
-        "http://localhost:5152/api/users/login",
-        formData
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/users/login`, formData);
       
       // Save the userId to localStorage
       localStorage.setItem("userId", response.data.userId);

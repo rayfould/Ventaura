@@ -4,6 +4,7 @@ import React from 'react';
 // Import shared CSS modules
 import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
+import { API_BASE_URL } from '../config';
 
 
 const Checkout = () => {
@@ -25,7 +26,7 @@ const Checkout = () => {
         </section>
 
         <form 
-          action="http://localhost:5152/api/create-checkout-session" 
+          action="${API_BASE_URL}/api/create-checkout-session" 
           method="POST"
           className={layoutStyles.form}
         >

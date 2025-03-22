@@ -9191,11 +9191,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "S:\\Coding\\Projects\\Ventaura-original\\ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
+      "projectUniqueName": "S:\\Coding\\Projects\\Ventaura-Duplicate\\backend\\ventaura_backend\\ventaura_backend.csproj",
       "projectName": "ventaura_backend",
-      "projectPath": "S:\\Coding\\Projects\\Ventaura-original\\ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
+      "projectPath": "S:\\Coding\\Projects\\Ventaura-Duplicate\\backend\\ventaura_backend\\ventaura_backend.csproj",
       "packagesPath": "C:\\Users\\rrisl\\.nuget\\packages\\",
-      "outputPath": "S:\\Coding\\Projects\\Ventaura-original\\ventaura\\backend\\ventaura_backend\\obj\\",
+      "outputPath": "S:\\Coding\\Projects\\Ventaura-Duplicate\\backend\\ventaura_backend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\rrisl\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -9305,7 +9305,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.404/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.407/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -5,8 +5,9 @@ import math
 import logging
 from functools import lru_cache
 from config import *
-from quicksort import *
-
+import sys
+sys.path.append('/app') 
+from quicksort import quick_sort
 class EventRanking:
     def __init__(self, debug_mode=True, deep_debug=False):
         self.DEBUG_MODE = debug_mode

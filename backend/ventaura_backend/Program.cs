@@ -19,7 +19,15 @@ using System.IO;
 // Loads environment variables from .env (used for Stripe keys, etc.)
 DotNetEnv.Env.Load();
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    WebRootPath = "wwwroot" // Optional, for later static files
+});
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(80); 
+});
 
 // Configure Stripe options by loading environment variables.
 builder.Services.Configure<StripeOptions>(options =>
@@ -117,14 +125,14 @@ if (app.Environment.IsDevelopment())
 
 // The following code handles Stripe integration and static file serving.
 // It serves static files from a directory specified by the STATIC_DIR environment variable.
-app.UseStaticFiles(new StaticFileOptions()
-{
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(),
-        Environment.GetEnvironmentVariable("STATIC_DIR"))
-    ),
-    RequestPath = new PathString("")
-});
+// app.UseStaticFiles(new StaticFileOptions()
+// {
+//     FileProvider = new PhysicalFileProvider(
+//         Path.Combine(Directory.GetCurrentDirectory(),
+//         Environment.GetEnvironmentVariable("STATIC_DIR"))
+//     ),
+//     RequestPath = new PathString("")
+// });
 
 // Define a GET endpoint to redirect the root ("/") to "index.html".
 app.MapGet("/", () => Results.Redirect("index.html"));

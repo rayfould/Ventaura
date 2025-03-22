@@ -107,7 +107,7 @@ const Success = () => {
       
 
       // Send the POST request
-      const response = await fetch('http://localhost:5152/api/combined-events/create-host-event', {
+      const response = await fetch('${API_BASE_URL}/api/combined-events/create-host-event', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

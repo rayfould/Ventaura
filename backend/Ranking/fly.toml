@@ -1,0 +1,23 @@
+app = 'ventaura-ranking-rayfould'
+primary_region = 'iad'
+
+[build]
+  # Optional: Explicitly specify Dockerfile if needed (Fly detected it already)
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "80"
+  BACKEND_URL = "https://ventaura-backend-rayfould.fly.dev"
+  PYTHONUNBUFFERED = "1"  # Keeps Python output unbuffered for logs
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = true  # Scales down when idle (cost-effective)
+  auto_start_machines = true  # Starts on demand
+  min_machines_running = 1   # Keeps 1 machine alive (optional, adjust as needed)
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

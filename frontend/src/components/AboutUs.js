@@ -11,6 +11,7 @@ import buttonStyles from '../styles/modules/buttons.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import logo from '../assets/ventaura-logo-white-smooth.png'; 
 import Footer from '../components/footer';
+import { API_BASE_URL } from '../config';
 
 
 const AboutUs = () => {
@@ -26,7 +27,7 @@ const AboutUs = () => {
   
     try {
       const response = await axios.post(
-        `http://localhost:5152/api/combined-events/logout?userId=${userId}`
+        `${API_BASE_URL}/api/combined-events/logout?userId=${userId}`
       );
   
       // Check if response.data is defined and has a Message property

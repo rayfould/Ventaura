@@ -16,7 +16,8 @@ import logo from '../assets/ventaura-logo-white-smooth.png';
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
 import LoadingOverlay from '../components/LoadingOverlay';
 import Footer from '../components/footer';
-import EventCard from '../components/EventCard.js'; // Corrected import path
+import EventCard from '../components/EventCard.js'; 
+import { API_BASE_URL } from '../config';
 
 const ForYou = () => {
   const [userData, setUserData] = useState({
@@ -89,10 +90,8 @@ const ForYou = () => {
         priceRange: userData.priceRange.toString(), 
         maxDistance: Number(userData.maxDistance) 
       };
-
-      // Make the PUT request to the server
       const response = await axios.put(
-        `http://localhost:5152/api/users/updatePreferences`,
+        `${API_BASE_URL}/api/users/updatePreferences`,
         updateData
       );
 
@@ -105,7 +104,7 @@ const ForYou = () => {
       // Fetch user data again to update the UI
       const fetchUserData = async () => {
         try {
-          const response = await axios.get(`http://localhost:5152/api/users/${userId}`);
+          const response = await axios.get(`${API_BASE_URL}/api/users/${userId}`);
           const cleanData = (data) => {
             return data.replace(/[^a-zA-Z0-9, ]/g, '').split(',').map(item => item.trim());
           };
@@ -160,7 +159,7 @@ const ForYou = () => {
         // === Step 1: Fetch Events ===
         console.log("Fetching events...");
         const fetchEventsResponse = await axios.get(
-          `http://localhost:5152/api/combined-events/fetch?userId=${userId}`,
+          `${API_BASE_URL}/api/combined-events/fetch?userId=${userId}`,
           {
             onDownloadProgress: (progressEvent) => {
               const { loaded, total } = progressEvent;
@@ -207,7 +206,7 @@ const ForYou = () => {
         // === Step 3: Fetch CSV Data ===
         console.log("Fetching CSV data...");
         const fetchCSVResponse = await axios.get(
-          `http://localhost:5152/api/combined-events/get-csv?userId=${userId}`,
+          `${API_BASE_URL}/api/combined-events/get-csv?userId=${userId}`,
           {
             responseType: 'blob', // To handle CSV as binary data
             onDownloadProgress: (progressEvent) => {
@@ -267,7 +266,7 @@ const ForYou = () => {
     const handleAutoLogout = async () => {
       try {
         await axios.post(
-          `http://localhost:5152/api/combined-events/logout?userId=${userId}`
+          `${API_BASE_URL}/api/combined-events/logout?userId=${userId}`
         );
         navigate("/login");
       } catch (error) {
@@ -310,7 +309,7 @@ const ForYou = () => {
 
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5152/api/users/${userId}`);
+        const response = await axios.get(`${API_BASE_URL}/api/users/${userId}`);
         const cleanData = (data) => {
           return data.replace(/[^a-zA-Z0-9, ]/g, '').split(',').map(item => item.trim());
         };
@@ -340,7 +339,7 @@ const ForYou = () => {
   
     try {
       const response = await axios.post(
-        `http://localhost:5152/api/combined-events/logout?userId=${userId}`
+        `${API_BASE_URL}/api/combined-events/logout?userId=${userId}`
       );
   
       // Check if response.data is defined and has a Message property

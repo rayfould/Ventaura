@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import layoutStyles from '../styles/layout.module.css';
 import createAccountStyles from '../styles/modules/createaccount.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
+import { API_BASE_URL } from '../config';
 
 // **Preference & Dislike Mapping**
 const preferenceMapping = {
@@ -151,7 +152,7 @@ const CreateAccount = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5152/api/users/create-account",
+        "${API_BASE_URL}/api/users/create-account",
         requestData
       );
       setMessage(response.data.Message);

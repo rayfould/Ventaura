@@ -229,7 +229,7 @@ namespace ventaura_backend.Controllers
 
                 using (var writer = new StreamWriter(csvFilePath, false, Encoding.UTF8))
                 {
-                    await writer.WriteLineAsync("contentId,title,description,location,start,source,type,currencyCode,amount,url,distance");
+                    await writer.WriteAsync("contentId,title,description,location,start,source,type,currencyCode,amount,url,distance\n");
 
                     int contentIdCounter = 1;
                     int eventsWritten = 0;
@@ -287,30 +287,144 @@ namespace ventaura_backend.Controllers
 
         // Endpoint for the frontend to access th csv file 
         [HttpGet("get-csv")]
-        public IActionResult GetCsv([FromQuery] int userId)
+        public async Task<IActionResult> GetCsv([FromQuery] int userId)
         {
             try
             {
-                var csvFilePath = Path.Combine("CsvFiles", $"{userId}.csv");
+                var user = await _dbContext.Users.FindAsync(userId);
+                if (user == null || user.Latitude == null) return BadRequest("User not found or location missing.");
 
-                if (!System.IO.File.Exists(csvFilePath))
+                var apiEvents = await _combinedApiService.FetchEventsAsync(user.Latitude.Value, user.Longitude.Value, userId);
+                var hostEvents = await _dbContext.HostEvents.ToListAsync();
+                var combinedEvents = await ProcessEvents(apiEvents, hostEvents, user);
+
+                if (!combinedEvents.Any())
                 {
-                    Console.WriteLine($"CSV file {csvFilePath} does not exist.");
-                    return NotFound(new { Message = "CSV file not found." });
+                    Console.WriteLine("No events to process.");
+                    return NotFound("No events available for this user.");
                 }
 
-                // Return the CSV file as a response
-                var fileStream = new FileStream(csvFilePath, FileMode.Open, FileAccess.Read);
-                var fileName = $"{userId}.csv";
-
-                Console.WriteLine($"Serving CSV file {csvFilePath}.");
-                return File(fileStream, "text/csv", fileName);
+                var memoryStream = new MemoryStream();
+                using (var writer = new StreamWriter(memoryStream, new UTF8Encoding(false), leaveOpen: true))
+                {
+                    await writer.WriteAsync("contentId,title,description,location,start,source,type,currencyCode,amount,url,distance\n");
+                    int contentIdCounter = 1;
+                    foreach (var e in combinedEvents)
+                    {
+                        await writer.WriteLineAsync(
+                            $"{contentIdCounter},{CleanField(e.Title)},{CleanField(e.Description)},{CleanField(e.Location)},{CleanField(e.Start?.ToString("yyyy-MM-dd HH:mm:ss") ?? "")},{CleanField(e.Source)},{CleanField(e.Type)},{CleanField(e.CurrencyCode)},{CleanField(e.Amount?.ToString())},{CleanField(e.URL)},{e.Distance}"
+                        );
+                        contentIdCounter++;
+                    }
+                }
+                memoryStream.Position = 0;
+                return File(memoryStream, "text/csv", $"{userId}.csv");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error while fetching CSV for user {userId}: {ex.Message}");
-                return StatusCode(500, "An error occurred while fetching the CSV file.");
+                Console.WriteLine($"Error in GetCsv for user {userId}: {ex.Message}");
+                return StatusCode(500, "Error generating CSV.");
             }
+        }
+
+        private async Task<List<CombinedEvent>> ProcessEvents(List<UserContent> apiEvents, List<HostEvent> hostEvents, User user)
+        {
+            var typeMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "festivals-fairs", "Festivals" }, { "sports-active-life", "Outdoors" },
+                { "visual-arts", "Exhibitions" }, { "charities", "Community" },
+                { "performing-arts", "Theater" }, { "kids-family", "Family" },
+                { "film", "Film" }, { "food-and-drink", "Food and Drink" },
+                { "music", "Music" }, { "Holiday", "Holiday" },
+                { "Networking", "Networking" }, { "Gaming", "Gaming" },
+                { "Pets", "Pets" }, { "Virtual", "Virtual" },
+                { "Science", "Science" }, { "Basketball", "Basketball" },
+                { "Pottery", "Pottery" }, { "Tennis", "Tennis" },
+                { "Soccer", "Soccer" }, { "Football", "Football" },
+                { "Fishing", "Fishing" }, { "Hiking", "Hiking" },
+                { "Wellness", "Wellness" }, { "nightlife", "Nightlife" },
+                { "Workshops", "Workshops" }, { "Conferences", "Conferences" },
+                { "Hockey", "Hockey" }, { "Baseball", "Baseball" },
+                { "lectures-books", "Lectures" }, { "fashion", "Fashion" },
+                { "Motorsports/Racing", "Motorsports" }, { "Dance", "Dance" },
+                { "Comedy", "Comedy" }, { "Pop", "Music" },
+                { "Country", "Music" }, { "Hip-Hop/Rap", "Music" },
+                { "Rock", "Music" }, { "other", "Other" }
+            };
+
+            // Process API events
+            var apiEventObjects = new List<CombinedEvent>();
+            foreach (var e in apiEvents)
+            {
+                string location = e.Location ?? "Unknown Location";
+                double latitude = 0, longitude = 0;
+                if (TryParseLocation(location, out latitude, out longitude))
+                {
+                    location = _googleGeocodingService.GetAddressFromCoordinates(latitude, longitude).Result;
+                }
+                else
+                {
+                    var coordinates = _googleGeocodingService.GetCoordinatesAsync(location).Result;
+                    if (coordinates.HasValue)
+                    {
+                        latitude = coordinates.Value.latitude;
+                        longitude = coordinates.Value.longitude;
+                    }
+                }
+                var distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, latitude, longitude);
+
+                apiEventObjects.Add(new CombinedEvent
+                {
+                    Title = e.Title ?? "Unknown Title",
+                    Description = e.Description ?? "No description",
+                    Location = location,
+                    Start = e.Start,
+                    Source = e.Source ?? "API",
+                    Type = typeMapping.ContainsKey(e.Type.ToLower()) ? typeMapping[e.Type.ToLower()] : e.Type,
+                    CurrencyCode = e.CurrencyCode ?? "N/A",
+                    Amount = (decimal?)e.Amount ?? 0,
+                    URL = e.URL ?? "N/A",
+                    Distance = distance
+                });
+            }
+
+            // Process host events
+            var processedHostEvents = new List<CombinedEvent>();
+            foreach (var he in hostEvents)
+            {
+                double latitude, longitude;
+                if (!TryParseLocation(he.Location, out latitude, out longitude))
+                {
+                    var coordinates = _googleGeocodingService.GetCoordinatesAsync(he.Location).Result;
+                    if (coordinates.HasValue)
+                    {
+                        latitude = coordinates.Value.latitude;
+                        longitude = coordinates.Value.longitude;
+                    }
+                    else
+                    {
+                        latitude = user.Latitude.Value;
+                        longitude = user.Longitude.Value;
+                    }
+                }
+                var distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, latitude, longitude);
+
+                processedHostEvents.Add(new CombinedEvent
+                {
+                    Title = he.Title ?? "Unknown Title",
+                    Description = he.Description ?? "No description",
+                    Location = he.Location ?? "Unknown Location",
+                    Start = he.Start,
+                    Source = "Host",
+                    Type = typeMapping.ContainsKey(he.Type.ToLower()) ? typeMapping[he.Type.ToLower()] : he.Type,
+                    CurrencyCode = he.CurrencyCode ?? "N/A",
+                    Amount = he.Amount ?? 0,
+                    URL = he.URL ?? "N/A",
+                    Distance = distance
+                });
+            }
+
+            return apiEventObjects.Concat(processedHostEvents).ToList();
         }
 
         // Endpoint to log out a user and delete their associated CSV file.

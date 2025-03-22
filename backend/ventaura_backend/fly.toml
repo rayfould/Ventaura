@@ -1,0 +1,23 @@
+# fly.toml app configuration file generated for ventaura-backend-rayfould on 2025-03-19T23:09:35-04:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'ventaura-backend-rayfould'
+primary_region = 'iad'
+
+[build]
+
+[env]
+  ASPNETCORE_ENVIRONMENT = 'Production'
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = 'off'
+  auto_start_machines = true
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

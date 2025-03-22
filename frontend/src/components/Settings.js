@@ -13,6 +13,7 @@ import createAccountStyles from '../styles/modules/createaccount.module.css';
 import navigationStyles from '../styles/modules/navigation.module.css';
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
 import Footer from '../components/footer';
+import { API_BASE_URL } from '../config';
 
 const Settings = () => {
   const [userData, setUserData] = useState({
@@ -33,7 +34,7 @@ const Settings = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5152/api/users/${userId}`);
+        const response = await axios.get(`${API_BASE_URL}/api/users/${userId}`);
         setUserData({
           email: response.data.email,
           firstName: response.data.firstName,
@@ -62,7 +63,7 @@ const Settings = () => {
   
     try {
       const response = await axios.post(
-        `http://localhost:5152/api/combined-events/logout?userId=${userId}`
+        `${API_BASE_URL}/api/combined-events/logout?userId=${userId}`
       );
   
       // Check if response.data is defined and has a Message property
@@ -99,7 +100,7 @@ const Settings = () => {
 
       // Make the PUT request to the server
       const response = await axios.put(
-        `http://localhost:5152/api/users/updatePreferences`,
+        `${API_BASE_URL}/api/users/updatePreferences`,
         updateData
       );
 
@@ -136,7 +137,7 @@ const Settings = () => {
       };
 
       const response = await axios.put(
-        `http://localhost:5152/api/users/changePassword`,
+        `${API_BASE_URL}/api/users/changePassword`,
         changePasswordData
       );
 

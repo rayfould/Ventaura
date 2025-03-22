@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Dtg1yrfTddE=",
+  "dgSpecHash": "acgk5Dz/Uo8=",
   "success": true,
-  "projectFilePath": "S:\\Coding\\Projects\\Ventaura-original\\ventaura\\backend\\ventaura_backend\\ventaura_backend.csproj",
+  "projectFilePath": "S:\\Coding\\Projects\\Ventaura-Duplicate\\backend\\ventaura_backend\\ventaura_backend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\rrisl\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\rrisl\\.nuget\\packages\\csvhelper\\33.0.1\\csvhelper.33.0.1.nupkg.sha512",
