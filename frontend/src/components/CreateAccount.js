@@ -151,10 +151,7 @@ const CreateAccount = () => {
     };
 
     try {
-      const response = await axios.post(
-        "${API_BASE_URL}/api/users/create-account",
-        requestData
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/users/create-account`, requestData);
       setMessage(response.data.Message);
       setTimeout(() => {
         navigate("/login");
