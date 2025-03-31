@@ -1,4 +1,6 @@
+import React, { createContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import LoadingOverlay from './components/LoadingOverlay';
 import Login from './components/Login';
 import CreateAccount from './components/CreateAccount';
 import LandingPage from './components/LandingPage';
@@ -12,78 +14,47 @@ import Success from './components/Success';
 import Canceled from './components/Canceled';
 import Settings from './components/Settings';
 
+export const LoadingContext = createContext();
 
-// Create a ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem("userId"); // Check if user is logged in
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
+  const isAuthenticated = localStorage.getItem("userId");
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 function App() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (isLoading) {
+      setIsVisible(true);
+    } else {
+      const timer = setTimeout(() => setIsVisible(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
   return (
-    <Router>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/create-account" element={<CreateAccount />} />
-        <Route path="/" element={<LandingPage />} />
-        
-        {/* Protected routes */}
-        <Route path="/for-you" element={
-          <ProtectedRoute>
-            <ForYou />
-          </ProtectedRoute>
-        } />
-        <Route path="/contact-us" element={
-          <ProtectedRoute>
-            <ContactUs />
-          </ProtectedRoute>
-        } />
-        <Route path="/about-us" element={
-          <ProtectedRoute>
-            <AboutUs />
-          </ProtectedRoute>
-        } />
-        <Route path="/global-page" element={
-          <ProtectedRoute>
-            <GlobalPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/post-event-page" element={
-          <ProtectedRoute>
-            <AddEvent />
-          </ProtectedRoute>
-        } />
-        <Route path="/checkout" element={
-          <ProtectedRoute>
-            <Checkout />
-          </ProtectedRoute>
-        } />
-        <Route path="/success.html" element={
-          <ProtectedRoute>
-            <Success />
-          </ProtectedRoute>
-        } />
-        <Route path="/canceled.html" element={
-          <ProtectedRoute>
-            <Canceled />
-          </ProtectedRoute>
-        } />
-        <Route path="/settings" element={
-          <ProtectedRoute>
-            <Settings />
-          </ProtectedRoute>
-        } />
-        
-        {/* Catch all route - redirect to login */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
+    <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
+      <Router>
+        {isVisible ? <LoadingOverlay isLoading={isLoading} /> : null}
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/create-account" element={<CreateAccount />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/for-you" element={<ProtectedRoute><ForYou /></ProtectedRoute>} />
+          <Route path="/contact-us" element={<ProtectedRoute><ContactUs /></ProtectedRoute>} />
+          <Route path="/about-us" element={<ProtectedRoute><AboutUs /></ProtectedRoute>} />
+          <Route path="/global-page" element={<ProtectedRoute><GlobalPage /></ProtectedRoute>} />
+          <Route path="/post-event-page" element={<ProtectedRoute><AddEvent /></ProtectedRoute>} />
+          <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+          <Route path="/success.html" element={<ProtectedRoute><Success /></ProtectedRoute>} />
+          <Route path="/canceled.html" element={<ProtectedRoute><Canceled /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    </LoadingContext.Provider>
   );
 }
 

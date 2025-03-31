@@ -1,44 +1,48 @@
-// src/components/LoadingOverlay.js
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import styles from '../styles/modules/LoadingOverlay.module.css'; 
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
 
-const LoadingOverlay = ({ isVisible, progress }) => {
-  const isIndeterminate = progress === 0 && isVisible;
+const LoadingOverlay = ({ isLoading }) => {
+  const [animateOverlay, setAnimateOverlay] = useState(false);
+  const [animateBar, setAnimateBar] = useState(false);
+
+  useEffect(() => {
+    if (isLoading) {
+      setAnimateOverlay(false); // Start off-screen
+      const overlayTimer = setTimeout(() => {
+        setAnimateOverlay(true); // Slide down
+      }, 10);
+      const barTimer = setTimeout(() => setAnimateBar(true), 510); // Animate bar after slide down
+      return () => {
+        clearTimeout(overlayTimer);
+        clearTimeout(barTimer);
+      };
+    } else {
+      // When loading ends, trigger slide-up animation.
+      setTimeout(() => setAnimateOverlay(false), 10);
+      // Keep the bar visible during the slide-up.
+    }
+  }, [isLoading]);
 
   return (
     <div 
-      className={`${styles.overlay} ${isVisible ? styles.show : ''}`} 
-      aria-hidden={!isVisible}
+      className={`${styles.overlay} ${animateOverlay ? styles.show : ''}`} 
+      aria-hidden={!isLoading}
     >
       <div className={styles.logoContainer}>
         <img src={logoFull} alt="Logo" className={styles.logo} />
       </div>
-      {isIndeterminate ? (
-        <div 
-          className={styles.indeterminateLoader} 
-          aria-label="Loading"
-        ></div>
-      ) : (
-        <div 
-          className={styles.loadingBar} 
-          style={{ width: `${progress}%` }} 
-          aria-label={`Loading progress: ${progress}%`}
-        ></div>
-      )}
+      <div 
+        className={`${styles.loadingBar} ${animateBar ? styles.loading : ''}`} 
+        aria-label="Loading"
+      ></div>
     </div>
   );
 };
 
 LoadingOverlay.propTypes = {
-  isVisible: PropTypes.bool.isRequired,
-  progress: PropTypes.number, // Progress from 0 to 100
-};
-
-LoadingOverlay.defaultProps = {
-  progress: 0, // Default progress is 0%
+  isLoading: PropTypes.bool.isRequired,
 };
 
 export default LoadingOverlay;

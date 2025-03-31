@@ -1,8 +1,9 @@
 // src/pages/Login.js
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { LoadingContext } from '../App';
 
 // Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
@@ -18,9 +19,9 @@ const Login = () => {
     longitude: "",
   });
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Optionally remove if no overlay
   const navigate = useNavigate();
-
+  const { isLoading, setIsLoading } = useContext(LoadingContext);
+  
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -48,25 +49,29 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(""); // Clear any previous messages
-    setIsLoading(true); // Optionally remove if no overlay
-
+  
+    // Store the timer ID so we can cancel if needed
+    const timerId = setTimeout(() => {
+      setIsLoading(true); // Trigger the loading overlay after 400ms
+    }, 400);
+  
     try {
       const response = await axios.post(`${API_BASE_URL}/api/users/login`, formData);
-      
-      // Save the userId to localStorage
+  
+      // On success, cancel the timer to prevent a delayed overlay from appearing
+      clearTimeout(timerId);
+  
       localStorage.setItem("userId", response.data.userId);
-      
-      // Optional: Display a success message
       setMessage("Login successful! Redirecting...");
-      
-      // Navigate to For You page immediately
       navigate("/for-you", { state: { userId: response.data.userId } });
-      
     } catch (error) {
-      setIsLoading(false); // Hide the overlay if any
+      // Cancel the timer so the overlay never starts
+      clearTimeout(timerId);
+      setIsLoading(false);
       setMessage(error.response?.data?.message || "Invalid email or password.");
     }
   };
+  
 
   return (
     <div className={layoutStyles['page-container']}>

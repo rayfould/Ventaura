@@ -310,9 +310,13 @@ namespace ventaura_backend.Controllers
                     return Ok(new { Message = "User information updated, but no events available to re-rank." });
                 }
 
+                // Use environment variables for base URLs, with defaults for dev
+                var cSharpBackendUrl = Environment.GetEnvironmentVariable("C_SHARP_BACKEND_URL") ?? "http://localhost:80";
+                var rankingBackendUrl = Environment.GetEnvironmentVariable("RANKING_BACKEND_URL") ?? "http://localhost:8000";
+
                 // Trigger re-ranking of existing events without re-fetching
                 Console.WriteLine($"Triggering re-ranking for user {user.UserId} after preferences update...");
-                var rankingUrl = $"http://localhost:8000/rank-events/{user.UserId}";
+                var rankingUrl = $"{rankingBackendUrl}/rank-events/{user.UserId}";
                 var rankingResponse = await _httpClient.PostAsync(rankingUrl, new StringContent(""));
 
                 if (rankingResponse.IsSuccessStatusCode)

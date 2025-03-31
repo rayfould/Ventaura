@@ -1,6 +1,6 @@
 // src/pages/ForYou.js
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import Papa from 'papaparse';
 import { useNavigate, Link, NavLink } from "react-router-dom";
@@ -14,10 +14,10 @@ import navigationStyles from '../styles/modules/navigation.module.css';
 import formsStyles from '../styles/modules/forms.module.css';
 import logo from '../assets/ventaura-logo-white-smooth.png'; 
 import logoFull from '../assets/ventaura-logo-full-small-dark.png'; 
-import LoadingOverlay from '../components/LoadingOverlay';
 import Footer from '../components/footer';
 import EventCard from '../components/EventCard.js'; 
 import { API_BASE_URL } from '../config';
+import { LoadingContext } from '../App';
 
 const ForYou = () => {
   const [userData, setUserData] = useState({
@@ -25,7 +25,9 @@ const ForYou = () => {
     dislikes: [],
     priceRange: "",
     maxDistance: ""
-  });
+  })
+  const { setIsLoading } = useContext(LoadingContext);
+  ;
 
   const navigate = useNavigate();
   const [userId] = useState(localStorage.getItem("userId"));
@@ -78,48 +80,39 @@ const ForYou = () => {
 
   // Define handleSubmit inside the component
   const handleSubmit = async (e) => {
-      e.preventDefault();
-      try {
-          const userId = localStorage.getItem("userId");
-          if (!userId) {
-              navigate("/login");
-              return;
-          }
+    e.preventDefault();
+    setIsLoading(true); // Start overlay
+    const startTime = Date.now(); // Track start time
 
-          // Prepare the request data
-          const updateData = {
-              userId: userId,
-              preferences: userData.preferences.join(", "),
-              dislikes: userData.dislikes.join(", "),
-              priceRange: userData.priceRange.toString(),
-              maxDistance: Number(userData.maxDistance)
-          };
-
-          // Update preferences
-          const response = await axios.put(
-              `${API_BASE_URL}/api/users/updatePreferences`,
-              updateData
-          );
-
-          setMessage(response.data.Message || "User information updated successfully.");
-
-          // Fetch the updated ranked CSV
-          await fetchData();
-
-          // Reset the message after some time
-          setTimeout(() => {
-              setMessage('');
-          }, 10000);
-      } catch (error) {
-          if (error.response) {
-              setMessage(error.response.data.Message || "An error occurred.");
-          } else {
-              setMessage("An error occurred while updating preferences.");
-          }
-          setTimeout(() => {
-              setMessage('');
-          }, 10000);
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        navigate("/login");
+        return;
       }
+      const updateData = {
+        userId: userId,
+        preferences: userData.preferences.join(", "),
+        dislikes: userData.dislikes.join(", "),
+        priceRange: userData.priceRange.toString(),
+        maxDistance: Number(userData.maxDistance)
+      };
+      const response = await axios.put(`${API_BASE_URL}/api/users/updatePreferences`, updateData);
+      setMessage(response.data.Message || "User information updated successfully.");
+      await fetchData();
+
+      const elapsedTime = Date.now() - startTime;
+      const minDuration = 2000; // 2 seconds in ms
+      if (elapsedTime < minDuration) {
+        await new Promise(resolve => setTimeout(resolve, minDuration - elapsedTime));
+      }
+      setIsLoading(false); // End overlay
+      setTimeout(() => setMessage(''), 10);
+    } catch (error) {
+      setIsLoading(false); // End overlay on error
+      setMessage(error.response?.data?.Message || "An error occurred.");
+      setTimeout(() => setMessage(''), 10000);
+    }
   };
 
   // Define fetchData outside useEffect
@@ -174,7 +167,7 @@ const ForYou = () => {
 
       let timer = null;
 
-      fetchData();
+      fetchData().then(() => setIsLoading(false))
 
       // === Setup Inactivity Logout ===
       let timeout;
@@ -260,22 +253,20 @@ const ForYou = () => {
       return;
     }
   
+    setIsLoading(true);
     try {
       const response = await axios.post(
         `${API_BASE_URL}/api/combined-events/logout?userId=${userId}`
       );
-  
-      // Check if response.data is defined and has a Message property
       if (response.data && response.data.Message) {
         alert(response.data.Message);
-      } else {
-        alert("Logout successful");
-      }
-  
-      // Remove userId from localStorage
+      } 
       localStorage.removeItem("userId");
+      await new Promise(resolve => setTimeout(resolve, 2500));  
       navigate("/login");
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       if (error.response) {
         alert(error.response.data.Message || "Error logging out.");
       } else {
@@ -346,9 +337,6 @@ const ForYou = () => {
   console.log("Rendering Events:", events.map(e => ({ id: e.contentId, type: e.type })));
   return (
     <div className={layoutStyles['page-container']}>
-      {/* Loading Overlay */}
-      <LoadingOverlay isVisible={isLoading} progress={progress} />
-
       {/* Header */}
       <header 
         className={`${layoutStyles.header} ${!showHeader ? layoutStyles.hidden : ''}`}
