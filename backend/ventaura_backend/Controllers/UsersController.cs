@@ -174,9 +174,14 @@ namespace ventaura_backend.Controllers
 
                 if (user.Latitude.HasValue && user.Longitude.HasValue)
                 {
+
+                    // Use environment variables for base URLs, with defaults for dev
+                    var cSharpBackendUrl = Environment.GetEnvironmentVariable("C_SHARP_BACKEND_URL") ?? "http://localhost:80";
+                    var rankingBackendUrl = Environment.GetEnvironmentVariable("RANKING_BACKEND_URL") ?? "http://localhost:8000";
+                    
                     // Call the FetchCombinedEvents endpoint to fetch events and save the unranked CSV
                     Console.WriteLine($"Fetching events for user {user.UserId}...");
-                    var fetchEventsUrl = $"http://localhost:80/api/combined-events/fetch?userId={user.UserId}";
+                    var fetchEventsUrl = $"{cSharpBackendUrl}/api/combined-events/fetch?userId={user.UserId}";
                     var fetchEventsResponse = await _httpClient.GetAsync(fetchEventsUrl);
 
                     if (fetchEventsResponse.IsSuccessStatusCode)
