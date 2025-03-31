@@ -36,7 +36,7 @@ import Motorsports from './motorsports.png';
 import Dance from './dance.png';
 import Comedy from './comedy.png';
 import Miscellaneous from './Miscellaneous.png';
-import Miscellaneous from './religious.png';
+import Religious from './religious.png';
 
 
 
