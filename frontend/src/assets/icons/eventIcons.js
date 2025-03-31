@@ -36,6 +36,8 @@ import Motorsports from './motorsports.png';
 import Dance from './dance.png';
 import Comedy from './comedy.png';
 import Miscellaneous from './Miscellaneous.png';
+import Miscellaneous from './religious.png';
+
 
 
 const eventIcons = {
@@ -75,7 +77,8 @@ const eventIcons = {
   "Motorsports": Motorsports,
   "Dance": Dance,
   "Comedy": Comedy,
-  "Miscellaneous": Miscellaneous
+  "Miscellaneous": Miscellaneous,
+  "Religious": Religious
 };
 
 export default eventIcons;
