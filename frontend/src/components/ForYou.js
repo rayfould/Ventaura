@@ -396,7 +396,7 @@ const ForYou = () => {
               <FaUserCircle size={28} />
             </Dropdown.Toggle>
 
-            <Dropdown.Menu className={layoutStyles['dropdown-menu']}>
+            <Dropdown.Menu align="end" flip={false} className={layoutStyles['dropdown-menu']}>
               <Dropdown.Item onClick={() => navigate("/settings")}>
                 <FaUser className={layoutStyles['dropdown-icon']} /> Profile
               </Dropdown.Item>
@@ -563,9 +563,10 @@ const ForYou = () => {
           onClick={() => setIsRightSidebarOpen(true)}
           aria-label="Tune Your Feed"
         >
-          ⚡
+          Preferences
         </button>
       </OverlayTrigger>
+
       <Footer />
     </div>
     
