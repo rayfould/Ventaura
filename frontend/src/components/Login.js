@@ -58,7 +58,7 @@ const Login = () => {
       setMessage("Login successful! Redirecting...");
 
       const elapsedTime = Date.now() - startTime;
-      const minDuration = 2510; // 0.5s slide-down + 2s bar = 2.51s
+      const minDuration = 2550; // 0.5s slide-down + 2s bar = 2.51s
       if (elapsedTime < minDuration) {
         await new Promise(resolve => setTimeout(resolve, minDuration - elapsedTime));
       }
@@ -67,7 +67,6 @@ const Login = () => {
       // setIsLoading(false) handled by ForYou.js
     } catch (error) {
       // Cancel the timer so the overlay never starts
-      clearTimeout(timerId);
       setIsLoading(false);
       setMessage(error.response?.data?.message || "Invalid email or password.");
     }
