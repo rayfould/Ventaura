@@ -283,6 +283,36 @@ namespace ventaura_backend.Controllers
 
                 Console.WriteLine("User preferences updated successfully.");
 
+                // Set IsRanked to false in UserSessionData to allow re-ranking
+                var userSessionData = await _dbContext.UserSessionData
+                    .FirstOrDefaultAsync(u => u.UserId == user.UserId);
+                if (userSessionData != null)
+                {
+                    userSessionData.IsRanked = false;
+                    _dbContext.UserSessionData.Update(userSessionData);
+                    await _dbContext.SaveChangesAsync();
+                    Console.WriteLine($"Set IsRanked to false for user {user.UserId} in UserSessionData.");
+                }
+                else
+                {
+                    Console.WriteLine($"No UserSessionData found for user {user.UserId}. Re-ranking will not proceed.");
+                    return Ok(new { Message = "User information updated, but no events available to re-rank." });
+                }
+
+                // Trigger re-ranking of existing events without re-fetching
+                Console.WriteLine($"Triggering re-ranking for user {user.UserId} after preferences update...");
+                var rankingUrl = $"http://localhost:8000/rank-events/{user.UserId}";
+                var rankingResponse = await _httpClient.PostAsync(rankingUrl, new StringContent(""));
+
+                if (rankingResponse.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Successfully triggered re-ranking for user {user.UserId}.");
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to trigger re-ranking for user {user.UserId}: {rankingResponse.StatusCode}");
+                }
+
                 // Return a success message.
                 return Ok(new { Message = "User information updated successfully." });
             }

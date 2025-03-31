@@ -78,204 +78,144 @@ const ForYou = () => {
 
   // Define handleSubmit inside the component
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
-    try {
-      const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
+      e.preventDefault();
+      try {
+          const userId = localStorage.getItem("userId");
+          if (!userId) {
+              navigate("/login");
+              return;
+          }
 
-      // Prepare the request data
-      const updateData = {
-        userId: userId,
-        preferences: userData.preferences.join(", "), // Assuming preferences is an array
-        dislikes: userData.dislikes.join(", "), 
-        priceRange: userData.priceRange.toString(), 
-        maxDistance: Number(userData.maxDistance) 
-      };
-      const response = await axios.put(
-        `${API_BASE_URL}/api/users/updatePreferences`,
-        updateData
-      );
-
-      setMessage(response.data.Message || "User information updated successfully.");
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
-
-      // Fetch user data again to update the UI
-      const fetchUserData = async () => {
-        try {
-          const response = await axios.get(`${API_BASE_URL}/api/users/${userId}`);
-          const cleanData = (data) => {
-            return data.replace(/[^a-zA-Z0-9, ]/g, '').split(',').map(item => item.trim());
+          // Prepare the request data
+          const updateData = {
+              userId: userId,
+              preferences: userData.preferences.join(", "),
+              dislikes: userData.dislikes.join(", "),
+              priceRange: userData.priceRange.toString(),
+              maxDistance: Number(userData.maxDistance)
           };
-          
-          const preferences = cleanData(response.data.preferences);
-          const dislikes = cleanData(response.data.dislikes);
-          
-          setUserData((prevData) => ({
-            ...prevData,
-            preferences: preferences,
-            dislikes: dislikes,
-            priceRange: response.data.priceRange,
-            maxDistance: response.data.maxDistance,
-          }));
-        } catch (error) {
-          console.log("Error fetching form data:", error);
-        }
-      };
-      fetchUserData();
 
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.Message || "An error occurred.");
-      } else {
-        setMessage("An error occurred while updating preferences.");
+          // Update preferences
+          const response = await axios.put(
+              `${API_BASE_URL}/api/users/updatePreferences`,
+              updateData
+          );
+
+          setMessage(response.data.Message || "User information updated successfully.");
+
+          // Fetch the updated ranked CSV
+          await fetchData();
+
+          // Reset the message after some time
+          setTimeout(() => {
+              setMessage('');
+          }, 10000);
+      } catch (error) {
+          if (error.response) {
+              setMessage(error.response.data.Message || "An error occurred.");
+          } else {
+              setMessage("An error occurred while updating preferences.");
+          }
+          setTimeout(() => {
+              setMessage('');
+          }, 10000);
       }
-    }
+  };
 
-    // Optionally, reset the message after some time
-    setTimeout(() => {
-      setMessage('');
-    }, 10000);
+  // Define fetchData outside useEffect
+  const fetchData = async () => {
+      try {
+          console.log("Fetching ranked CSV...");
+          const fetchCSVResponse = await axios.get(
+              `${API_BASE_URL}/api/combined-events/get-ranked-csv?userId=${userId}`,
+              {
+                  onDownloadProgress: (progressEvent) => {
+                      const { loaded, total } = progressEvent;
+                      if (total) {
+                          const percentCompleted = Math.round((loaded / total) * 100);
+                          setProgress((prevProgress) => Math.max(prevProgress, percentCompleted));
+                      }
+                  }
+              }
+          );
+
+          const csvString = fetchCSVResponse.data.csv;
+          if (!csvString) {
+              throw new Error("No ranked CSV data returned.");
+          }
+
+          Papa.parse(csvString, {
+              header: true,
+              skipEmptyLines: true,
+              complete: (results) => {
+                  console.log("Parsed Events:", results.data.map(e => ({ id: e.contentId, type: e.type })));
+                  setEvents(results.data);
+                  setDataLoaded(true);
+                  setProgress(100);
+              },
+              error: (error) => {
+                  console.error("CSV Parsing Error:", error);
+                  setProgress(100);
+              }
+          });
+      } catch (error) {
+          console.error("Data Fetching Error:", error);
+          setMessage(error.response?.data?.message || "An error occurred while fetching the ranked CSV.");
+          setProgress(100);
+      }
   };
 
   useEffect(() => {
-    if (!userId) {
-      setMessage("No user ID found. Please log in first.");
-      navigate("/login");
-      return;
-    }
-
-    let timer = null;
-
-    const fetchData = async () => {
-      try {
-        // Fetch events
-        console.log("Fetching events...");
-        const fetchEventsResponse = await axios.get(
-          `${API_BASE_URL}/api/combined-events/fetch?userId=${userId}`,
-          {
-            onDownloadProgress: (progressEvent) => {
-              const { loaded, total } = progressEvent;
-              if (total) {
-                const percentCompleted = Math.round((loaded / total) * 33);
-                setProgress((prevProgress) => Math.max(prevProgress, percentCompleted));
-              }
-            }
-          }
-        );
-        console.log("Events fetched:", fetchEventsResponse.data);
-    
-        // Rank events
-        console.log("Calling Ranking API...");
-        const rankingResponse = await axios.post(
-          `${API_BASE_URL}/api/events/rank/${userId}`,
-          null,
-          {
-            headers: { 'Content-Type': 'application/json' },
-            onDownloadProgress: (progressEvent) => {
-              const { loaded, total } = progressEvent;
-              if (total) {
-                const percentCompleted = Math.round((loaded / total) * 33) + 33;
-                setProgress((prevProgress) => Math.max(prevProgress, percentCompleted));
-              }
-            }
-          }
-        );
-        if (!rankingResponse.data.success) {
-          console.error("Ranking failed:", rankingResponse.data.message);
-          setMessage("Ranking failed: " + (rankingResponse.data.message || "Unknown error"));
-          setProgress(100); // Hide loading
-          return; // Stop here
-        }
-        console.log("Ranking successful:", rankingResponse.data.message);
-    
-        // Fetch CSV
-        console.log("Fetching CSV data...");
-        const fetchCSVResponse = await axios.get(
-          `${API_BASE_URL}/api/combined-events/get-csv?userId=${userId}`,
-          {
-            responseType: 'blob',
-            onDownloadProgress: (progressEvent) => {
-              const { loaded, total } = progressEvent;
-              if (total) {
-                const percentCompleted = Math.round((loaded / total) * 34) + 66;
-                setProgress((prevProgress) => Math.max(prevProgress, percentCompleted));
-              }
-            }
-          }
-        );
-    
-        const reader = new FileReader();
-        reader.onload = () => {
-          const csvString = reader.result;
-          Papa.parse(csvString, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-              console.log("Parsed Events:", results.data.map(e => ({ id: e.contentId, type: e.type })));              setEvents(results.data);
-              setDataLoaded(true);
-            },
-            error: (error) => {
-              console.error("CSV Parsing Error:", error);
-              setProgress(100);
-            }
-          });
-        };
-        reader.onerror = () => {
-          console.error("FileReader Error:", reader.error);
-          setProgress(100);
-        };
-        reader.readAsText(fetchCSVResponse.data);
-      } catch (error) {
-        console.error("Data Fetching Error:", error);
-        setMessage(error.response?.data?.message || "An error occurred while fetching data.");
-        setProgress(100);
+      if (!userId) {
+          setMessage("No user ID found. Please log in first.");
+          navigate("/login");
+          return;
       }
-    };
 
-    fetchData();
+      let timer = null;
 
-    // === Setup Inactivity Logout ===
-    let timeout;
+      fetchData();
 
-    const resetTimeout = () => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        handleAutoLogout();
-      }, TIMEOUT_DURATION);
-    };
+      // === Setup Inactivity Logout ===
+      let timeout;
 
-    const handleAutoLogout = async () => {
-      try {
-        await axios.post(
-          `${API_BASE_URL}/api/combined-events/logout?userId=${userId}`
-        );
-        navigate("/login");
-      } catch (error) {
-        console.error("Error logging out due to inactivity:", error);
-      }
-    };
+      const resetTimeout = () => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => {
+              handleAutoLogout();
+          }, TIMEOUT_DURATION);
+      };
 
-    const handleActivity = () => {
+      const handleAutoLogout = async () => {
+          try {
+              await axios.post(
+                  `${API_BASE_URL}/api/combined-events/logout?userId=${userId}`
+              );
+              navigate("/login");
+          } catch (error) {
+              console.error("Error logging out due to inactivity:", error);
+          }
+      };
+
+      const handleActivity = () => {
+          resetTimeout();
+      };
+
+      // Add event listeners for user activity
+      window.addEventListener("mousemove", handleActivity);
+      window.addEventListener("keypress", handleActivity);
+      window.addEventListener("click", handleActivity);
+
       resetTimeout();
-    };
 
-    // Add event listeners for user activity
-    window.addEventListener("mousemove", handleActivity);
-    window.addEventListener("keypress", handleActivity);
-    window.addEventListener("click", handleActivity);
-
-    resetTimeout();
-
-    // Cleanup function
-    return () => {
-      if (timer) clearTimeout(timer);
-      clearTimeout(timeout);
-      window.removeEventListener("mousemove", handleActivity);
-      window.removeEventListener("keypress", handleActivity);
-      window.removeEventListener("click", handleActivity);
-    };
+      // Cleanup function
+      return () => {
+          if (timer) clearTimeout(timer);
+          clearTimeout(timeout);
+          window.removeEventListener("mousemove", handleActivity);
+          window.removeEventListener("keypress", handleActivity);
+          window.removeEventListener("click", handleActivity);
+      };
   }, [userId, navigate]);
 
   // New useEffect to watch both dataLoaded and timerDone

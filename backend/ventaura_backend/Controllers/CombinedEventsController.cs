@@ -182,45 +182,32 @@ namespace ventaura_backend.Controllers
                 return StatusCode(500, new { Message = "An error occurred while fetching UserSessionData.", Details = ex.Message });
             }
         }
-        // Endpoint for the frontend to access th csv file 
-        [HttpGet("get-csv")]
-        public async Task<IActionResult> GetCsv([FromQuery] int userId)
+
+
+        // Endpoint that fetches the ranked csv from the database   
+        [HttpGet("get-ranked-csv")]
+        public async Task<IActionResult> GetRankedCsv([FromQuery] int userId)
         {
             try
             {
-                var user = await _dbContext.Users.FindAsync(userId);
-                if (user == null || user.Latitude == null) return BadRequest("User not found or location missing.");
+                // Fetch the ranked CSV from UserSessionData
+                var userSessionData = await _dbContext.UserSessionData
+                    .FirstOrDefaultAsync(u => u.UserId == userId && u.IsRanked == true);
 
-                var apiEvents = await _combinedApiService.FetchEventsAsync(user.Latitude.Value, user.Longitude.Value, userId);
-                var hostEvents = await _dbContext.HostEvents.ToListAsync();
-                var combinedEvents = await ProcessEvents(apiEvents, hostEvents, user);
-
-                if (!combinedEvents.Any())
+                if (userSessionData == null || string.IsNullOrEmpty(userSessionData.RankedCSV))
                 {
-                    Console.WriteLine("No events to process.");
-                    return NotFound("No events available for this user.");
+                    return NotFound(new { Message = "No ranked events found for the user." });
                 }
 
-                var memoryStream = new MemoryStream();
-                using (var writer = new StreamWriter(memoryStream, new UTF8Encoding(false), leaveOpen: true))
-                {
-                    await writer.WriteAsync("contentId,title,description,location,start,source,type,currencyCode,amount,url,distance\n");
-                    int contentIdCounter = 1;
-                    foreach (var e in combinedEvents)
-                    {
-                        await writer.WriteLineAsync(
-                            $"{contentIdCounter},{CleanField(e.Title)},{CleanField(e.Description)},{CleanField(e.Location)},{CleanField(e.Start?.ToString("yyyy-MM-dd HH:mm:ss") ?? "")},{CleanField(e.Source)},{CleanField(e.Type)},{CleanField(e.CurrencyCode)},{CleanField(e.Amount?.ToString())},{CleanField(e.URL)},{e.Distance}"
-                        );
-                        contentIdCounter++;
-                    }
-                }
-                memoryStream.Position = 0;
-                return File(memoryStream, "text/csv", $"{userId}.csv");
+                Console.WriteLine($"Fetched ranked CSV for user {userId}.");
+
+                // Return the CSV content as a string in the response body
+                return Ok(new { csv = userSessionData.RankedCSV });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in GetCsv for user {userId}: {ex.Message}");
-                return StatusCode(500, "Error generating CSV.");
+                Console.WriteLine($"Error fetching ranked CSV for user {userId}: {ex.Message}");
+                return StatusCode(500, new { Message = "An error occurred while fetching the ranked CSV." });
             }
         }
 
