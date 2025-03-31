@@ -5,8 +5,7 @@ from models import UserPreferences
 from fastapi import HTTPException
 import os
 
-C_SHARP_BACKEND_URL = os.getenv("BACKEND_URL", "https://ventaura-backend-rayfould.fly.dev")
-
+C_SHARP_BACKEND_URL = os.getenv("C_SHARP_BACKEND_URL", "https://ventaura-backend-rayfould.fly.dev")
 async def fetch_user_preferences(user_id: int) -> UserPreferences:
     url = f"{C_SHARP_BACKEND_URL}/api/users/{user_id}"
     async with httpx.AsyncClient() as client:

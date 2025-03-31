@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Union, Optional, Tuple
 import uvicorn
 import requests
+import tempfile
 from dotenv import load_dotenv
 from services import fetch_user_preferences  # Assuming this exists in services.py
 from RBS import EventRanking  # Assuming this exists in RBS.py
@@ -150,20 +151,22 @@ async def rank_events(user_id: int) -> dict:
         }
         print(f"Formatted user preferences: {formatted_user}")
 
-        # Fetch CSV from ventaura-backend
-        backend_url = os.getenv("BACKEND_URL", "https://ventaura-backend-rayfould.fly.dev")
-        csv_url = f"{backend_url}/api/combined-events/get-csv?userId={user_id}"
-        response = requests.get(csv_url)
-        if response.status_code != 200:
+        # Fetch unranked CSV from Supabase
+        response = supabase.table("UserSessionData").select("*").eq("userid", user_id).eq("IsRanked", False).execute()
+        if not response.data or len(response.data) == 0:
             raise HTTPException(
                 status_code=404,
-                detail=f"No events file found for user {user_id} at {csv_url}"
+                detail=f"No unranked events found for user {user_id} in UserSessionData"
             )
 
+        # Get the unranked CSV and row ID
+        unranked_csv = response.data[0]["rankedcsv"]
+        row_id = response.data[0]["id"]
+
         # Write CSV to temporary file (Fly.io's writable dir)
-        temp_csv_path = f"/tmp/{user_id}.csv"
-        with open(temp_csv_path, "w") as f:
-            f.write(response.text)
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv") as temp_file:
+            temp_csv_path = temp_file.name
+            temp_file.write(unranked_csv)
 
         # Load and rank events
         ranker = EventRanking(debug_mode=True)
@@ -174,9 +177,20 @@ async def rank_events(user_id: int) -> dict:
         result = ranker.rank_events(formatted_user)
         ranked_df = result[0]
 
-        # Save ranked events to temp file
-        output_path = "/tmp"
-        ranker.save_ranked_events(user_id, ranked_df, output_path)
+       # Save ranked events to temp file
+        output_path = tempfile.gettempdir()
+        ranked_csv_path = f"{output_path}/ranked_events_user_{user_id}.csv"
+        ranker.save_ranked_events(user_id, ranked_df, output_path, filename=f"ranked_events_user_{user_id}.csv")
+
+        # Read the ranked CSV back into a string
+        with open(ranked_csv_path, "r") as f:
+            ranked_csv = f.read()
+
+        # Update the row in Supabase with the ranked CSV and set IsRanked = true
+        supabase.table("UserSessionData").update({
+            "rankedcsv": ranked_csv,
+            "IsRanked": True
+        }).eq("id", row_id).execute()
 
         return {
             "success": True,

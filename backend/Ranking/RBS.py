@@ -246,7 +246,7 @@ class EventRanking:
         ranked_df = ranked_df.drop(['Raw Score', 'Final Score'], axis=1)
         return ranked_df, event_scores_detailed
 
-    def save_ranked_events(self, user_id, ranked_df, save_dir=None):
+    def save_ranked_events(self, user_id, ranked_df, save_dir=None, filename=None):
         current_dir = os.path.dirname(os.path.abspath(__file__))
         if save_dir is None:
             output_dir = os.path.join(current_dir, "API", "content")
@@ -258,7 +258,9 @@ class EventRanking:
             os.makedirs(output_dir)
         else:
             print(f"Directory {output_dir} exists.")
-        csv_path = os.path.join(output_dir, f"{user_id}.csv")
+        if filename is None:
+            filename = f"{user_id}.csv"
+        csv_path = os.path.join(output_dir, filename)
         print(f"Saving ranked events to file: {csv_path}")
         ranked_df.to_csv(csv_path, index=False)
 
