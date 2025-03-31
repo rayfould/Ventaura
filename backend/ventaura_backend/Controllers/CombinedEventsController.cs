@@ -42,51 +42,7 @@ namespace ventaura_backend.Controllers
         {
             try
             {
-
-                // **1. Type Mapping Implementation**
-                var typeMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    { "festivals-fairs", "Festivals" },
-                    { "sports-active-life", "Outdoors" },
-                    { "visual-arts", "Exhibitions" },
-                    { "charities", "Community" },
-                    { "performing-arts", "Theater" },
-                    { "kids-family", "Family" },
-                    { "film", "Film" },
-                    { "food-and-drink", "Food and Drink" },
-                    { "music", "Music" },
-                    { "Holiday", "Holiday" },
-                    { "Networking", "Networking" },
-                    { "Gaming", "Gaming" },
-                    { "Pets", "Pets" },
-                    { "Virtual", "Virtual" },
-                    { "Science", "Science" },
-                    { "Basketball", "Basketball" },
-                    { "Pottery", "Pottery" },
-                    { "Tennis", "Tennis" },
-                    { "Soccer", "Soccer" },
-                    { "Football", "Football" },
-                    { "Fishing", "Fishing" },
-                    { "Hiking", "Hiking" },
-                    { "Wellness", "Wellness" },
-                    { "nightlife", "Nightlife" },
-                    { "Workshops", "Workshops" },
-                    { "Conferences", "Conferences" },
-                    { "Hockey", "Hockey"},
-                    { "Baseball", "Baseball"},
-                    { "lectures-books", "Lectures"},
-                    { "fashion", "Fashion"},
-                    { "Motorsports/Racing", "Motorsports"},
-                    { "Dance", "Dance"},
-                    { "Comedy", "Comedy"},
-                    { "Pop", "Music"},
-                    { "Country", "Music"},
-                    { "Hip-Hop/Rap", "Music"},
-                    { "Rock", "Music"},
-                    { "other", "Other" }
-                };
-
-                // **2. Get User**
+                // **1. Get User**
                 var user = await _dbContext.Users.FindAsync(userId);
                 if (user == null || user.Latitude == null || user.Longitude == null)
                 {
@@ -96,112 +52,8 @@ namespace ventaura_backend.Controllers
 
                 Console.WriteLine($"Location successfully extracted for userId: {userId}.");
 
-                 // **3. Fetch API Events**
-                Console.WriteLine($"Fetching events from API for userId {userId}...");
-                var apiEvents = await _combinedApiService.FetchEventsAsync(user.Latitude.Value, user.Longitude.Value, userId);
-
-                Console.WriteLine($"Total API Events Fetched: {apiEvents.Count}");
-                var yelpEventsCount = apiEvents.Count(e => e.Source.Equals("Yelp", StringComparison.OrdinalIgnoreCase));
-                Console.WriteLine($"Total Yelp Events Fetched: {yelpEventsCount}");
-
-                // **4. Fetch Host Events**
-                Console.WriteLine($"Fetching host events for userId {userId}...");
-                var hostEvents = await _dbContext.HostEvents.ToListAsync();
-
-                // **5. Process API Events**
-                var apiEventObjects = new List<CombinedEvent>(); // Declare the list before the loop
-
-                foreach (var e in apiEvents)
-                {
-                    string location = e.Location ?? "Unknown Location";
-                    double latitude = 0, longitude = 0;
-
-                    // Check if the location is in the format of "latitude,longitude"
-                    if (TryParseLocation(location, out latitude, out longitude))
-                    {
-                        // Call the geocoding service to get the address from the coordinates
-                        location = await _googleGeocodingService.GetAddressFromCoordinates(latitude, longitude);
-                    }
-                    else
-                    {
-                        // If location is not coordinates, geocode it to get latitude, longitude
-                        var coordinates = await _googleGeocodingService.GetCoordinatesAsync(location);
-                        if (coordinates.HasValue)
-                        {
-                            latitude = coordinates.Value.latitude;
-                            longitude = coordinates.Value.longitude;
-                        }
-                    }
-
-                    // ✅ Calculate the distance using user's location and the event location
-                    var distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, latitude, longitude);
-
-                    var combinedEvent = new CombinedEvent
-                    {
-                        Title = e.Title ?? "Unknown Title",
-                        Description = e.Description ?? "No description",
-                        Location = location, // Use the formatted address
-                        Start = e.Start,
-                        Source = e.Source ?? "API",
-                        Type = typeMapping.ContainsKey(e.Type.ToLower()) ? typeMapping[e.Type.ToLower()] : e.Type,
-                        CurrencyCode = e.CurrencyCode ?? "N/A",
-                        Amount = (decimal?)e.Amount ?? 0,
-                        URL = e.URL ?? "N/A",
-                        Distance = distance
-                    };
-
-                    apiEventObjects.Add(combinedEvent);
-                }
-
-                // **6. Process Host Events**
-                var processedHostEvents = new List<CombinedEvent>();
-
-                foreach (var he in hostEvents)
-                {
-                    double latitude, longitude;
-
-                    // Try parsing the location as coordinates
-                    if (!TryParseLocation(he.Location, out latitude, out longitude))
-                    {
-                        // If parsing fails, geocode the location to get latitude and longitude
-                        var coordinates = await _googleGeocodingService.GetCoordinatesAsync(he.Location);
-                        if (coordinates.HasValue)
-                        {
-                            latitude = coordinates.Value.latitude;
-                            longitude = coordinates.Value.longitude;
-                        }
-                        else
-                        {
-                            // Use user's location if geocoding fails
-                            latitude = user.Latitude.Value;
-                            longitude = user.Longitude.Value;
-                        }
-                    }
-
-                    // Calculate distance
-                    var distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, latitude, longitude);
-
-                    processedHostEvents.Add(new CombinedEvent
-                    {
-                        Title = he.Title ?? "Unknown Title",
-                        Description = he.Description ?? "No description",
-                        Location = he.Location ?? "Unknown Location",
-                        Start = he.Start,
-                        Source = "Host",
-                        Type = typeMapping.ContainsKey(he.Type.ToLower()) ? typeMapping[he.Type.ToLower()] : he.Type,
-                        CurrencyCode = he.CurrencyCode ?? "N/A",
-                        Amount = he.Amount ?? 0,
-                        URL = he.URL ?? "N/A",
-                        Distance = distance // Assign calculated distance
-                    });
-                }
-
-                // **7. Combine Events**
-                var combinedEvents = apiEventObjects.Concat(processedHostEvents).ToList();
-
-                Console.WriteLine($"Total Combined Events: {combinedEvents.Count}");
-                var yelpCombinedCount = combinedEvents.Count(e => e.Source.Equals("Yelp", StringComparison.OrdinalIgnoreCase));
-                Console.WriteLine($"Total Yelp Events in Combined: {yelpCombinedCount}");
+                // **2. Fetch and Process Events**
+                var combinedEvents = await _combinedApiService.FetchAndProcessEventsAsync(user.Latitude.Value, user.Longitude.Value, userId);
 
                 if (!combinedEvents.Any())
                 {
@@ -209,16 +61,7 @@ namespace ventaura_backend.Controllers
                     return Ok(new { Message = "No events available to process.", TotalEvents = 0 });
                 }
 
-                foreach (var e in combinedEvents)
-                {
-                    double latitude, longitude;
-                    if (TryParseLocation(e.Location, out latitude, out longitude))
-                    {
-                        e.Distance = DistanceCalculator.CalculateDistance(user.Latitude.Value, user.Longitude.Value, latitude, longitude);
-                    }
-                }
-
-                // **8. Write CSV File**
+                // **3. Write CSV File**
                 var csvFilePath = Path.Combine("CsvFiles", $"{userId}.csv");
                 Directory.CreateDirectory(Path.GetDirectoryName(csvFilePath));
 

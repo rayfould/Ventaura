@@ -54,8 +54,16 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 // - TicketmasterService and AmadeusService handle external event data retrieval.
 // - CombinedAPIService merges various event sources into a unified view.
 builder.Services.AddScoped<TicketmasterService>();
-builder.Services.AddScoped<CombinedAPIService>();
+builder.Services.AddScoped<YelpFusionService>();
 builder.Services.AddScoped<AmadeusService>();
+builder.Services.AddScoped<CombinedAPIService>(sp => 
+    new CombinedAPIService(
+        sp.GetRequiredService<TicketmasterService>(),
+        sp.GetRequiredService<YelpFusionService>(),
+        sp.GetRequiredService<DatabaseContext>(),
+        sp.GetRequiredService<GoogleGeocodingService>()
+    )
+);
 
 // Add a general CORS policy allowing any origin, method, and header.
 // This broad policy is useful for development and may be restricted in production.
