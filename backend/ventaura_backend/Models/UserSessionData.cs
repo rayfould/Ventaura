@@ -6,6 +6,7 @@ namespace ventaura_backend.Models
         public int UserId { get; set; }
         public string RankedCSV { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool IsRanked {get; set; }
 
         // Foreign key relationship
         public User User { get; set; }

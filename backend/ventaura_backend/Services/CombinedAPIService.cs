@@ -108,12 +108,20 @@ public class CombinedAPIService
             string location = e.Location ?? "Unknown Location";
             double eventLatitude = 0, eventLongitude = 0;
 
-            if (TryParseLocation(location, out eventLatitude, out eventLongitude))
+            // Use Latitude and Longitude from UserContent if available (e.g., for Ticketmaster events)
+            if (e.Latitude.HasValue && e.Longitude.HasValue)
             {
+                eventLatitude = e.Latitude.Value;
+                eventLongitude = e.Longitude.Value;
+            }
+            else if (TryParseLocation(location, out eventLatitude, out eventLongitude))
+            {
+                // If the location is in "latitude,longitude" format, geocode to get a readable address
                 location = await _googleGeocodingService.GetAddressFromCoordinates(eventLatitude, eventLongitude);
             }
             else
             {
+                // If no coordinates are available, geocode the address to get coordinates for distance
                 var coordinates = await _googleGeocodingService.GetCoordinatesAsync(location);
                 if (coordinates.HasValue)
                 {

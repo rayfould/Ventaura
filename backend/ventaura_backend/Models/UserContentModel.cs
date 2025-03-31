@@ -10,6 +10,8 @@ namespace ventaura_backend.Models
         public string Title { get; set; } // Maps to "title" column
         public string Description { get; set; } // Maps to "description" column (nullable)
         public string Location { get; set; } // Maps to "location" column (nullable)
+        public double? Latitude { get; set; } // Maps to "Latitude" column (nullable)
+        public double? Longitude { get; set; } // Maps to "Longitude" column (nullable)
         public DateTime? Start { get; set; } // Maps to "start" column (nullable)
         public string Source { get; set; } // Maps to "source" column (nullable)
         public string Type { get; set; } // Maps to "type" column (nullable)

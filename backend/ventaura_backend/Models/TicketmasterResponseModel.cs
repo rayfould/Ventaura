@@ -64,7 +64,19 @@ namespace ventaura_backend.Models
     {
         public string Name { get; set; } // Name of the venue.
         public Location Location { get; set; } // Geographic location of the venue.
+        public Address Address { get; set; }
     }
+
+    // Represents the address of a venue.
+    public class Address
+    {
+        public string Line1 { get; set; } // Street address (e.g., "4 Jersey St").
+        public string City { get; set; } // City (e.g., "Boston").
+        public string State { get; set; } // State (e.g., "MA").
+        public string PostalCode { get; set; } // Postal code (e.g., "02215").
+        public string Country { get; set; } // Country (e.g., "US").
+    }
+
 
     // Represents the geographic location of a venue.
     public class Location

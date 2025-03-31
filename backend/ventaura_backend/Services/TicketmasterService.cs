@@ -69,9 +69,26 @@ namespace ventaura_backend.Services
                         UserId = userId,
                         Title = eventItem.Name,
                         Description = eventItem.Type ?? "No description available",
-                        Location = eventItem._embedded?.Venues?.FirstOrDefault()?.Location != null
-                            ? $"{eventItem._embedded.Venues.First().Location.Latitude}, {eventItem._embedded.Venues.First().Location.Longitude}"
-                            : "Location not available",
+                        Location = eventItem._embedded?.Venues?.FirstOrDefault()?.Address != null
+                            ? string.Join(", ", new[] 
+                            { 
+                                eventItem._embedded.Venues.First().Address.Line1, 
+                                eventItem._embedded.Venues.First().Address.City, 
+                                eventItem._embedded.Venues.First().Address.State, 
+                                eventItem._embedded.Venues.First().Address.PostalCode, 
+                                eventItem._embedded.Venues.First().Address.Country 
+                            }.Where(s => !string.IsNullOrEmpty(s)))
+                            : (eventItem._embedded?.Venues?.FirstOrDefault()?.Location != null
+                                ? $"{eventItem._embedded.Venues.First().Location.Latitude}, {eventItem._embedded.Venues.First().Location.Longitude}"
+                                : "Location not available"),
+                        Latitude = eventItem._embedded?.Venues?.FirstOrDefault()?.Location != null
+                            && double.TryParse(eventItem._embedded.Venues.First().Location.Latitude, out var lat)
+                            ? lat
+                            : (double?)null,
+                        Longitude = eventItem._embedded?.Venues?.FirstOrDefault()?.Location != null
+                            && double.TryParse(eventItem._embedded.Venues.First().Location.Longitude, out var lon)
+                            ? lon
+                            : (double?)null,
                         Start = startDate,
                         Source = "Ticketmaster",
                         Type = eventItem.Classifications?.FirstOrDefault()?.Genre?.Name,
