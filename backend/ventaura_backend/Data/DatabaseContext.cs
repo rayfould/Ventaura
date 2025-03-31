@@ -66,9 +66,9 @@ namespace ventaura_backend.Data
                 .HasColumnName("rankedcsv");
 
             modelBuilder.Entity<UserSessionData>()
-                .Property(usd => usd.CreatedAt)
-                .HasColumnName("createdat")
-                .HasDefaultValueSql("NOW()"); // Default value for CreatedAt
+                .Property(usd => usd.UpdatedAt)
+                .HasColumnName("updatedat")
+                .HasDefaultValueSql("NOW()"); // Default value for UpdatedAt
 
             modelBuilder.Entity<UserSessionData>()
                 .Property(usd => usd.IsRanked)

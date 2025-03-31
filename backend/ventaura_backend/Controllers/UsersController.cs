@@ -283,15 +283,16 @@ namespace ventaura_backend.Controllers
 
                 Console.WriteLine("User preferences updated successfully.");
 
-                // Set IsRanked to false in UserSessionData to allow re-ranking
+                // Set IsRanked to false and update UpdatedAt in UserSessionData
                 var userSessionData = await _dbContext.UserSessionData
                     .FirstOrDefaultAsync(u => u.UserId == user.UserId);
                 if (userSessionData != null)
                 {
                     userSessionData.IsRanked = false;
+                    userSessionData.UpdatedAt = DateTime.UtcNow; // Set to UTC time
                     _dbContext.UserSessionData.Update(userSessionData);
                     await _dbContext.SaveChangesAsync();
-                    Console.WriteLine($"Set IsRanked to false for user {user.UserId} in UserSessionData.");
+                    Console.WriteLine($"Set IsRanked to false and updated UpdatedAt for user {user.UserId} in UserSessionData.");
                 }
                 else
                 {

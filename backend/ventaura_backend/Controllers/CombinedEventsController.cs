@@ -172,7 +172,7 @@ namespace ventaura_backend.Controllers
                         userSessionData.Id,
                         userSessionData.UserId,
                         userSessionData.RankedCSV,
-                        userSessionData.CreatedAt
+                        userSessionData.UpdatedAt
                     }
                 });
             }
