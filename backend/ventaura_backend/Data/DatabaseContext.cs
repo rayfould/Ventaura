@@ -18,6 +18,7 @@ namespace ventaura_backend.Data
         public DbSet<User> Users { get; set; }
         public DbSet<UserContent> UserContent { get; set; }
         public DbSet<HostEvent> HostEvents { get; set; }
+        public DbSet<UserSessionData> UserSessionData {get; set; }
 
         // Configures the model and schema for the database during creation.
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,6 +46,35 @@ namespace ventaura_backend.Data
             modelBuilder.Entity<UserContent>()
                 .Property(uc => uc.CreatedAt)
                 .HasDefaultValueSql("NOW()"); // Default value for CreatedAt.
+            
+            
+            // Configure the UserSessionData table
+            modelBuilder.Entity<UserSessionData>()
+                .HasKey(usd => usd.Id); // Primary key
+
+            // Map PascalCase properties to lowercase column names
+            modelBuilder.Entity<UserSessionData>()
+                .Property(usd => usd.Id)
+                .HasColumnName("id");
+
+            modelBuilder.Entity<UserSessionData>()
+                .Property(usd => usd.UserId)
+                .HasColumnName("userid");
+
+            modelBuilder.Entity<UserSessionData>()
+                .Property(usd => usd.RankedCSV)
+                .HasColumnName("rankedcsv");
+
+            modelBuilder.Entity<UserSessionData>()
+                .Property(usd => usd.CreatedAt)
+                .HasColumnName("createdat")
+                .HasDefaultValueSql("NOW()"); // Default value for CreatedAt
+
+            modelBuilder.Entity<UserSessionData>()
+                .HasOne(usd => usd.User)
+                .WithMany()
+                .HasForeignKey(usd => usd.UserId); // Foreign key to Users table
+
             
             base.OnModelCreating(modelBuilder); // Call the base implementation
             

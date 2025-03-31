@@ -285,6 +285,39 @@ namespace ventaura_backend.Controllers
             return double.TryParse(parts[0].Trim(), out latitude) && double.TryParse(parts[1].Trim(), out longitude);
         }
 
+        // New endpoint to test fetching from UserSessionData
+        [HttpGet("test-user-session-data")]
+        public async Task<IActionResult> TestUserSessionData([FromQuery] int userId)
+        {
+            try
+            {
+                var userSessionData = await _dbContext.UserSessionData
+                    .Where(usd => usd.UserId == userId)
+                    .FirstOrDefaultAsync();
+
+                if (userSessionData == null)
+                {
+                    return NotFound(new { Message = $"No UserSessionData found for user {userId}." });
+                }
+
+                return Ok(new
+                {
+                    Message = "UserSessionData found.",
+                    Data = new
+                    {
+                        userSessionData.Id,
+                        userSessionData.UserId,
+                        userSessionData.RankedCSV,
+                        userSessionData.CreatedAt
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in TestUserSessionData: {ex.Message}");
+                return StatusCode(500, new { Message = "An error occurred while fetching UserSessionData.", Details = ex.Message });
+            }
+        }
         // Endpoint for the frontend to access th csv file 
         [HttpGet("get-csv")]
         public async Task<IActionResult> GetCsv([FromQuery] int userId)
