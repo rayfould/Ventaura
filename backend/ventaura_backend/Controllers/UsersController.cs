@@ -172,14 +172,16 @@ namespace ventaura_backend.Controllers
 
                 Console.WriteLine($"User {user.Email} logged in successfully and location updated.");
 
+                // Fetch events for the user
                 if (user.Latitude.HasValue && user.Longitude.HasValue)
                 {
-
                     // Use environment variables for base URLs, with defaults for dev
                     var cSharpBackendUrl = Environment.GetEnvironmentVariable("C_SHARP_BACKEND_URL") ?? "http://localhost:80";
                     var rankingBackendUrl = Environment.GetEnvironmentVariable("RANKING_BACKEND_URL") ?? "http://localhost:8000";
-                    
-                    // Call the FetchCombinedEvents endpoint to fetch events and save the unranked CSV
+
+                    // Debug log to print the URLs being used
+                    Console.WriteLine($"DEBUG: cSharpBackendUrl={cSharpBackendUrl}, rankingBackendUrl={rankingBackendUrl}");
+
                     Console.WriteLine($"Fetching events for user {user.UserId}...");
                     var fetchEventsUrl = $"{cSharpBackendUrl}/api/combined-events/fetch?userId={user.UserId}";
                     var fetchEventsResponse = await _httpClient.GetAsync(fetchEventsUrl);
@@ -190,7 +192,7 @@ namespace ventaura_backend.Controllers
 
                         // Call the Python backend to rank the events
                         Console.WriteLine($"Triggering ranking for user {user.UserId}...");
-                        var rankingUrl = $"http://localhost:8000/rank-events/{user.UserId}";
+                        var rankingUrl = $"{rankingBackendUrl}/rank-events/{user.UserId}"; // Fixed: Use rankingBackendUrl
                         var rankingResponse = await _httpClient.PostAsync(rankingUrl, new StringContent(""));
 
                         if (rankingResponse.IsSuccessStatusCode)
