@@ -48,22 +48,23 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // Clear any previous messages
-  
-    // Store the timer ID so we can cancel if needed
-    const timerId = setTimeout(() => {
-      setIsLoading(true); // Trigger the loading overlay after 400ms
-    }, 400);
-  
+    setMessage("");
+    setIsLoading(true); // Start overlay
+    const startTime = Date.now(); // Track start time
+
     try {
       const response = await axios.post(`${API_BASE_URL}/api/users/login`, formData);
-  
-      // On success, cancel the timer to prevent a delayed overlay from appearing
-      clearTimeout(timerId);
-  
       localStorage.setItem("userId", response.data.userId);
       setMessage("Login successful! Redirecting...");
+
+      const elapsedTime = Date.now() - startTime;
+      const minDuration = 2510; // 0.5s slide-down + 2s bar = 2.51s
+      if (elapsedTime < minDuration) {
+        await new Promise(resolve => setTimeout(resolve, minDuration - elapsedTime));
+      }
+      
       navigate("/for-you", { state: { userId: response.data.userId } });
+      // setIsLoading(false) handled by ForYou.js
     } catch (error) {
       // Cancel the timer so the overlay never starts
       clearTimeout(timerId);
