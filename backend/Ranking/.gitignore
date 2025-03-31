@@ -1,4 +1,4 @@
-
+.env
 venv/Lib/site-packages/torch/lib/dnnl.lib
 venv/Lib/site-packages/torch/lib/torch_cpu.dll
 app.log

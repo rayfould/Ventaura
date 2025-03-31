@@ -10,6 +10,7 @@ import requests
 from dotenv import load_dotenv
 from services import fetch_user_preferences  # Assuming this exists in services.py
 from RBS import EventRanking  # Assuming this exists in RBS.py
+from supabase import create_client, Client
 
 app = FastAPI(debug=True)
 
@@ -35,6 +36,13 @@ app.add_middleware(
 
 # Load environment variables
 load_dotenv()
+
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+
 
 # Middleware to catch and log exceptions
 @app.middleware("http")
