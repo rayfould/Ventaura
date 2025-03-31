@@ -325,6 +325,20 @@ namespace ventaura_backend.Controllers
                     return BadRequest(new { Message = "User not found or not logged in." });
                 }
 
+                // Delete the user's row from UserSessionData
+                var userSessionData = await _dbContext.UserSessionData
+                    .FirstOrDefaultAsync(usd => usd.UserId == userId);
+                if (userSessionData != null)
+                {
+                    _dbContext.UserSessionData.Remove(userSessionData);
+                    await _dbContext.SaveChangesAsync();
+                    Console.WriteLine($"Deleted UserSessionData for user {userId}.");
+                }
+                else
+                {
+                    Console.WriteLine($"No UserSessionData found for user {userId}.");
+                }
+
                 // File path for the user's CSV file.
                 var csvFilePath = Path.Combine("CsvFiles", $"{userId}.csv");
 
@@ -352,7 +366,7 @@ namespace ventaura_backend.Controllers
                 await _dbContext.SaveChangesAsync();
                 Console.WriteLine($"User {user.Email} logged out successfully.");
 
-                return Ok(new { Message = "User logged out successfully and CSV file deleted." });
+                return Ok(new { Message = "User logged out successfully and session data cleared." });
             }
             catch (Exception ex)
             {
