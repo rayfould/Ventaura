@@ -61,16 +61,9 @@ namespace ventaura_backend.Controllers
                     return Ok(new { Message = "No events available to process.", TotalEvents = 0 });
                 }
 
-                // **3. Write CSV File**
-                var csvFilePath = Path.Combine("CsvFiles", $"{userId}.csv");
-                Directory.CreateDirectory(Path.GetDirectoryName(csvFilePath));
-
-                foreach (var e in combinedEvents.Where(ev => ev.Source.Equals("Yelp", StringComparison.OrdinalIgnoreCase)))
-                {
-                    Console.WriteLine($"Yelp Event - Title: {e.Title}, Description: {e.Description}, Location: {e.Location}, Start: {e.Start}, URL: {e.URL}");
-                }
-
-                using (var writer = new StreamWriter(csvFilePath, false, Encoding.UTF8))
+                // **3. Write CSV to Memory Stream**
+                var memoryStream = new MemoryStream();
+                using (var writer = new StreamWriter(memoryStream, new UTF8Encoding(false), leaveOpen: true))
                 {
                     await writer.WriteAsync("contentId,title,description,location,start,source,type,currencyCode,amount,url,distance\n");
 
@@ -98,7 +91,35 @@ namespace ventaura_backend.Controllers
                     Console.WriteLine($"Total Events Written to CSV: {eventsWritten}");
                 }
 
-                return Ok(new { Message = "Events processed successfully and CSV created.", CsvPath = csvFilePath });
+                // **4. Save Unranked CSV to Supabase**
+                memoryStream.Position = 0;
+                using (var reader = new StreamReader(memoryStream))
+                {
+                    var csvContent = await reader.ReadToEndAsync();
+
+                    // Delete any existing row for this user to avoid duplicates
+                    var existingData = await _dbContext.UserSessionData
+                        .Where(usd => usd.UserId == userId)
+                        .FirstOrDefaultAsync();
+                    if (existingData != null)
+                    {
+                        _dbContext.UserSessionData.Remove(existingData);
+                    }
+
+                    // Insert the new unranked CSV
+                    var userSessionData = new UserSessionData
+                    {
+                        UserId = userId,
+                        RankedCSV = csvContent,
+                        IsRanked = false
+                    };
+                    await _dbContext.UserSessionData.AddAsync(userSessionData);
+                    await _dbContext.SaveChangesAsync();
+
+                    Console.WriteLine($"Saved unranked CSV to UserSessionData for user {userId}.");
+                }
+
+                return Ok(new { Message = "Events processed successfully and saved to database." });
             }
             catch (Exception ex)
             {

@@ -71,6 +71,10 @@ namespace ventaura_backend.Data
                 .HasDefaultValueSql("NOW()"); // Default value for CreatedAt
 
             modelBuilder.Entity<UserSessionData>()
+                .Property(usd => usd.IsRanked)
+                .HasColumnName("IsRanked");
+
+            modelBuilder.Entity<UserSessionData>()
                 .HasOne(usd => usd.User)
                 .WithMany()
                 .HasForeignKey(usd => usd.UserId); // Foreign key to Users table
