@@ -15,6 +15,8 @@ using ventaura_backend.Models;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
 using Npgsql;
+using ventaura_backend.Services;
+using System.Net.Http;
 
 namespace ventaura_backend.Controllers
 {
@@ -25,11 +27,13 @@ namespace ventaura_backend.Controllers
     {
         // Database context for accessing and manipulating user records.
         private readonly DatabaseContext _dbContext;
+        private readonly HttpClient _httpClient; 
 
         // Constructor injecting the database context dependency for data operations.
-        public UsersController(DatabaseContext dbContext)
+        public UsersController(DatabaseContext dbContext, HttpClient httpClient)        
         {
             _dbContext = dbContext;
+            _httpClient = httpClient; 
         }
 
         // POST endpoint: Creates a new user account with given details.
@@ -140,10 +144,8 @@ namespace ventaura_backend.Controllers
             {
                 Console.WriteLine($"Login attempt for email: {loginRequest.Email}");
 
-                // Retrieve the user by email to verify credentials.
                 var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
 
-                // Check if user exists and verify password using bcrypt.
                 if (user == null || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.PasswordHash))
                 {
                     Console.WriteLine($"Invalid login attempt for email {loginRequest.Email}.");
@@ -152,12 +154,10 @@ namespace ventaura_backend.Controllers
 
                 if (user == null)
                 {
-                    // This check is theoretically redundant, but left in case of unexpected null states.
                     Console.WriteLine($"User unexpectedly null during re-fetch: {loginRequest.Email}");
                     return StatusCode(500, "An error occurred during login.");
                 }
 
-                // If location is provided in the login request, update it for the user.
                 if (loginRequest.Latitude.HasValue && loginRequest.Longitude.HasValue)
                 {
                     Console.WriteLine($"Updating location for user {user.Email}: ({loginRequest.Latitude}, {loginRequest.Longitude})");
@@ -165,25 +165,57 @@ namespace ventaura_backend.Controllers
                     user.Longitude = loginRequest.Longitude.Value;
                 }
 
-                // Mark the user as logged in.
                 user.IsLoggedIn = true;
 
-                // Save changes to the database.
                 await _dbContext.SaveChangesAsync();
 
                 Console.WriteLine($"User {user.Email} logged in successfully and location updated.");
 
-                // Return success response with the user's ID. 
+                if (user.Latitude.HasValue && user.Longitude.HasValue)
+                {
+                    // Call the FetchCombinedEvents endpoint to fetch events and save the unranked CSV
+                    Console.WriteLine($"Fetching events for user {user.UserId}...");
+                    var fetchEventsUrl = $"http://localhost:80/api/combined-events/fetch?userId={user.UserId}";
+                    var fetchEventsResponse = await _httpClient.GetAsync(fetchEventsUrl);
+
+                    if (fetchEventsResponse.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Successfully fetched events for user {user.UserId}.");
+
+                        // Call the Python backend to rank the events
+                        Console.WriteLine($"Triggering ranking for user {user.UserId}...");
+                        var rankingUrl = $"http://localhost:8000/rank-events/{user.UserId}";
+                        var rankingResponse = await _httpClient.PostAsync(rankingUrl, new StringContent(""));
+
+                        if (rankingResponse.IsSuccessStatusCode)
+                        {
+                            Console.WriteLine($"Successfully triggered ranking for user {user.UserId}.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Failed to trigger ranking for user {user.UserId}: {rankingResponse.StatusCode}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Failed to fetch events for user {user.UserId}: {fetchEventsResponse.StatusCode}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"User {user.UserId} has no location data; skipping event fetching and ranking.");
+                }
+
                 return Ok(new { Message = "Login successful!", userId = user.UserId });
             }
             catch (Exception ex)
             {
-                // Handle unexpected login errors.
                 Console.WriteLine($"Error logging in user: {ex.Message}");
                 return StatusCode(500, "An error occurred while logging in.");
             }
         }
 
+        
         // PUT endpoint: Updates user preferences and profile details.
         // Accepts optional fields; only updates the fields that are provided.
         [HttpPut("updatePreferences")]
