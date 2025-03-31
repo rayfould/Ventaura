@@ -190,6 +190,13 @@ namespace ventaura_backend.Controllers
         {
             try
             {
+                // Update LastActivity for the user
+                var user = await _dbContext.Users.FindAsync(userId);
+                if (user != null)
+                {
+                    user.LastActivity = DateTime.UtcNow;
+                    await _dbContext.SaveChangesAsync();
+                }
                 // Fetch the ranked CSV from UserSessionData
                 var userSessionData = await _dbContext.UserSessionData
                     .FirstOrDefaultAsync(u => u.UserId == userId && u.IsRanked == true);
@@ -200,6 +207,7 @@ namespace ventaura_backend.Controllers
                 }
 
                 Console.WriteLine($"Fetched ranked CSV for user {userId}.");
+                
 
                 // Return the CSV content as a string in the response body
                 return Ok(new { csv = userSessionData.RankedCSV });

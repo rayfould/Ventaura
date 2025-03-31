@@ -19,5 +19,6 @@ namespace ventaura_backend.Models
         public string PriceRange { get; set; } // Maps to "pricerange" column (nullable)
         public double? MaxDistance { get; set; } // Maps to "maxdistance" column (nullable)
         public bool IsLoggedIn { get; set; } = false; // Maps to "isloggedin" column with default value
+        public DateTime LastActivity { get; set; } 
     }
 }

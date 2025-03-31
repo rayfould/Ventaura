@@ -166,6 +166,7 @@ namespace ventaura_backend.Controllers
                 }
 
                 user.IsLoggedIn = true;
+                user.LastActivity = DateTime.UtcNow;
 
                 await _dbContext.SaveChangesAsync();
 
@@ -277,6 +278,8 @@ namespace ventaura_backend.Controllers
                     user.Longitude = updatedPreferences.Longitude;
                 }
 
+                //Update Last Activity for user
+                user.LastActivity = DateTime.UtcNow;
                 // Save the updated user information to the database.
                 _dbContext.Users.Update(user);
                 await _dbContext.SaveChangesAsync();

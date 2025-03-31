@@ -83,6 +83,9 @@ builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<GoogleGeocodingService>();
 builder.Services.AddHttpClient<YelpFusionService>();
 
+// Add SessionTimeoutService as a hosted service
+builder.Services.AddHostedService<SessionTimeoutService>();
+
 // Enable Swagger for API documentation and interactive testing of endpoints.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
