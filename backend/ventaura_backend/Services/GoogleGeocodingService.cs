@@ -71,14 +71,29 @@ namespace ventaura_backend.Services
             var requestUrl = $"https://maps.googleapis.com/maps/api/geocode/json?address={location}&key={apiKey}";
             var response = await _httpClient.GetAsync(requestUrl);
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                var data = await response.Content.ReadFromJsonAsync<GeocodeResponse>();
-                var coordinates = data.Results.FirstOrDefault()?.Geometry.Location;
-                return coordinates != null ? (coordinates.Lat, coordinates.Lng) : null;
+                Console.WriteLine($"Geocoding request failed for {location}. Status: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+                return null;
             }
 
-            return null;
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Geocoding response for {location}: {jsonResponse}"); // Log the full response
+            var data = JsonSerializer.Deserialize<GeocodeResponse>(jsonResponse);
+            if (data.Status != "OK")
+            {
+                Console.WriteLine($"Geocoding failed for {location}. Status: {data.Status}, Error: {data.ErrorMessage}");
+                return null;
+            }
+
+            var coordinates = data.Results.FirstOrDefault()?.Geometry.Location;
+            if (coordinates == null)
+            {
+                Console.WriteLine($"No coordinates found in response for {location}.");
+                return null;
+            }
+
+            return (coordinates.Lat, coordinates.Lng);
         }
     }
 }

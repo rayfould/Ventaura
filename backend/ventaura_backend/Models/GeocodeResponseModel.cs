@@ -19,6 +19,9 @@ public class GeocodeResponse
     [JsonPropertyName("status")]
     public string Status { get; set; }
 
+    [JsonPropertyName("error_message")] // Add this property
+    public string ErrorMessage { get; set; }
+
     // Represents a single geocoding result.
     public class Result
     {
