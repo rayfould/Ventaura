@@ -170,8 +170,8 @@ const handleSearch = async (e) => {
   }
 
   try {
-    const response = await axios.get('${API_BASE_URL}/api/global-events/search', { 
-      params: { 
+    const response = await axios.get(`${API_BASE_URL}/api/global-events/search`, {
+        params: { 
         city, 
         userId, 
         eventType: filters.eventType, 
