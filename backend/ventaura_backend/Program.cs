@@ -17,7 +17,8 @@ using Stripe.Checkout;
 using System.IO;
 
 // Loads environment variables from .env (used for Stripe keys, etc.)
-DotNetEnv.Env.Load();
+// Disable for prod, enable for dev
+//DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
