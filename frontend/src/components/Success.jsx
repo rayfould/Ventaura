@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 // Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
 import postEventStyles from '../styles//modules/postevent.module.css'; // New PostEvent-specific styles
+import { API_BASE_URL } from '../config';
 
 // Expanded list of event types
 const eventTypes = [
