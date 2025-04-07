@@ -186,16 +186,13 @@ const AddEvent = () => {
         </p>
         <div className={layoutStyles.gap}></div>
 
-        <form
-          className={formsStyles.form}
-          // Removed action and method attributes
-        >
+        <form action={`${API_BASE_URL}/api/create-checkout-session`} method="POST">
           <button 
-            type="button" // Added type="button" to prevent form submission
-            onClick={handleNavigateToSuccess} 
+            type="submit" 
+            role="link" 
             className={buttonStyles.primaryButton}
-            >
-              Make Payment
+          >
+            Make Payment
           </button>
         </form>
       </main>
