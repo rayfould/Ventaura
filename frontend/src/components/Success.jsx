@@ -43,7 +43,7 @@ const Success = () => {
   useEffect(() => {
     if (!window.google) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDTZmDpFxpxqflodFqCI5jN1nlY9k4Ch44&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&libraries=places`;      
       script.async = true;
       script.defer = true;
       document.body.appendChild(script);
