@@ -162,8 +162,13 @@ const EventCard = ({ event }) => {
         <p><strong>Distance:</strong> {formatDistance(event.distance)}</p>
         <p><strong>Location:</strong> {event.location || 'N/A'}</p>
         <p><strong>Price:</strong> {formatPrice(event.amount, event.currencyCode)}</p>
+        <p><strong>Event Source:</strong> {event.Source || 'N/A'}</p>
         <p>
-          <strong>Source:</strong> <a href={event.url} target="_blank" rel="noopener noreferrer">View Source</a>
+          {event.Source === "Host" ? (
+            <><strong>Contact Info:</strong> {event.url || 'N/A'}</>
+          ) : (
+            <><strong>Link:</strong> <a href={event.url} target="_blank" rel="noopener noreferrer">View Source</a></>
+          )}
         </p>
         <div className={modalStyles.footer}>
           <button className={modalStyles.actionButton} onClick={handleModalClose}>
