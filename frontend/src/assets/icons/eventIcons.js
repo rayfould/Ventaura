@@ -39,7 +39,7 @@ import Miscellaneous from './Miscellaneous.png';
 import Religious from './religious.png';
 
 
-
+//Icons
 const eventIcons = {
   'Baseball': Baseball,
   'Basketball': Basketball,
