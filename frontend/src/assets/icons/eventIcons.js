@@ -68,6 +68,7 @@ const eventIcons = {
   'Soccer': Soccer,
   'Tennis': Tennis,
   'Theater': Theatre,
+  'Theatre': Theatre,
   'Virtual': Virtual,
   'Visual Arts': VisualArts,
   'Wellness': Wellness,

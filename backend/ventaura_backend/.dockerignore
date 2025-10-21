@@ -1,0 +1,64 @@
+# Build artifacts
+bin/
+obj/
+out/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NuGet packages
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# IDE files
+.vscode/
+.vs/
+.idea/
+*.swp
+*.swo
+
+# Environment and secrets
+.env
+.env.*
+*.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+app.log
+
+# Deployment files
+fly.toml
+Dockerfile
+.dockerignore
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+
+# CSV and test files
+*.csv
+test.csv
+CsvFiles/
+
+# Migrations (optional - comment out if you need to include)
+# Migrations/
+

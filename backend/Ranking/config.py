@@ -8,7 +8,7 @@ import logging
 # Constants
 DEBUG_MODE = False
 DEEP_DEBUG = False
-BACKEND_URL = os.getenv("BACKEND_URL", "https://ventaura-backend-rayfould.fly.dev")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:5152")
 
 # Pricing and scoring configs
 PRICE_RANGES = {

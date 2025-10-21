@@ -9,6 +9,9 @@ import { useNavigate, Link, NavLink } from "react-router-dom";
 import { Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FaUserCircle, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa'; 
 
+// Import API configuration
+import { API_BASE_URL, RANKING_API_URL } from '../config';
+
 // Import specific CSS modules
 import layoutStyles from '../styles/layout.module.css';
 import buttonStyles from '../styles/modules/buttons.module.css';
@@ -117,7 +120,7 @@ const ForYou = () => {
       try {
         console.log("Calling Ranking API...");
         const rankingResponse = await axios.post(
-          `http://localhost:8000/rank-events/${userId}`, // FastAPI endpoint
+          `${RANKING_API_URL}/rank-events/${userId}`,
           null, // No body needed as per your C# controller
           {
             headers: {

@@ -15,16 +15,16 @@ from supabase import create_client, Client
 
 app = FastAPI(debug=True)
 
-# Configure CORS for Fly.io and local dev
+# Configure CORS for local Docker deployment
+# Allows communication between containers, host, and domain
 origins = [
-    "https://ventaura-backend-rayfould.fly.dev",
-    "https://ventaura-ranking-rayfould.fly.dev",
-    "http://localhost:5152",
-    "http://127.0.0.1:5152",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://ventaura.co",          # Production domain (via reverse proxy)
+    "http://backend:5152",         # C# backend (Docker network)
+    "http://ranking:8000",         # Python ranking (Docker network)
+    "http://frontend:3000",        # React frontend (Docker network)
+    "http://localhost:5152",       # C# backend (direct host access for debugging)
+    "http://localhost:8000",       # Python ranking (direct host access for debugging)
+    "http://localhost:3000",       # React frontend (direct host access for debugging)
 ]
 
 app.add_middleware(
@@ -163,7 +163,7 @@ async def rank_events(user_id: int) -> dict:
         unranked_csv = response.data[0]["rankedcsv"]
         row_id = response.data[0]["id"]
 
-        # Write CSV to temporary file (Fly.io's writable dir)
+        # Write CSV to temporary file
         with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv") as temp_file:
             temp_csv_path = temp_file.name
             temp_file.write(unranked_csv)
@@ -218,5 +218,5 @@ async def root():
     return {"message": "API is running"}
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 80))
+    port = int(os.getenv("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="debug")

@@ -1,6 +1,73 @@
-# flyctl launch added from .gitignore
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
 
-**\venv\Lib\site-packages\torch\lib\dnnl.lib
-**\venv\Lib\site-packages\torch\lib\torch_cpu.dll
-**\app.log
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Environment and secrets
+.env
+.env.*
+*.env
+
+# IDE files
+.vscode/
+.vs/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+app.log
+
+# Test files
+test/
+tests/
+*.test.py
+pytest.ini
+.pytest_cache/
+
+# Documentation
+README.md
+*.md
+
+# Deployment files
 fly.toml
+Dockerfile
+.dockerignore
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Jupyter notebooks (if any)
+*.ipynb
+.ipynb_checkpoints/
+
+# CSV and data files (optional - comment out if needed)
+*.csv
+data/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml

@@ -25,9 +25,13 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     Args = args,
     WebRootPath = "wwwroot" // Optional, for later static files
 });
+
+// Configure Kestrel to listen on the port specified by ASPNETCORE_URLS environment variable
+// Default to port 5152 if not specified
+var port = Environment.GetEnvironmentVariable("BACKEND_PORT") ?? "5152";
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(80); 
+    options.ListenAnyIP(int.Parse(port)); 
 });
 
 // Configure Stripe options by loading environment variables.
@@ -91,10 +95,11 @@ builder.Services.AddHostedService<SessionTimeoutService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register a named HttpClient for the RankingAPI with a specified base address.
+// Register a named HttpClient for the RankingAPI with base address from environment variable
+var rankingUrl = Environment.GetEnvironmentVariable("RANKING_BACKEND_URL") ?? "http://ranking:8000";
 builder.Services.AddHttpClient("RankingAPI", client =>
 {
-    client.BaseAddress = new Uri("https://ventaura-ranking-rayfould.fly.dev");
+    client.BaseAddress = new Uri(rankingUrl);
 });
 
 // Register the RankingService for event ranking logic.
@@ -139,6 +144,9 @@ if (app.Environment.IsDevelopment())
 // Define a GET endpoint to redirect the root ("/") to "index.html".
 app.MapGet("/", () => Results.Redirect("index.html"));
 
+// Health check endpoint for Docker health monitoring
+app.MapGet("/api/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+
 // Retrieve details of a Stripe checkout session by ID.
 app.MapGet("checkout-session", async (string sessionId) =>
 {
@@ -170,9 +178,6 @@ app.MapPost("/api/create-checkout-session", async (IOptions<StripeOptions> optio
     context.Response.Headers.Add("Location", session.Url);
     return Results.StatusCode(303); // Redirect to the Stripe hosted checkout page.
 });
-
-// Use the React-specific CORS policy if needed.
-app.UseCors("AllowReactApp");
 
 // Enable endpoint routing and authorization middleware.
 app.UseRouting();

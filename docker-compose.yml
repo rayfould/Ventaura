@@ -1,0 +1,127 @@
+version: '3.8'
+
+services:
+  # =============================================================================
+  # C# ASP.NET Core Backend Service
+  # =============================================================================
+  backend:
+    build:
+      context: ./backend/ventaura_backend
+      dockerfile: Dockerfile
+    container_name: ventaura_backend
+    ports:
+      - "${BACKEND_PORT:-5152}:5152"
+    environment:
+      # Service URLs
+      - BACKEND_PORT=${BACKEND_PORT:-5152}
+      - C_SHARP_BACKEND_URL=${C_SHARP_BACKEND_URL:-http://backend:5152}
+      - RANKING_BACKEND_URL=${RANKING_BACKEND_URL:-http://ranking:8000}
+      - DOMAIN=${DOMAIN:-http://ventaura.co}
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS:-http://0.0.0.0:5152}
+      
+      # Database Configuration
+      - ConnectionStrings__DefaultConnection=${ConnectionStrings__DefaultConnection}
+      
+      # Stripe Payment
+      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - PRICE=${PRICE}
+      
+      # External API Keys (ASP.NET Core Configuration format)
+      - Ticketmaster__ApiKey=${Ticketmaster__ApiKey}
+      - Amadeus__ApiKey=${Amadeus__ApiKey}
+      - Amadeus__ApiSecret=${Amadeus__ApiSecret}
+      - Google__ApiKey=${Google__ApiKey}
+      - Yelp__ApiKey=${Yelp__ApiKey}
+      
+      # Application Settings
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
+    networks:
+      - ventaura_network
+    depends_on:
+      - ranking
+    restart: unless-stopped
+    # healthcheck:
+    #   test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5152/api/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
+
+  # =============================================================================
+  # Python FastAPI Ranking Service
+  # =============================================================================
+  ranking:
+    build:
+      context: ./backend/Ranking
+      dockerfile: Dockerfile
+    container_name: ventaura_ranking
+    ports:
+      - "${RANKING_PORT:-8000}:8000"
+    environment:
+      # Service URLs
+      - PORT=${PORT:-8000}
+      - C_SHARP_BACKEND_URL=${C_SHARP_BACKEND_URL:-http://backend:5152}
+      - BACKEND_URL=${BACKEND_URL:-http://backend:5152}
+      
+      # Database Configuration (Supabase - temporary)
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      
+      # Application Settings
+      - PYTHONUNBUFFERED=${PYTHONUNBUFFERED:-1}
+    networks:
+      - ventaura_network
+    restart: unless-stopped
+    # healthcheck:
+    #   test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8000/test"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
+
+  # =============================================================================
+  # React Frontend Service
+  # =============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=${REACT_APP_API_URL:-http://ventaura.co}
+        - REACT_APP_RANKING_URL=${REACT_APP_RANKING_URL:-http://ventaura.co}
+    container_name: ventaura_frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - ventaura_network
+    depends_on:
+      - backend
+      - ranking
+    restart: unless-stopped
+    # healthcheck:
+    #   test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
+
+# =============================================================================
+# Docker Networks
+# =============================================================================
+networks:
+  ventaura_network:
+    driver: bridge
+    name: ventaura_network
+
+# =============================================================================
+# Volumes (for future use - local database, persistent data)
+# =============================================================================
+volumes:
+  # Placeholder for future local database
+  postgres_data:
+    name: ventaura_postgres_data
+

@@ -175,9 +175,9 @@ namespace ventaura_backend.Controllers
                 // Fetch events for the user
                 if (user.Latitude.HasValue && user.Longitude.HasValue)
                 {
-                    // Use environment variables for base URLs, with defaults for dev
-                    var cSharpBackendUrl = Environment.GetEnvironmentVariable("C_SHARP_BACKEND_URL") ?? "http://localhost:80";
-                    var rankingBackendUrl = Environment.GetEnvironmentVariable("RANKING_BACKEND_URL") ?? "http://localhost:8000";
+                    // Use environment variables for base URLs, with defaults for Docker
+                    var cSharpBackendUrl = Environment.GetEnvironmentVariable("C_SHARP_BACKEND_URL") ?? "http://backend:5152";
+                    var rankingBackendUrl = Environment.GetEnvironmentVariable("RANKING_BACKEND_URL") ?? "http://ranking:8000";
 
                     // Debug log to print the URLs being used
                     Console.WriteLine($"DEBUG: cSharpBackendUrl={cSharpBackendUrl}, rankingBackendUrl={rankingBackendUrl}");
@@ -310,9 +310,9 @@ namespace ventaura_backend.Controllers
                     return Ok(new { Message = "User information updated, but no events available to re-rank." });
                 }
 
-                // Use environment variables for base URLs, with defaults for dev
-                var cSharpBackendUrl = Environment.GetEnvironmentVariable("C_SHARP_BACKEND_URL") ?? "http://localhost:80";
-                var rankingBackendUrl = Environment.GetEnvironmentVariable("RANKING_BACKEND_URL") ?? "http://localhost:8000";
+                // Use environment variables for base URLs, with defaults for Docker
+                var cSharpBackendUrl = Environment.GetEnvironmentVariable("C_SHARP_BACKEND_URL") ?? "http://backend:5152";
+                var rankingBackendUrl = Environment.GetEnvironmentVariable("RANKING_BACKEND_URL") ?? "http://ranking:8000";
 
                 // Trigger re-ranking of existing events without re-fetching
                 Console.WriteLine($"Triggering re-ranking for user {user.UserId} after preferences update...");
